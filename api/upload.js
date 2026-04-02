@@ -263,152 +263,77 @@ module.exports = async function handler(req, res) {
       }
 
       if (target === 'companies') {
-        // CSV is the file of record: add new, update existing, remove absent.
-        const mapped = parsed.rows.map(r => mapCompanyRow(r)).filter(r => r.company_name);
+        // CSV replaces all existing data.
+        var mapped = parsed.rows.map(r => mapCompanyRow(r)).filter(r => r.company_name);
 
-        // Build a lookup of CSV companies by name (lowercase, trimmed)
-        const csvCompanyNames = new Set();
-        mapped.forEach(r => csvCompanyNames.add(r.company_name.toLowerCase().trim()));
-
-        // Get all existing companies
-        const { data: existing } = await sb.from('companies').select('id, company_name');
-        const existingLookup = {};
-        let maxId = 0;
-        (existing || []).forEach(function (c) {
-          existingLookup[c.company_name.toLowerCase().trim()] = c.id;
-          if (c.id > maxId) maxId = c.id;
-        });
-
-        let inserted = 0;
-        let updated = 0;
-        let removed = 0;
-
-        // Separate into new vs existing
-        const toInsert = [];
-        const toUpdate = [];
+        // Deduplicate by company name (keep first occurrence)
+        var seen = {};
+        var unique = [];
         mapped.forEach(function (row) {
-          const nameKey = row.company_name.toLowerCase().trim();
-          const existingId = existingLookup[nameKey];
-          if (existingId) {
-            row.id = existingId;
-            toUpdate.push(row);
-          } else {
-            // Always assign a fresh id for new companies to avoid PK collisions
-            maxId++;
-            row.id = maxId;
-            toInsert.push(row);
+          var nameKey = row.company_name.toLowerCase().trim();
+          if (!seen[nameKey]) {
+            seen[nameKey] = true;
+            unique.push(row);
           }
         });
 
-        // Update existing companies with latest CSV data
-        for (let i = 0; i < toUpdate.length; i++) {
-          const row = toUpdate[i];
-          const id = row.id;
-          delete row.id; // don't include id in the update payload
-          const { error: updErr } = await sb.from('companies').update(row).eq('id', id);
-          if (updErr) throw new Error('Update company id=' + id + ' failed: ' + updErr.message);
-          row.id = id; // restore for reference
-          updated++;
-        }
+        // Assign sequential IDs
+        unique.forEach(function (row, idx) {
+          row.id = idx + 1;
+        });
 
-        // Upsert new companies in batches (handles id conflicts from CSV)
-        for (let i = 0; i < toInsert.length; i += 50) {
-          const batch = toInsert.slice(i, i + 50);
-          const { error: insErr } = await sb.from('companies').insert(batch);
+        // Delete all event_participations first (FK constraint), then all companies
+        var { error: epErr } = await sb.from('event_participations').delete().neq('id', 0);
+        if (epErr) throw new Error('Delete event_participations failed: ' + epErr.message);
+        var { error: delErr } = await sb.from('companies').delete().neq('id', 0);
+        if (delErr) throw new Error('Delete companies failed: ' + delErr.message);
+
+        // Insert all companies in batches
+        var inserted = 0;
+        for (var i = 0; i < unique.length; i += 50) {
+          var batch = unique.slice(i, i + 50);
+          var { error: insErr } = await sb.from('companies').insert(batch);
           if (insErr) throw new Error('Insert batch ' + i + ' failed: ' + insErr.message);
           inserted += batch.length;
         }
 
-        // Remove companies that are in the DB but NOT in the CSV
-        const toRemoveIds = (existing || [])
-          .filter(c => !csvCompanyNames.has(c.company_name.toLowerCase().trim()))
-          .map(c => c.id);
-
-        if (toRemoveIds.length > 0) {
-          // First delete their event_participations (FK constraint)
-          for (let i = 0; i < toRemoveIds.length; i += 50) {
-            const batch = toRemoveIds.slice(i, i + 50);
-            await sb.from('event_participations').delete().in('company_id', batch);
-          }
-          // Then delete the companies themselves
-          for (let i = 0; i < toRemoveIds.length; i += 50) {
-            const batch = toRemoveIds.slice(i, i + 50);
-            const { error: rmErr } = await sb.from('companies').delete().in('id', batch);
-            if (rmErr) throw new Error('Remove absent companies failed: ' + rmErr.message);
-            removed += batch.length;
-          }
-        }
-
-        var msg = 'Companies synced: ' + inserted + ' added, ' + updated + ' updated, ' + removed + ' removed from ' + parsed.rows.length + ' CSV rows.';
+        var msg = 'Companies replaced: ' + inserted + ' companies from ' + parsed.rows.length + ' CSV rows.';
         return res.status(200).json({ ok: true, message: msg });
 
       } else {
-        // Event upload — CSV is the file of record.
-        // This means: add new companies, update existing companies, and remove
-        // companies that are no longer referenced by ANY event.
-        const eventCode = target === 'mfe26' ? 'MFE26' : 'MFA26';
-        const otherEventCode = eventCode === 'MFE26' ? 'MFA26' : 'MFE26';
+        // Event upload — CSV replaces all participations for this event.
+        // Companies referenced in the CSV are matched by name or auto-created.
+        var eventCode = target === 'mfe26' ? 'MFE26' : 'MFA26';
 
         // Delete existing event_participations for this event
-        const { error: delErr } = await sb.from('event_participations').delete().eq('event_code', eventCode);
-        if (delErr) throw new Error('Delete failed: ' + delErr.message);
+        var { error: epDelErr } = await sb.from('event_participations').delete().eq('event_code', eventCode);
+        if (epDelErr) throw new Error('Delete failed: ' + epDelErr.message);
 
         // Fetch all current companies for lookup
-        const { data: companies } = await sb.from('companies').select('id, company_name');
-        const companyLookup = {};
-        let maxId = 0;
+        var { data: companies } = await sb.from('companies').select('id, company_name');
+        var companyLookup = {};
+        var maxId = 0;
         (companies || []).forEach(function (c) {
           companyLookup[c.company_name.toLowerCase().trim()] = c.id;
           if (c.id > maxId) maxId = c.id;
         });
 
         // Map rows and assign company_id
-        const mapped = parsed.rows.map(function (r) {
-          const row = mapEventRow(r, eventCode);
-          const nameKey = (row.company_name || '').toLowerCase().trim();
+        var mapped = parsed.rows.map(function (r) {
+          var row = mapEventRow(r, eventCode);
+          var nameKey = (row.company_name || '').toLowerCase().trim();
           row.company_id = companyLookup[nameKey] || null;
           return row;
-        }).filter(r => r.company_name);
+        }).filter(function (r) { return r.company_name; });
 
-        // --- UPDATE existing companies with latest CSV data ---
-        const matched = mapped.filter(r => r.company_id);
-        let updated = 0;
-        for (let i = 0; i < matched.length; i++) {
-          const r = matched[i];
-          const updateData = {};
-          if (r.company_status) updateData.company_status = r.company_status;
-          if (r.primary_mineral) updateData.primary_mineral = r.primary_mineral;
-          if (r.primary_country) updateData.primary_country = r.primary_country;
-          if (r.primary_region) updateData.primary_region = r.primary_region;
-          if (r.primary_subregion) updateData.primary_subregion = r.primary_subregion;
-          if (r.primary_stock_exchange) updateData.primary_stock_exchange = r.primary_stock_exchange;
-          if (r.stock_symbol) updateData.stock_symbol = r.stock_symbol;
-          if (r.ticker) updateData.ticker = r.ticker;
-          if (r.currency) updateData.currency = r.currency;
-          if (r.stock_price_usd != null) updateData.stock_price_usd = r.stock_price_usd;
-          if (r.fifty_two_week_range) updateData.fifty_two_week_range = r.fifty_two_week_range;
-          if (r.one_year_return) updateData.one_year_return = r.one_year_return;
-          if (r.market_cap_display) updateData.market_cap_display = r.market_cap_display;
-          if (r.market_cap_usd != null) updateData.market_cap_usd = r.market_cap_usd;
-          if (r.production_low != null) updateData.production_low = r.production_low;
-          if (r.production_high != null) updateData.production_high = r.production_high;
-          if (r.reserves != null) updateData.reserves = r.reserves;
-          if (r.resources != null) updateData.resources = r.resources;
-          if (r.profile_url) updateData.profile_url = r.profile_url;
-          if (Object.keys(updateData).length > 0) {
-            const { error: updErr } = await sb.from('companies').update(updateData).eq('id', r.company_id);
-            if (!updErr) updated++;
-          }
-        }
-
-        // --- ADD new companies that aren't in the companies table ---
-        const unmatched = mapped.filter(r => !r.company_id);
-        let created = 0;
+        // Auto-create companies not in the companies table
+        var unmatched = mapped.filter(function (r) { return !r.company_id; });
+        var created = 0;
         if (unmatched.length > 0) {
-          const seen = {};
-          const newCompanies = [];
+          var seen = {};
+          var newCompanies = [];
           unmatched.forEach(function (r) {
-            const nameKey = r.company_name.toLowerCase().trim();
+            var nameKey = r.company_name.toLowerCase().trim();
             if (seen[nameKey]) return;
             seen[nameKey] = true;
             maxId++;
@@ -437,9 +362,9 @@ module.exports = async function handler(req, res) {
             });
           });
 
-          for (let i = 0; i < newCompanies.length; i += 50) {
-            const batch = newCompanies.slice(i, i + 50);
-            const { error: compErr } = await sb.from('companies').insert(batch);
+          for (var i = 0; i < newCompanies.length; i += 50) {
+            var batch = newCompanies.slice(i, i + 50);
+            var { error: compErr } = await sb.from('companies').insert(batch);
             if (compErr) throw new Error('Auto-create companies failed: ' + compErr.message);
             created += batch.length;
           }
@@ -449,56 +374,23 @@ module.exports = async function handler(req, res) {
           });
 
           unmatched.forEach(function (r) {
-            const nameKey = r.company_name.toLowerCase().trim();
-            r.company_id = companyLookup[nameKey];
+            r.company_id = companyLookup[r.company_name.toLowerCase().trim()];
           });
         }
 
-        // All rows should now have company_id
-        const ready = mapped.filter(r => r.company_id);
-
-        // Insert event rows in batches of 50
-        let inserted = 0;
-        for (let i = 0; i < ready.length; i += 50) {
-          const batch = ready.slice(i, i + 50);
-          const { error: insErr } = await sb.from('event_participations').insert(batch);
+        // Insert event rows in batches
+        var ready = mapped.filter(function (r) { return r.company_id; });
+        var inserted = 0;
+        for (var i = 0; i < ready.length; i += 50) {
+          var batch = ready.slice(i, i + 50);
+          var { error: insErr } = await sb.from('event_participations').insert(batch);
           if (insErr) throw new Error('Insert batch ' + i + ' failed: ' + insErr.message);
           inserted += batch.length;
         }
 
-        // --- REMOVE orphaned companies ---
-        // A company is orphaned if it is not referenced by ANY event_participation
-        // (across all events, not just the one being uploaded).
-        const { data: referencedRows } = await sb
-          .from('event_participations')
-          .select('company_id');
-        const referencedIds = new Set((referencedRows || []).map(r => r.company_id).filter(Boolean));
-
-        const { data: allCompanies } = await sb.from('companies').select('id');
-        const orphanIds = (allCompanies || [])
-          .map(c => c.id)
-          .filter(id => !referencedIds.has(id));
-
-        let removed = 0;
-        if (orphanIds.length > 0) {
-          for (let i = 0; i < orphanIds.length; i += 50) {
-            const batch = orphanIds.slice(i, i + 50);
-            const { error: rmErr } = await sb.from('companies').delete().in('id', batch);
-            if (rmErr) throw new Error('Remove orphaned companies failed: ' + rmErr.message);
-            removed += batch.length;
-          }
-        }
-
-        var msg = eventCode + ' replaced: ' + inserted + ' rows inserted.';
-        if (updated > 0) {
-          msg += ' Updated ' + updated + ' existing companies with latest data.';
-        }
+        var msg = eventCode + ' replaced: ' + inserted + ' participations from ' + parsed.rows.length + ' CSV rows.';
         if (created > 0) {
-          msg += ' Added ' + created + ' new companies: ' +
-            unmatched.map(function(r) { return r.company_name; }).filter(function(v, i, a) { return a.indexOf(v) === i; }).join(', ') + '.';
-        }
-        if (removed > 0) {
-          msg += ' Removed ' + removed + ' companies no longer in any event.';
+          msg += ' Auto-created ' + created + ' new companies.';
         }
 
         return res.status(200).json({ ok: true, message: msg });
