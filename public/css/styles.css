@@ -631,6 +631,17 @@ body {
   max-height: 320px;
 }
 
+/* C-Suite dots in All Companies table */
+.csuite-dot {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: #D4A017;
+  margin: 0 2px;
+  vertical-align: middle;
+}
+
 /* =========================================================
    SOLITAIRE CARD LAYOUT
    ========================================================= */

@@ -209,16 +209,20 @@ module.exports = async function handler(req, res) {
   if (req.method === 'GET') {
     try {
       const sb = getSupabase();
-      const [c, mfe, mfa] = await Promise.all([
+      const [c, mfe, mfa, amfe, amfa] = await Promise.all([
         sb.from('companies').select('id', { count: 'exact', head: true }),
         sb.from('event_participations').select('id', { count: 'exact', head: true }).eq('event_code', 'MFE26'),
-        sb.from('event_participations').select('id', { count: 'exact', head: true }).eq('event_code', 'MFA26')
+        sb.from('event_participations').select('id', { count: 'exact', head: true }).eq('event_code', 'MFA26'),
+        sb.from('attendees').select('id', { count: 'exact', head: true }).eq('event_code', 'MFE26'),
+        sb.from('attendees').select('id', { count: 'exact', head: true }).eq('event_code', 'MFA26')
       ]);
       return res.status(200).json({
         ok: true,
         companies: c.count || 0,
         mfe26: mfe.count || 0,
-        mfa26: mfa.count || 0
+        mfa26: mfa.count || 0,
+        mfe26_attendees: amfe.count || 0,
+        mfa26_attendees: amfa.count || 0
       });
     } catch (err) {
       return res.status(500).json({ ok: false, error: err.message });
@@ -240,6 +244,11 @@ module.exports = async function handler(req, res) {
           const { error } = await sb.from('companies').delete().neq('id', 0);
           if (error) throw error;
           return res.status(200).json({ ok: true, message: 'All companies and event participations deleted.' });
+        } else if (target === 'mfe26-attendees' || target === 'mfa26-attendees') {
+          const code = target === 'mfe26-attendees' ? 'MFE26' : 'MFA26';
+          const { error } = await sb.from('attendees').delete().eq('event_code', code);
+          if (error) throw error;
+          return res.status(200).json({ ok: true, message: code + ' attendees deleted.' });
         } else {
           const code = target === 'mfe26' ? 'MFE26' : 'MFA26';
           const { error } = await sb.from('event_participations').delete().eq('event_code', code);
@@ -394,6 +403,42 @@ module.exports = async function handler(req, res) {
         }
 
         return res.status(200).json({ ok: true, message: msg });
+
+      } else if (target === 'mfe26-attendees' || target === 'mfa26-attendees') {
+        // Attendees upload — delete and replace for this event
+        var attendeeCode = target === 'mfe26-attendees' ? 'MFE26' : 'MFA26';
+
+        var { error: attDelErr } = await sb.from('attendees').delete().eq('event_code', attendeeCode);
+        if (attDelErr) throw new Error('Delete attendees failed: ' + attDelErr.message);
+
+        var attRows = parsed.rows.map(function(r) {
+          return {
+            event_code: attendeeCode,
+            contact_id: r.id || '',
+            first_name: r.first_name || '',
+            last_name: r.last_name || '',
+            company: r.company || '',
+            job_title: r.job_title || '',
+            city: r.city || '',
+            country: r.country || '',
+            type: r.type || '',
+            category: r.category || '',
+            subcategory: r.subcategory || '',
+            member_id: r.member_id || '',
+            attendance: r.attendance || '',
+            accepted_date: r.accepted_date || ''
+          };
+        }).filter(function(r) { return r.type && r.type !== 'Staff'; });
+
+        var attInserted = 0;
+        for (var i = 0; i < attRows.length; i += 50) {
+          var batch = attRows.slice(i, i + 50);
+          var { error: attInsErr } = await sb.from('attendees').insert(batch);
+          if (attInsErr) throw new Error('Insert attendees batch ' + i + ' failed: ' + attInsErr.message);
+          attInserted += batch.length;
+        }
+
+        return res.status(200).json({ ok: true, message: attendeeCode + ' attendees replaced: ' + attInserted + ' records from ' + parsed.rows.length + ' CSV rows.' });
       }
 
     } catch (err) {

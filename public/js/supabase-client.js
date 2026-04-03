@@ -187,6 +187,61 @@ function getFlag(country) {
   return COUNTRY_FLAGS[country] || '🌐';
 }
 
+// Fetch attendees by event code
+async function fetchAttendees(eventCode) {
+  if (!sb) { console.error('Supabase client not initialized'); return []; }
+  try {
+    const { data, error } = await sb
+      .from('attendees')
+      .select('*')
+      .eq('event_code', eventCode)
+      .order('last_name', { ascending: true });
+    if (error) { console.error('Error fetching attendees:', error); return []; }
+    return data || [];
+  } catch (err) {
+    console.error('fetchAttendees exception:', err);
+    return [];
+  }
+}
+
+// C-Suite job title detection
+var CSUITE_PATTERNS = [
+  /\bchairm(an|en|person)\b/i,
+  /\bexecutive\s+chairman\b/i,
+  /\b(chief|c)([\s\-]?)(executive|financial|operating|strategy|technical|commercial)\b/i,
+  /\bCEO\b/, /\bCFO\b/, /\bCOO\b/, /\bCTO\b/, /\bCSO\b/,
+  /\bpresident\s*(&|and)?\s*(CEO|chief)\b/i,
+  /\bpresident$|\bpresident\s*[,&]/i,
+  /\b(EVP|SVP|executive\s+vice[\s\-]president|senior\s+vice[\s\-]president)\b/i,
+  /\bmanaging\s+director\b/i
+];
+
+function isCsuite(jobTitle) {
+  if (!jobTitle) return false;
+  return CSUITE_PATTERNS.some(function(p) { return p.test(jobTitle); });
+}
+
+// Map attendee country to region
+var ATTENDEE_COUNTRY_REGION = {
+  'Canada': 'North America', 'United States': 'North America', 'Mexico': 'Latin America',
+  'Colombia': 'Latin America', 'Suriname': 'Latin America',
+  'United Kingdom': 'Europe', 'France': 'Europe', 'Germany': 'Europe',
+  'Switzerland': 'Europe', 'Netherlands': 'Europe', 'Belgium': 'Europe',
+  'Spain': 'Europe', 'Italy': 'Europe', 'Norway': 'Europe', 'Denmark': 'Europe',
+  'Ireland': 'Europe', 'Estonia': 'Europe', 'Luxembourg': 'Europe',
+  'Monaco': 'Europe', 'Liechtenstein': 'Europe',
+  'Australia': 'Australasia',
+  'South Africa': 'Africa',
+  'Hong Kong': 'Asia', 'Singapore': 'Asia', 'India': 'Asia', 'Kazakhstan': 'Asia',
+  'Israel': 'Middle East', 'United Arab Emirates': 'Middle East',
+  'Türkiye': 'Europe', 'Turkey': 'Europe',
+  'Cayman Islands': 'Other'
+};
+
+function getAttendeeRegion(country) {
+  return ATTENDEE_COUNTRY_REGION[country] || 'Other';
+}
+
 // Group data by a field
 function groupBy(arr, field) {
   const groups = {};

@@ -2,7 +2,19 @@
 
 var _allCoSort = { col: 'market_cap_usd', dir: 'desc' };
 
-function renderAllCompanies(companies, cfg) {
+function renderAllCompanies(companies, cfg, attendees) {
+  // Build C-Suite lookup: company name (lowercase) -> count
+  var csuiteLookup = {};
+  if (attendees && attendees.length) {
+    attendees.filter(function(a) { return a.type === 'Delegate'; }).forEach(function(a) {
+      if (isCsuite(a.job_title)) {
+        var key = (a.company || '').toLowerCase().trim();
+        if (key) csuiteLookup[key] = (csuiteLookup[key] || 0) + 1;
+      }
+    });
+  }
+  var hasCsuite = Object.keys(csuiteLookup).length > 0;
+
   var html = statsRow(companies, cfg.keyColor);
   html += mineralLegendInteractive(companies);
   html += statusFilterInteractive(companies);
@@ -27,6 +39,9 @@ function renderAllCompanies(companies, cfg) {
     { key: 'reserves',           label: 'Reserves',    align: 'right', sortable: true },
     { key: 'resources',          label: 'Resources',   align: 'right', sortable: true }
   ];
+  if (hasCsuite) {
+    cols.push({ key: 'csuite', label: 'C-Suite', align: 'center', sortable: true });
+  }
 
   cols.forEach(function(col) {
     var cls = col.align === 'right' ? ' class="r"' : '';
@@ -68,6 +83,14 @@ function renderAllCompanies(companies, cfg) {
     html += '<td class="numeric">' + (prodMid > 0 ? formatNum(Math.round(prodMid)) : '&mdash;') + '</td>';
     html += '<td class="numeric">' + (c.reserves ? c.reserves : '&mdash;') + '</td>';
     html += '<td class="numeric">' + (c.resources ? c.resources : '&mdash;') + '</td>';
+    if (hasCsuite) {
+      var csuiteCount = csuiteLookup[c.company_name.toLowerCase().trim()] || 0;
+      var dots = '';
+      for (var d = 0; d < csuiteCount; d++) {
+        dots += '<span class="csuite-dot" title="C-Suite attendee"></span>';
+      }
+      html += '<td style="text-align:center;white-space:nowrap">' + (csuiteCount > 0 ? dots : '&mdash;') + '</td>';
+    }
     html += '</tr>';
   });
 

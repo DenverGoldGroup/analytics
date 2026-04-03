@@ -265,6 +265,14 @@
           <div class="stat-num" id="stat-mfa" style="color:#1A237E">—</div>
           <div class="stat-lbl">MFA26 Participants</div>
         </div>
+        <div class="stat-card">
+          <div class="stat-num" id="stat-mfe-attendees" style="color:#1B5E20">—</div>
+          <div class="stat-lbl">MFE26 Attendees</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-num" id="stat-mfa-attendees" style="color:#1A237E">—</div>
+          <div class="stat-lbl">MFA26 Attendees</div>
+        </div>
       </div>
 
       <!-- Upload: Companies CSV -->
@@ -318,6 +326,40 @@
         <div class="upload-result" id="mfa26-result"></div>
       </div>
 
+      <!-- Upload: MFE26 Attendees CSV -->
+      <div class="upload-section">
+        <h3>Upload MFE26 Attendees CSV</h3>
+        <div class="desc">Replace <strong>Mining Forum Europe 2026</strong> attendee contacts (delegates, participants, speakers). Staff rows are excluded automatically.</div>
+        <div class="upload-row">
+          <div class="file-input-wrap">
+            <input type="file" id="mfe26-attendees-file" accept=".csv">
+          </div>
+          <button class="btn btn-gold" id="mfe26-attendees-upload-btn" onclick="uploadCSV('mfe26-attendees')" disabled>Upload MFE26 Attendees</button>
+        </div>
+        <div class="upload-progress" id="mfe26-attendees-progress">
+          <div class="progress-bar"><div class="progress-fill" id="mfe26-attendees-progress-fill"></div></div>
+          <div class="progress-text" id="mfe26-attendees-progress-text">Uploading...</div>
+        </div>
+        <div class="upload-result" id="mfe26-attendees-result"></div>
+      </div>
+
+      <!-- Upload: MFA26 Attendees CSV -->
+      <div class="upload-section">
+        <h3>Upload MFA26 Attendees CSV</h3>
+        <div class="desc">Replace <strong>Mining Forum Americas 2026</strong> attendee contacts (delegates, participants, speakers). Staff rows are excluded automatically.</div>
+        <div class="upload-row">
+          <div class="file-input-wrap">
+            <input type="file" id="mfa26-attendees-file" accept=".csv">
+          </div>
+          <button class="btn btn-gold" id="mfa26-attendees-upload-btn" onclick="uploadCSV('mfa26-attendees')" disabled>Upload MFA26 Attendees</button>
+        </div>
+        <div class="upload-progress" id="mfa26-attendees-progress">
+          <div class="progress-bar"><div class="progress-fill" id="mfa26-attendees-progress-fill"></div></div>
+          <div class="progress-text" id="mfa26-attendees-progress-text">Uploading...</div>
+        </div>
+        <div class="upload-result" id="mfa26-attendees-result"></div>
+      </div>
+
       <!-- Danger zone -->
       <div class="upload-section" style="border:2px solid #FADBD8">
         <h3 style="color:#E74C3C">Danger Zone</h3>
@@ -341,7 +383,7 @@
     if (adminToken) showDashboard();
 
     // Enable upload buttons when file selected
-    ['companies', 'mfe26', 'mfa26'].forEach(function(t) {
+    ['companies', 'mfe26', 'mfa26', 'mfe26-attendees', 'mfa26-attendees'].forEach(function(t) {
       document.getElementById(t + '-file').addEventListener('change', function() {
         document.getElementById(t + '-upload-btn').disabled = !this.files.length;
       });
@@ -401,6 +443,8 @@
           document.getElementById('stat-companies').textContent = data.companies || 0;
           document.getElementById('stat-mfe').textContent = data.mfe26 || 0;
           document.getElementById('stat-mfa').textContent = data.mfa26 || 0;
+          document.getElementById('stat-mfe-attendees').textContent = data.mfe26_attendees || 0;
+          document.getElementById('stat-mfa-attendees').textContent = data.mfa26_attendees || 0;
         }
       } catch (err) {
         console.error('Stats error:', err);

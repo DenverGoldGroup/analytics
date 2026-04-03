@@ -6,6 +6,7 @@
   var currentSection = 'dgg';
   var currentView = 'overview';
   var dataCache = {};
+  var attendeesCache = {};
   var activeFilters = {
     mineral: null,
     status: null,
@@ -153,6 +154,7 @@
       } else {
         var code = section === 'mfe' ? 'MFE26' : 'MFA26';
         dataCache[section] = await fetchEventParticipations(code);
+        attendeesCache[section] = await fetchAttendees(code);
       }
     }
 
@@ -204,6 +206,10 @@
       if (currentView === 'overview') {
         container.innerHTML = renderOverview(companies, cfg);
         initOverviewCharts(companies, cfg);
+      } else if (currentView === 'attendees') {
+        var attendees = attendeesCache[currentSection] || [];
+        container.innerHTML = renderAttendees(attendees, cfg);
+        initAttendeesCharts(cfg);
       } else if (currentView === 'solitaire-mineral') {
         container.innerHTML = renderSolitaireByMineral(companies, cfg);
       } else if (currentView === 'solitaire-status') {
@@ -211,7 +217,8 @@
       } else if (currentView === 'solitaire-country') {
         container.innerHTML = renderSolitaireByCountry(companies, cfg);
       } else if (currentView === 'all-companies') {
-        container.innerHTML = renderAllCompanies(companies, cfg);
+        var sectionAttendees = attendeesCache[currentSection] || [];
+        container.innerHTML = renderAllCompanies(companies, cfg, sectionAttendees);
         attachAllCompaniesSort();
       } else if (currentView === 'flat-rank') {
         container.innerHTML = renderFlatRank(companies, cfg);
