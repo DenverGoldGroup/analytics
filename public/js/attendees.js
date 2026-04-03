@@ -43,7 +43,7 @@ function renderAttendees(attendees, cfg) {
   html += '</div>';
 
   // Row 2: two bar charts
-  html += '<div class="section-title">Geography (projected)</div>';
+  html += '<div class="section-title">Geography</div>';
   html += '<div class="chart-grid" style="grid-template-columns:1fr 1fr">';
 
   // Country bar
@@ -51,7 +51,7 @@ function renderAttendees(attendees, cfg) {
   all.forEach(function(a) { if (a.country) byCountry[a.country] = (byCountry[a.country] || 0) + 1; });
   var countrySorted = Object.entries(byCountry).sort(function(a, b) { return b[1] - a[1]; });
   var countryBarH = Math.max(300, countrySorted.length * 24 + 60);
-  html += '<div class="chart-card"><h3>Attendees by Country <span style="font-size:10px;color:#95A5A6">(×1.11 projected)</span></h3>';
+  html += '<div class="chart-card"><h3>Attendees by Country <span style="font-size:10px;color:#95A5A6"></h3>';
   html += '<div style="height:' + countryBarH + 'px"><canvas id="att-chart-country"></canvas></div></div>';
 
   // Region bar
@@ -62,7 +62,7 @@ function renderAttendees(attendees, cfg) {
   });
   var regionSorted = Object.entries(byRegion).sort(function(a, b) { return b[1] - a[1]; });
   var regionBarH = Math.max(200, regionSorted.length * 36 + 60);
-  html += '<div class="chart-card"><h3>Attendees by Region <span style="font-size:10px;color:#95A5A6">(×1.11 projected)</span></h3>';
+  html += '<div class="chart-card"><h3>Attendees by Region <span style="font-size:10px;color:#95A5A6"></h3>';
   html += '<div style="height:' + regionBarH + 'px"><canvas id="att-chart-region"></canvas></div></div>';
 
   html += '</div>';
@@ -196,7 +196,7 @@ function initAttendeesCharts(cfg) {
     data: {
       labels: d.countrySorted.map(function(e) { return e[0]; }),
       datasets: [{
-        label: 'Attendees (projected)',
+        label: 'Attendees',
         data: d.countrySorted.map(function(e) { return Math.round(e[1] * MULT); }),
         backgroundColor: keyColor,
         borderWidth: 0,
@@ -209,7 +209,7 @@ function initAttendeesCharts(cfg) {
       maintainAspectRatio: false,
       plugins: {
         legend: { display: false },
-        tooltip: { callbacks: { label: function(ctx) { return ctx.parsed.x + ' attendees (projected)'; } } }
+        tooltip: { callbacks: { label: function(ctx) { return ctx.parsed.x + ' attendees'; } } }
       },
       scales: {
         x: { ticks: { font: { size: 10, family: 'Inter' } }, grid: { color: '#F0F2F5' } },
@@ -224,7 +224,7 @@ function initAttendeesCharts(cfg) {
     data: {
       labels: d.regionSorted.map(function(e) { return e[0]; }),
       datasets: [{
-        label: 'Attendees (projected)',
+        label: 'Attendees',
         data: d.regionSorted.map(function(e) { return Math.round(e[1] * MULT); }),
         backgroundColor: CHART_COLORS.slice(0, d.regionSorted.length),
         borderWidth: 0,
@@ -237,7 +237,7 @@ function initAttendeesCharts(cfg) {
       maintainAspectRatio: false,
       plugins: {
         legend: { display: false },
-        tooltip: { callbacks: { label: function(ctx) { return ctx.parsed.x + ' attendees (projected)'; } } }
+        tooltip: { callbacks: { label: function(ctx) { return ctx.parsed.x + ' attendees'; } } }
       },
       scales: {
         x: { ticks: { font: { size: 10, family: 'Inter' } }, grid: { color: '#F0F2F5' } },
