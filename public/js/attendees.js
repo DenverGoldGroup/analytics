@@ -29,7 +29,8 @@ function renderAttendees(attendees, cfg) {
   html += summaryBox('Participants', Math.round(participants.length * MULT), '#2980B9');
   html += summaryBox('Buy-Side', Math.round(buyside.length * MULT), '#9B59B6');
   html += summaryBox('Countries', new Set(all.map(function(a) { return a.country; }).filter(Boolean)).size, '#E67E22');
-  html += summaryBox('Speakers', Math.round(speakers.length * MULT), '#7F8C8D');
+  var presentationCompanies = new Set(delegates.map(function(a) { return (a.company || '').toLowerCase().trim(); }).filter(Boolean));
+  html += summaryBox('Presentations', presentationCompanies.size, '#7F8C8D');
   html += '</div>';
 
   // Row 1: three pie charts
