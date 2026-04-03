@@ -118,6 +118,10 @@
   function updateSubNav() {
     document.querySelectorAll('.nav-bar a').forEach(function(link) {
       link.classList.toggle('active', link.dataset.view === currentView);
+      // Hide Attendees tab for DGG section
+      if (link.dataset.view === 'attendees') {
+        link.style.display = currentSection === 'dgg' ? 'none' : '';
+      }
     });
   }
 

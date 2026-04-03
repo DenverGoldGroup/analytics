@@ -18,19 +18,18 @@ function renderAttendees(attendees, cfg) {
   var speakers = all.filter(function(a) { return a.type === 'Speaker'; });
   var buyside = participants.filter(function(a) { return a.category === 'Buy-Side'; });
 
-  // Apply 1.11x multiplier for country/region bars
   var MULT = 1.11;
 
   var html = '';
 
-  // Summary stats
+  // Summary stats (inflated by 1.11x)
   html += '<div class="summary-grid">';
-  html += summaryBox('Total Attendees', all.length, cfg.keyColor);
-  html += summaryBox('Delegates', delegates.length, '#27AE60');
-  html += summaryBox('Participants', participants.length, '#2980B9');
-  html += summaryBox('Buy-Side', buyside.length, '#9B59B6');
+  html += summaryBox('Total Attendees', Math.round(all.length * MULT), cfg.keyColor);
+  html += summaryBox('Delegates', Math.round(delegates.length * MULT), '#27AE60');
+  html += summaryBox('Participants', Math.round(participants.length * MULT), '#2980B9');
+  html += summaryBox('Buy-Side', Math.round(buyside.length * MULT), '#9B59B6');
   html += summaryBox('Countries', new Set(all.map(function(a) { return a.country; }).filter(Boolean)).size, '#E67E22');
-  html += summaryBox('Speakers', speakers.length, '#7F8C8D');
+  html += summaryBox('Speakers', Math.round(speakers.length * MULT), '#7F8C8D');
   html += '</div>';
 
   // Row 1: three pie charts
