@@ -309,7 +309,7 @@ module.exports = async function handler(req, res) {
         var msg = 'Companies replaced: ' + inserted + ' companies from ' + parsed.rows.length + ' CSV rows.';
         return res.status(200).json({ ok: true, message: msg });
 
-      } else {
+      } else if (target === 'mfe26' || target === 'mfa26') {
         // Event upload — CSV replaces all participations for this event.
         // Companies referenced in the CSV are matched by name or auto-created.
         var eventCode = target === 'mfe26' ? 'MFE26' : 'MFA26';
