@@ -428,7 +428,7 @@ module.exports = async function handler(req, res) {
             attendance: r.attendance || '',
             accepted_date: r.accepted_date || ''
           };
-        }).filter(function(r) { return r.type && r.type !== 'Staff'; });
+        }).filter(function(r) { return r.type; });
 
         var attInserted = 0;
         for (var i = 0; i < attRows.length; i += 50) {

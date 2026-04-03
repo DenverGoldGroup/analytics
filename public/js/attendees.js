@@ -11,8 +11,7 @@ function renderAttendees(attendees, cfg) {
     return '<div style="padding:60px;text-align:center;color:#7F8C8D"><h3>No attendee data available</h3><p style="margin-top:8px;font-size:12px">Upload an attendees CSV from the Admin panel.</p></div>';
   }
 
-  // Exclude staff
-  var all = attendees.filter(function(a) { return a.type !== 'Staff'; });
+  var all = attendees;
 
   var delegates = all.filter(function(a) { return a.type === 'Delegate'; });
   var participants = all.filter(function(a) { return a.type === 'Participant'; });
