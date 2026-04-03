@@ -41,16 +41,15 @@ function renderAttendees(attendees, cfg) {
   html += '<div class="chart-card"><h3>Buy-Side Sub-Categories</h3><canvas id="att-chart-buyside"></canvas></div>';
   html += '</div>';
 
-  // Row 2: two bar charts
+  // Row 2: two bar charts — full width, stacked
   html += '<div class="section-title">Geography</div>';
-  html += '<div class="chart-grid" style="grid-template-columns:1fr 1fr">';
 
   // Country bar
   var byCountry = {};
   all.forEach(function(a) { if (a.country) byCountry[a.country] = (byCountry[a.country] || 0) + 1; });
   var countrySorted = Object.entries(byCountry).sort(function(a, b) { return b[1] - a[1]; });
-  var countryBarH = Math.max(300, countrySorted.length * 24 + 60);
-  html += '<div class="chart-card"><h3>Attendees by Country <span style="font-size:10px;color:#95A5A6"></h3>';
+  var countryBarH = countrySorted.length * 28 + 40;
+  html += '<div class="chart-card" style="margin-bottom:20px;padding-bottom:8px"><h3>Attendees by Country</h3>';
   html += '<div style="height:' + countryBarH + 'px"><canvas id="att-chart-country"></canvas></div></div>';
 
   // Region bar
@@ -60,11 +59,9 @@ function renderAttendees(attendees, cfg) {
     byRegion[r] = (byRegion[r] || 0) + 1;
   });
   var regionSorted = Object.entries(byRegion).sort(function(a, b) { return b[1] - a[1]; });
-  var regionBarH = Math.max(200, regionSorted.length * 36 + 60);
-  html += '<div class="chart-card"><h3>Attendees by Region <span style="font-size:10px;color:#95A5A6"></h3>';
+  var regionBarH = regionSorted.length * 40 + 40;
+  html += '<div class="chart-card" style="margin-bottom:20px;padding-bottom:8px"><h3>Attendees by Region</h3>';
   html += '<div style="height:' + regionBarH + 'px"><canvas id="att-chart-region"></canvas></div></div>';
-
-  html += '</div>';
   html += renderDisclaimer();
 
   // Store data for chart init
