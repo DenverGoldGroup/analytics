@@ -65,7 +65,7 @@ function getMineralGroup(mineral) {
 // Status ordering and colors
 const STATUS_ORDER = [
   'Producer',
-  'Royalty/Streaming',
+  'Royalty / Streaming',
   'Developer (construction/feasibility)',
   'Developer (PEA/scoping)',
   'Explorer (advanced)',
@@ -187,17 +187,27 @@ function getFlag(country) {
   return COUNTRY_FLAGS[country] || '🌐';
 }
 
-// Fetch attendees by event code
+// Fetch attendees by event code. Paginates past Supabase's 1,000-row default cap
+// so events with thousands of registrants (e.g. MFE26) return the complete list.
 async function fetchAttendees(eventCode) {
   if (!sb) { console.error('Supabase client not initialized'); return []; }
   try {
-    const { data, error } = await sb
-      .from('attendees')
-      .select('*')
-      .eq('event_code', eventCode)
-      .order('last_name', { ascending: true });
-    if (error) { console.error('Error fetching attendees:', error); return []; }
-    return data || [];
+    var pageSize = 1000;
+    var all = [];
+    for (var from = 0; ; from += pageSize) {
+      var to = from + pageSize - 1;
+      var { data, error } = await sb
+        .from('attendees')
+        .select('*')
+        .eq('event_code', eventCode)
+        .order('last_name', { ascending: true })
+        .range(from, to);
+      if (error) { console.error('Error fetching attendees:', error); break; }
+      if (!data || !data.length) break;
+      all = all.concat(data);
+      if (data.length < pageSize) break;
+    }
+    return all;
   } catch (err) {
     console.error('fetchAttendees exception:', err);
     return [];
@@ -208,17 +218,36 @@ async function fetchAttendees(eventCode) {
 var CSUITE_PATTERNS = [
   /\bchairm(an|en|person)\b/i,
   /\bexecutive\s+chairman\b/i,
-  /\b(chief|c)([\s\-]?)(executive|financial|operating|strategy|technical|commercial)\b/i,
+  /\bchief\b/i,
   /\bCEO\b/, /\bCFO\b/, /\bCOO\b/, /\bCTO\b/, /\bCSO\b/,
-  /\bpresident\s*(&|and)?\s*(CEO|chief)\b/i,
-  /\bpresident$|\bpresident\s*[,&]/i,
-  /\b(EVP|SVP|executive\s+vice[\s\-]president|senior\s+vice[\s\-]president)\b/i,
-  /\bmanaging\s+director\b/i
+  /\bmanaging\s+director\b/i,
+  /\bfinancial\s+director\b/i
+];
+
+// President check: must not be preceded by "Vice" or "Executive Vice" or "Senior Vice"
+function isPresident(title) {
+  if (!title) return false;
+  if (!/\bpresident\b/i.test(title)) return false;
+  if (/\bvice[\s\-]president\b/i.test(title)) return false;
+  return true;
+}
+
+var SENIOR_MGMT_PATTERNS = [
+  /\b(EVP|SVP)\b/,
+  /\bvice[\s\-]president\b/i,
+  /\bexecutive\s+vp\b/i,
+  /\bvp\b/i,
+  /\bhead\s+of\b/i
 ];
 
 function isCsuite(jobTitle) {
   if (!jobTitle) return false;
-  return CSUITE_PATTERNS.some(function(p) { return p.test(jobTitle); });
+  return CSUITE_PATTERNS.some(function(p) { return p.test(jobTitle); }) || isPresident(jobTitle);
+}
+
+function isSeniorMgmt(jobTitle) {
+  if (!jobTitle) return false;
+  return SENIOR_MGMT_PATTERNS.some(function(p) { return p.test(jobTitle); });
 }
 
 // Map attendee country to region

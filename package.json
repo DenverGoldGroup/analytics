@@ -8,6 +8,7 @@
     "build": "echo 'Static site - no build needed'"
   },
   "dependencies": {
-    "@supabase/supabase-js": "^2.49.0"
+    "@supabase/supabase-js": "^2.49.0",
+    "xlsx": "^0.18.5"
   }
 }

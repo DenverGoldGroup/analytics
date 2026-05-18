@@ -2,18 +2,35 @@
 
 var _allCoSort = { col: 'market_cap_usd', dir: 'desc' };
 
+// Normalize company name for fuzzy matching
+function normCompany(name) {
+  return (name || '').toLowerCase().trim()
+    .replace(/\b(corp\.?|inc\.?|ltd\.?|limited|plc|s\.a\.?|pty|n\.v\.?)\b/g, '')
+    .replace(/\band\b/g, ' ')
+    .replace(/[.,&+]+/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
 function renderAllCompanies(companies, cfg, attendees) {
-  // Build C-Suite lookup: company name (lowercase) -> count
+  // Build C-Suite and Senior Mgmt lookups: normalized company name -> count
   var csuiteLookup = {};
+  var srMgmtLookup = {};
   if (attendees && attendees.length) {
-    attendees.filter(function(a) { return a.type === 'Delegate'; }).forEach(function(a) {
+    attendees.forEach(function(a) {
+      var key = normCompany(a.company);
+      if (!key) return;
       if (isCsuite(a.job_title)) {
-        var key = (a.company || '').toLowerCase().trim();
-        if (key) csuiteLookup[key] = (csuiteLookup[key] || 0) + 1;
+        csuiteLookup[key] = (csuiteLookup[key] || 0) + 1;
+      } else if (isSeniorMgmt(a.job_title)) {
+        srMgmtLookup[key] = (srMgmtLookup[key] || 0) + 1;
       }
     });
   }
   var hasCsuite = Object.keys(csuiteLookup).length > 0;
+  var hasSrMgmt = Object.keys(srMgmtLookup).length > 0;
+  var csuiteLookupKeys = Object.keys(csuiteLookup);
+  var srMgmtLookupKeys = Object.keys(srMgmtLookup);
 
   var html = statsRow(companies, cfg.keyColor);
   html += mineralLegendInteractive(companies);
@@ -29,6 +46,8 @@ function renderAllCompanies(companies, cfg, attendees) {
     { key: 'rank',               label: '#',           align: 'left',  sortable: false },
     { key: 'flag',               label: '',            align: 'left',  sortable: false },
     { key: 'company_name',       label: 'Company',     align: 'left',  sortable: true },
+    hasCsuite ? { key: 'csuite', label: 'C-Suite Reps', align: 'center', sortable: true } : null,
+    hasSrMgmt ? { key: 'srmgmt', label: 'Senior Mgmt', align: 'center', sortable: true } : null,
     { key: 'company_status',     label: 'Status',      align: 'left',  sortable: true },
     { key: 'primary_mineral',    label: 'Mineral',     align: 'left',  sortable: true },
     { key: 'primary_country',    label: 'Country',     align: 'left',  sortable: true },
@@ -38,10 +57,7 @@ function renderAllCompanies(companies, cfg, attendees) {
     { key: 'production_mid',     label: 'Prod (koz)',   align: 'right', sortable: true },
     { key: 'reserves',           label: 'Reserves',    align: 'right', sortable: true },
     { key: 'resources',          label: 'Resources',   align: 'right', sortable: true }
-  ];
-  if (hasCsuite) {
-    cols.push({ key: 'csuite', label: 'C-Suite', align: 'center', sortable: true });
-  }
+  ].filter(Boolean);
 
   cols.forEach(function(col) {
     var cls = col.align === 'right' ? ' class="r"' : '';
@@ -62,8 +78,9 @@ function renderAllCompanies(companies, cfg, attendees) {
   sorted.forEach(function(c, i) {
     var mg = getMineralGroup(c.primary_mineral);
     var flag = getFlag(c.primary_country);
-    var profileLink = c.profile_url
-      ? '<a href="' + c.profile_url + '" target="_blank" style="color:inherit;text-decoration:none">' + escHtml(c.company_name) + '</a>'
+    var safeUrl = safeHref(c.profile_url);
+    var profileLink = safeUrl
+      ? '<a href="' + safeUrl + '" target="_blank" rel="noopener" style="color:inherit;text-decoration:none">' + escHtml(c.company_name) + '</a>'
       : escHtml(c.company_name);
     var prodMid = ((c.production_low || 0) + (c.production_high || 0)) / 2;
 
@@ -74,6 +91,56 @@ function renderAllCompanies(companies, cfg, attendees) {
     html += '<td>' + (i + 1) + '</td>';
     html += '<td>' + flag + '</td>';
     html += '<td class="company-name">' + profileLink + '</td>';
+    if (hasCsuite) {
+      var normName = normCompany(c.company_name);
+      var csuiteCount = csuiteLookup[normName] || 0;
+      // Fuzzy fallback 1: check if either name starts with the other
+      if (csuiteCount === 0) {
+        for (var k = 0; k < csuiteLookupKeys.length; k++) {
+          var lk = csuiteLookupKeys[k];
+          if (normName.indexOf(lk) === 0 || lk.indexOf(normName) === 0) {
+            csuiteCount = csuiteLookup[lk];
+            break;
+          }
+        }
+      }
+      // Fuzzy fallback 2: match on first word if unique
+      if (csuiteCount === 0) {
+        var fw = normName.split(' ')[0];
+        var fwMatches = csuiteLookupKeys.filter(function(lk) { return lk.split(' ')[0] === fw; });
+        if (fwMatches.length === 1) {
+          csuiteCount = csuiteLookup[fwMatches[0]];
+        }
+      }
+      var dots = '';
+      for (var d = 0; d < csuiteCount; d++) {
+        dots += '<span class="csuite-dot" title="C-Suite attendee"></span>';
+      }
+      html += '<td style="text-align:center;white-space:nowrap">' + (csuiteCount > 0 ? dots : '&mdash;') + '</td>';
+    }
+    if (hasSrMgmt) {
+      var normName2 = hasCsuite ? normName : normCompany(c.company_name);
+      var smCount = srMgmtLookup[normName2] || 0;
+      if (smCount === 0) {
+        for (var k2 = 0; k2 < srMgmtLookupKeys.length; k2++) {
+          var lk2 = srMgmtLookupKeys[k2];
+          if (normName2.indexOf(lk2) === 0 || lk2.indexOf(normName2) === 0) {
+            smCount = srMgmtLookup[lk2];
+            break;
+          }
+        }
+      }
+      if (smCount === 0) {
+        var fw2 = normName2.split(' ')[0];
+        var fwm2 = srMgmtLookupKeys.filter(function(lk) { return lk.split(' ')[0] === fw2; });
+        if (fwm2.length === 1) smCount = srMgmtLookup[fwm2[0]];
+      }
+      var smDots = '';
+      for (var d2 = 0; d2 < smCount; d2++) {
+        smDots += '<span class="csuite-dot" title="Senior Mgmt" style="background:#2980B9"></span>';
+      }
+      html += '<td style="text-align:center;white-space:nowrap">' + (smCount > 0 ? smDots : '&mdash;') + '</td>';
+    }
     html += '<td><span class="mini-badge" style="background:' + getStatusColor(c.company_status) + '">' + escHtml(shortStatus(c.company_status)) + '</span></td>';
     html += '<td><span class="mini-badge" style="background:' + mg.color + '">' + escHtml(mg.group) + '</span></td>';
     html += '<td>' + escHtml(c.primary_country || '') + '</td>';
@@ -83,14 +150,6 @@ function renderAllCompanies(companies, cfg, attendees) {
     html += '<td class="numeric">' + (prodMid > 0 ? formatNum(Math.round(prodMid)) : '&mdash;') + '</td>';
     html += '<td class="numeric">' + (c.reserves ? c.reserves : '&mdash;') + '</td>';
     html += '<td class="numeric">' + (c.resources ? c.resources : '&mdash;') + '</td>';
-    if (hasCsuite) {
-      var csuiteCount = csuiteLookup[c.company_name.toLowerCase().trim()] || 0;
-      var dots = '';
-      for (var d = 0; d < csuiteCount; d++) {
-        dots += '<span class="csuite-dot" title="C-Suite attendee"></span>';
-      }
-      html += '<td style="text-align:center;white-space:nowrap">' + (csuiteCount > 0 ? dots : '&mdash;') + '</td>';
-    }
     html += '</tr>';
   });
 

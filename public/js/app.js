@@ -31,7 +31,8 @@
       logo: '/logos/mfe26-logo.png',
       keyColor: '#1B5E20',
       accentClass: 'active-mfe',
-      headerTheme: 'mfe-theme'
+      headerTheme: 'mfe-theme',
+      eventStartDate: '2026-04-13'
     },
     mfa: {
       title: 'Mining Forum Americas 2026',
@@ -40,7 +41,8 @@
       logo: '/logos/mfa26-logo.png',
       keyColor: '#1A237E',
       accentClass: 'active-mfa',
-      headerTheme: 'mfa-theme'
+      headerTheme: 'mfa-theme',
+      eventStartDate: '2026-09-27'
     }
   };
 
@@ -142,6 +144,20 @@
     }
   }
 
+  // Once the event has started, attendee analytics should reflect who actually
+  // showed up (invitation_status = 'Attended') rather than pre-registration counts.
+  function filterAttendeesByEventPhase(attendees, cfg) {
+    if (!attendees || !attendees.length || !cfg || !cfg.eventStartDate) return attendees || [];
+    var todayISO = new Date().toISOString().slice(0, 10); // YYYY-MM-DD
+    if (todayISO < cfg.eventStartDate) return attendees; // pre-event: show all registrants
+    return attendees.filter(function(a) {
+      var status = (a.invitation_status || a.attendance || '').toLowerCase();
+      // Only include actual attendees. "Substituted Out" means the person left
+      // and someone else was logged as a separate "Attended" record.
+      return status === 'attended';
+    });
+  }
+
   async function loadSection(section) {
     updateSectionTabs();
     updateSubNav();
@@ -211,7 +227,7 @@
         container.innerHTML = renderOverview(companies, cfg);
         initOverviewCharts(companies, cfg);
       } else if (currentView === 'attendees') {
-        var attendees = attendeesCache[currentSection] || [];
+        var attendees = filterAttendeesByEventPhase(attendeesCache[currentSection] || [], cfg);
         container.innerHTML = renderAttendees(attendees, cfg);
         initAttendeesCharts(cfg);
       } else if (currentView === 'solitaire-mineral') {
@@ -221,7 +237,7 @@
       } else if (currentView === 'solitaire-country') {
         container.innerHTML = renderSolitaireByCountry(companies, cfg);
       } else if (currentView === 'all-companies') {
-        var sectionAttendees = attendeesCache[currentSection] || [];
+        var sectionAttendees = filterAttendeesByEventPhase(attendeesCache[currentSection] || [], cfg);
         container.innerHTML = renderAllCompanies(companies, cfg, sectionAttendees);
         attachAllCompaniesSort();
       } else if (currentView === 'flat-rank') {

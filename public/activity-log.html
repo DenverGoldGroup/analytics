@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="icon" type="image/png" href="/favicon/favicon-96x96.png" sizes="96x96">
+  <link rel="icon" type="image/svg+xml" href="/favicon/favicon.svg">
+  <link rel="shortcut icon" href="/favicon/favicon.ico">
+  <link rel="apple-touch-icon" sizes="180x180" href="/favicon/apple-touch-icon.png">
+  <link rel="manifest" href="/favicon/site.webmanifest">
+  <title>Activity Log — Mining Forum Analytics</title>
+  <link rel="stylesheet" href="/css/styles.css">
+  <style>
+    .al-wrap { max-width: 1200px; margin: 0 auto; padding: 20px 24px; }
+
+    /* Nav bar */
+    .al-nav { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 12px; }
+    .al-nav h2 { font-size: 20px; font-weight: 700; color: var(--header-mid); margin: 0; }
+    .al-nav-links { display: flex; gap: 8px; }
+    .al-nav-links .btn { padding: 8px 16px; font-size: 12px; font-weight: 600; border-radius: 8px; cursor: pointer; text-decoration: none; display: inline-block; border: 2px solid #E0E0E0; background: transparent; color: var(--text-primary); font-family: inherit; }
+    .al-nav-links .btn:hover { border-color: var(--color-gold); }
+
+    /* Auth gate */
+    .al-auth-gate { text-align: center; padding: 80px 20px; }
+    .al-auth-gate h3 { font-size: 18px; color: var(--header-mid); margin-bottom: 8px; }
+    .al-auth-gate p { font-size: 13px; color: var(--text-secondary); }
+
+    /* Summary cards */
+    .al-summary { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 12px; margin-bottom: 20px; }
+    .al-stat { background: #fff; border-radius: 10px; padding: 16px; box-shadow: 0 1px 4px rgba(0,0,0,0.06); text-align: center; }
+    .al-stat .num { font-size: 26px; font-weight: 700; color: var(--header-mid); }
+    .al-stat .lbl { font-size: 10px; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.5px; margin-top: 4px; }
+
+    /* Filters */
+    .al-filters { display: flex; gap: 10px; flex-wrap: wrap; align-items: flex-end; margin-bottom: 16px; background: #fff; border-radius: 10px; padding: 14px 16px; box-shadow: 0 1px 4px rgba(0,0,0,0.06); }
+    .al-filter-field { display: flex; flex-direction: column; gap: 3px; }
+    .al-filter-field label { font-size: 10px; font-weight: 600; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.5px; }
+    .al-filter-field select,
+    .al-filter-field input { padding: 7px 10px; font-size: 12px; font-family: inherit; border: 2px solid #E0E0E0; border-radius: 6px; outline: none; background: #fff; }
+    .al-filter-field select:focus,
+    .al-filter-field input:focus { border-color: var(--color-gold); }
+    .al-filter-btn { padding: 7px 16px; font-size: 12px; font-weight: 600; border-radius: 6px; border: none; cursor: pointer; font-family: inherit; background: var(--color-gold); color: #fff; }
+    .al-filter-btn:hover { background: #B8860B; }
+    .al-filter-reset { padding: 7px 12px; font-size: 12px; border-radius: 6px; border: 2px solid #E0E0E0; background: transparent; cursor: pointer; font-family: inherit; color: var(--text-secondary); }
+    .al-filter-reset:hover { border-color: var(--color-gold); }
+
+    /* Log table */
+    .al-table-wrap { background: #fff; border-radius: 10px; box-shadow: 0 1px 4px rgba(0,0,0,0.06); overflow: hidden; }
+    .al-table { width: 100%; border-collapse: collapse; font-size: 12px; }
+    .al-table thead th { text-align: left; padding: 10px 12px; font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; color: var(--text-secondary); background: #F8F9FB; border-bottom: 2px solid #E8EAF0; white-space: nowrap; }
+    .al-table thead th.num { text-align: right; }
+    .al-table tbody tr { border-bottom: 1px solid #F0F2F5; transition: background 0.1s; }
+    .al-table tbody tr:hover { background: #FAFBFC; }
+    .al-table tbody td { padding: 8px 12px; vertical-align: top; }
+    .al-table tbody td.ts { white-space: nowrap; font-variant-numeric: tabular-nums; color: var(--text-secondary); font-size: 11px; }
+    .al-table tbody td.user { font-weight: 600; }
+    .al-table tbody td.detail { color: var(--text-secondary); max-width: 320px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+    /* Action badges */
+    .action-badge { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 10px; font-weight: 600; white-space: nowrap; }
+    .action-badge.login { background: #EBF5FB; color: #1A5276; }
+    .action-badge.view { background: #F4F6F7; color: #5D6D7E; }
+    .action-badge.edit { background: #FEF9E7; color: #7D6608; }
+    .action-badge.upload { background: #EAFAF1; color: #1E8449; }
+    .action-badge.delete { background: #FDEDEC; color: #C0392B; }
+    .action-badge.user { background: #F5EEF8; color: #6C3483; }
+
+    /* Role badges */
+    .role-badge { display: inline-block; padding: 1px 6px; border-radius: 3px; font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.3px; }
+    .role-badge.admin { background: #EBF5FB; color: #1A5276; }
+    .role-badge.viewer { background: #F5F6FA; color: #666; }
+
+    /* Pagination */
+    .al-pagination { display: flex; justify-content: space-between; align-items: center; padding: 12px 16px; font-size: 12px; color: var(--text-secondary); }
+    .al-page-btns { display: flex; gap: 4px; }
+    .al-page-btn { padding: 6px 12px; border: 1px solid #E0E0E0; background: #fff; border-radius: 4px; cursor: pointer; font-size: 11px; font-family: inherit; }
+    .al-page-btn:hover { border-color: var(--color-gold); }
+    .al-page-btn.active { background: var(--color-gold); color: #fff; border-color: var(--color-gold); }
+    .al-page-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+    /* Loading */
+    .al-loading { text-align: center; padding: 60px; color: var(--text-secondary); }
+    .al-loading .loading-spinner { margin: 0 auto 12px; }
+    .al-empty { text-align: center; padding: 60px; color: var(--text-secondary); }
+    .al-empty h3 { color: var(--header-mid); margin-bottom: 8px; }
+  </style>
+</head>
+<body>
+
+  <!-- Header -->
+  <div class="page-header dgg-theme">
+    <img class="logo" src="/logos/dgg-logo.png" alt="Denver Gold Group">
+    <div class="header-text">
+      <h1><a href="/">Mining Forum Event Analytics</a></h1>
+      <div class="subtitle">Activity Log</div>
+    </div>
+  </div>
+
+  <div class="al-wrap">
+
+    <!-- Nav -->
+    <div class="al-nav">
+      <h2>Activity Log <span style="font-size:12px;font-weight:400;color:var(--text-secondary);margin-left:8px">Last 30 Days</span></h2>
+      <div class="al-nav-links" id="al-nav-links">
+        <!-- Links populated by JS based on auth -->
+      </div>
+    </div>
+
+    <!-- Content (populated by JS) -->
+    <div id="al-content">
+      <div class="al-loading" id="al-loading">
+        <div class="loading-spinner"></div>
+        Checking authentication...
+      </div>
+    </div>
+
+  </div>
+
+  <div class="page-footer">
+    &copy; 2026 Denver Gold Group. Activity Log.
+  </div>
+
+  <script src="/js/activity-log.js?v=1"></script>
+
+</body>
+</html>

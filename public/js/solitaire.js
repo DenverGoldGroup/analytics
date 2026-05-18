@@ -5,8 +5,9 @@ function companyCard(c, rank) {
   var mg = getMineralGroup(c.primary_mineral);
   var flag = getFlag(c.primary_country);
   var mcap = formatMcap(c.market_cap_usd);
-  var profileLink = c.profile_url
-    ? '<a href="' + c.profile_url + '" target="_blank" rel="noopener">' + escHtml(c.company_name) + '</a>'
+  var safeUrl = safeHref(c.profile_url);
+  var profileLink = safeUrl
+    ? '<a href="' + safeUrl + '" target="_blank" rel="noopener">' + escHtml(c.company_name) + '</a>'
     : escHtml(c.company_name);
 
   // Tooltip data
@@ -32,6 +33,14 @@ function companyCard(c, rank) {
 function escHtml(str) {
   if (!str) return '';
   return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+// Sanitize URL for href — only allow http/https to prevent javascript: XSS
+function safeHref(url) {
+  if (!url || typeof url !== 'string') return '';
+  var trimmed = url.trim().toLowerCase();
+  if (trimmed.indexOf('https://') === 0 || trimmed.indexOf('http://') === 0) return escHtml(url.trim());
+  return '';
 }
 
 // ---- Build Column ----

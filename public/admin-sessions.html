@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="icon" type="image/png" href="/favicon/favicon-96x96.png" sizes="96x96">
+  <link rel="icon" type="image/svg+xml" href="/favicon/favicon.svg">
+  <link rel="shortcut icon" href="/favicon/favicon.ico">
+  <link rel="apple-touch-icon" sizes="180x180" href="/favicon/apple-touch-icon.png">
+  <link rel="manifest" href="/favicon/site.webmanifest">
+  <title>Session Allocation — Mining Forum Analytics</title>
+  <link rel="stylesheet" href="/css/styles.css">
+  <style>
+    .sa-wrap { max-width: 1400px; margin: 0 auto; padding: 20px 24px; }
+
+    /* Nav bar */
+    .sa-nav { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 12px; }
+    .sa-nav h2 { font-size: 20px; font-weight: 700; color: var(--header-mid); margin: 0; }
+    .sa-nav-links { display: flex; gap: 8px; }
+    .sa-nav-links .btn { padding: 8px 16px; font-size: 12px; font-weight: 600; border-radius: 8px; cursor: pointer; text-decoration: none; display: inline-block; border: 2px solid #E0E0E0; background: transparent; color: var(--text-primary); font-family: inherit; }
+    .sa-nav-links .btn:hover { border-color: var(--color-gold); }
+
+    /* Event tabs */
+    .event-tabs { display: flex; gap: 0; margin-bottom: 20px; }
+    .event-tab { padding: 10px 24px; font-size: 13px; font-weight: 600; cursor: pointer; border: 2px solid #E0E0E0; border-bottom: none; border-radius: 8px 8px 0 0; background: #F5F6FA; color: var(--text-secondary); font-family: inherit; }
+    .event-tab.active { background: #fff; color: var(--header-mid); border-color: var(--color-gold); border-bottom: 2px solid #fff; margin-bottom: -2px; position: relative; z-index: 1; }
+
+    /* Config panel */
+    .config-panel { background: #fff; border: 2px solid var(--color-gold); border-radius: 0 12px 12px 12px; padding: 20px 24px; margin-bottom: 20px; }
+    .config-panel h3 { font-size: 14px; font-weight: 700; color: var(--header-mid); margin: 0 0 16px 0; }
+    .config-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 12px; margin-bottom: 16px; }
+    .config-field label { display: block; font-size: 11px; font-weight: 600; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px; }
+    .config-field input { width: 100%; padding: 8px 10px; font-size: 13px; font-family: inherit; border: 2px solid #E0E0E0; border-radius: 6px; outline: none; box-sizing: border-box; }
+    .config-field input:focus { border-color: var(--color-gold); }
+    .config-actions { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+    .config-actions .btn { padding: 8px 16px; font-size: 12px; font-weight: 600; border-radius: 8px; cursor: pointer; border: none; font-family: inherit; }
+    .btn-gold { background: var(--color-gold); color: #fff; }
+    .btn-gold:hover { background: #B8860B; }
+    .btn-gold:disabled { opacity: 0.5; cursor: not-allowed; }
+    .btn-green { background: #1B5E20; color: #fff; }
+    .btn-green:hover { background: #145218; }
+    .btn-blue { background: #1A237E; color: #fff; }
+    .btn-blue:hover { background: #0D1354; }
+    .btn-danger { background: #E74C3C; color: #fff; }
+    .btn-danger:hover { background: #C0392B; }
+    #slot-calc-result { font-size: 12px; color: var(--text-secondary); margin-top: 12px; }
+
+    /* Workflow steps */
+    .workflow-steps { display: flex; gap: 0; margin-top: 14px; margin-bottom: 4px; }
+    .workflow-step { display: flex; align-items: center; gap: 8px; padding: 8px 16px; border: 2px solid #E0E0E0; border-right: none; background: #FAFBFC; font-size: 11px; color: var(--text-secondary); }
+    .workflow-step:first-child { border-radius: 8px 0 0 8px; }
+    .workflow-step:last-child { border-radius: 0 8px 8px 0; border-right: 2px solid #E0E0E0; }
+    .workflow-step .step-num { background: #E0E0E0; color: #fff; width: 20px; height: 20px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 10px; flex-shrink: 0; }
+    .workflow-step .step-label { font-weight: 600; }
+
+    /* Stats bar */
+    .stats-bar { display: flex; gap: 16px; margin-bottom: 20px; flex-wrap: wrap; }
+    .stat-pill { background: #fff; border-radius: 8px; padding: 12px 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.08); display: flex; align-items: baseline; gap: 6px; }
+    .stat-pill .stat-num { font-size: 22px; font-weight: 700; color: var(--header-mid); }
+    .stat-pill .stat-lbl { font-size: 11px; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.5px; }
+
+    /* Export bar */
+    .export-bar { display: flex; gap: 8px; margin-bottom: 20px; align-items: center; flex-wrap: wrap; }
+    .export-bar .btn { padding: 8px 16px; font-size: 12px; font-weight: 600; border-radius: 8px; cursor: pointer; border: 2px solid #E0E0E0; background: #fff; color: var(--text-primary); font-family: inherit; }
+    .export-bar .btn:hover { border-color: var(--color-gold); }
+
+    /* Message bar */
+    .message-bar { display: none; padding: 10px 16px; border-radius: 8px; font-size: 12px; margin-bottom: 16px; }
+    .message-bar.success { background: #EAFAF1; color: #1E8449; border: 1px solid #A9DFBF; }
+    .message-bar.error { background: #FDEDEC; color: #C0392B; border: 1px solid #F5B7B1; }
+    .message-bar.info { background: #EBF5FB; color: #1A5276; border: 1px solid #AED6F1; }
+
+    /* Schedule grid */
+    .day-group { margin-bottom: 24px; }
+    .day-header { font-size: 16px; font-weight: 700; color: var(--header-mid); padding: 8px 0; border-bottom: 2px solid var(--color-gold); margin-bottom: 12px; }
+    .sessions-row { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 16px; }
+
+    /* Session card */
+    .session-card { background: #fff; border-radius: 10px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); border: 1px solid #E8EAF0; overflow: hidden; }
+    .session-card.session-empty { border-style: dashed; border-color: #D0D4DE; }
+    .session-header { display: flex; align-items: center; gap: 6px; padding: 8px 10px; background: linear-gradient(135deg, #1B2631, #2C3E50); color: #fff; font-size: 12px; }
+    .session-empty .session-header { background: linear-gradient(135deg, #4A5568, #718096); }
+
+    /* Priority input in session header */
+    .priority-input { width: 42px; background: var(--color-gold); color: #fff; border: 1px solid rgba(255,255,255,0.3); border-radius: 4px; padding: 2px 4px; font-size: 11px; font-weight: 700; font-family: inherit; text-align: center; flex-shrink: 0; outline: none; -moz-appearance: textfield; }
+    .priority-input::-webkit-outer-spin-button,
+    .priority-input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+    .priority-input:focus { border-color: #fff; background: #B8860B; }
+    .priority-input.priority-unset { background: #E74C3C; border-color: rgba(255,255,255,0.5); animation: pulse-unset 2s infinite; }
+    .priority-input.priority-saved { background: #1E8449; transition: background 0.3s; }
+    @keyframes pulse-unset { 0%,100% { opacity: 1; } 50% { opacity: 0.6; } }
+
+    .session-title { flex: 1; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; cursor: text; min-width: 60px; padding: 1px 4px; border-radius: 3px; }
+    .session-title:hover { background: rgba(255,255,255,0.1); }
+    .session-title:focus { background: rgba(255,255,255,0.2); outline: none; }
+    .session-meta { display: flex; gap: 6px; align-items: center; flex-shrink: 0; }
+    .session-stage { font-size: 10px; opacity: 0.7; }
+    .session-block { font-size: 9px; opacity: 0.5; text-transform: uppercase; }
+    .session-slot-count { font-size: 10px; background: rgba(255,255,255,0.15); padding: 1px 6px; border-radius: 3px; }
+
+    /* Slot zones */
+    .slot-drop-zone { min-height: 36px; border-bottom: 1px solid #F0F2F5; transition: background 0.15s; }
+    .slot-drop-zone:last-child { border-bottom: none; }
+    .slot-drop-zone.drag-over { background: #FFF9E6; outline: 2px dashed var(--color-gold); outline-offset: -2px; }
+
+    /* Slot card (company) */
+    .slot-card { display: flex; align-items: center; gap: 6px; padding: 6px 10px; cursor: grab; transition: opacity 0.15s, background 0.15s; font-size: 12px; }
+    .slot-card:hover { background: #F8F9FB; }
+    .slot-card.dragging { opacity: 0.3; }
+    .slot-num { font-size: 10px; color: #999; width: 14px; text-align: center; flex-shrink: 0; }
+    .slot-mineral { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+    .slot-name { flex: 1; font-weight: 600; color: var(--text-primary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .slot-status { font-size: 10px; flex-shrink: 0; }
+    .slot-mcap { font-size: 10px; color: #666; flex-shrink: 0; font-variant-numeric: tabular-nums; }
+    .slot-tier { font-size: 9px; color: #fff; padding: 1px 5px; border-radius: 3px; flex-shrink: 0; }
+
+    /* Empty slot */
+    .empty-slot { padding: 8px 10px; font-size: 11px; color: #C0C4CC; }
+
+    /* View toggle */
+    .view-toggle { display: flex; gap: 0; }
+    .view-btn { padding: 8px 16px; font-size: 12px; font-weight: 600; cursor: pointer; border: 2px solid #E0E0E0; background: #F5F6FA; color: var(--text-secondary); font-family: inherit; }
+    .view-btn:first-child { border-radius: 8px 0 0 8px; }
+    .view-btn:not(:first-child) { border-left: none; }
+    .view-btn:last-child { border-radius: 0 8px 8px 0; }
+    .view-btn.active { background: var(--color-gold); color: #fff; border-color: var(--color-gold); }
+
+    /* Track view */
+    .track-view { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; }
+    .track-column { }
+    .track-header { font-size: 15px; font-weight: 700; color: #fff; padding: 10px 14px; border-radius: 8px 8px 0 0; margin-bottom: 0; }
+    .track-header.stage-1 { background: linear-gradient(135deg, #1B5E20, #2E7D32); }
+    .track-header.stage-2 { background: linear-gradient(135deg, #1A237E, #283593); }
+    .track-header.stage-3 { background: linear-gradient(135deg, #4A148C, #6A1B9A); }
+    .track-day-divider { font-size: 12px; font-weight: 700; color: var(--header-mid); padding: 8px 12px; background: #F0F2F5; border-bottom: 1px solid #E0E0E0; display: flex; justify-content: space-between; align-items: center; }
+    .track-day-times { font-size: 10px; font-weight: 600; color: #999; font-variant-numeric: tabular-nums; }
+    .track-day-times-edit { display: flex; align-items: center; gap: 4px; }
+    .day-time-input { width: 80px; padding: 2px 4px; font-size: 11px; font-family: inherit; font-weight: 600; border: 1px solid #D0D4DE; border-radius: 4px; outline: none; color: var(--header-mid); font-variant-numeric: tabular-nums; background: #fff; }
+    .day-time-input:focus { border-color: var(--color-gold); }
+    .day-time-sep { font-size: 10px; color: #999; }
+    .track-session { border: 1px solid #E8EAF0; border-top: none; background: #fff; }
+    .track-session:last-child { border-radius: 0 0 8px 8px; }
+    .track-session-header { display: flex; align-items: center; gap: 6px; padding: 6px 10px; background: #F8F9FB; border-bottom: 1px solid #F0F2F5; font-size: 11px; color: var(--text-secondary); }
+    .track-session-header .tsh-priority-input { width: 38px; background: var(--color-gold); color: #fff; border: 1px solid rgba(0,0,0,0.1); border-radius: 3px; padding: 1px 4px; font-size: 10px; font-weight: 700; font-family: inherit; text-align: center; flex-shrink: 0; outline: none; -moz-appearance: textfield; }
+    .track-session-header .tsh-priority-input::-webkit-outer-spin-button,
+    .track-session-header .tsh-priority-input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+    .track-session-header .tsh-priority-input:focus { border-color: var(--header-mid); background: #B8860B; }
+    .track-session-header .tsh-priority-input.priority-unset { background: #E74C3C; animation: pulse-unset 2s infinite; }
+    .track-session-header .tsh-priority-input.priority-saved { background: #1E8449; transition: background 0.3s; }
+    .track-session-header .tsh-label { font-size: 10px; font-weight: 700; color: var(--text-secondary); flex-shrink: 0; }
+    .track-session-header .tsh-theme { flex: 1; font-weight: 600; color: var(--text-primary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .track-session-header .tsh-time-range { font-size: 9px; color: #999; flex-shrink: 0; font-variant-numeric: tabular-nums; }
+    .track-session-header .tsh-slots { font-size: 10px; color: #999; flex-shrink: 0; }
+    .track-slot { display: flex; align-items: center; gap: 6px; padding: 4px 10px; border-bottom: 1px solid #F5F6FA; font-size: 11px; }
+    .track-slot:last-child { border-bottom: none; }
+    .track-slot .ts-time { font-size: 10px; color: #999; width: 42px; flex-shrink: 0; font-variant-numeric: tabular-nums; }
+    .track-slot .ts-mineral { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
+    .track-slot .ts-name { flex: 1; font-weight: 600; color: var(--text-primary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .track-slot[draggable="true"] { cursor: grab; }
+    .track-slot[draggable="true"]:active { cursor: grabbing; }
+    .track-slot.dragging { opacity: 0.3; }
+    .track-slot.drag-over { background: #FFF9E6; outline: 2px dashed var(--color-gold); outline-offset: -2px; }
+    .track-session.drag-over { outline: 2px dashed var(--color-gold); outline-offset: -2px; }
+    .track-slot .ts-mcap { font-size: 10px; color: #666; flex-shrink: 0; }
+    .track-slot .ts-status { font-size: 9px; flex-shrink: 0; white-space: nowrap; }
+    .track-slot .ts-remove-btn { width: 18px; height: 18px; border: none; background: transparent; color: #C0C4CC; font-size: 14px; line-height: 18px; text-align: center; cursor: pointer; border-radius: 3px; flex-shrink: 0; padding: 0; font-family: inherit; opacity: 0; transition: opacity 0.15s; }
+    .track-slot:hover .ts-remove-btn { opacity: 1; }
+    .track-slot .ts-remove-btn:hover { background: #E74C3C; color: #fff; }
+
+    /* Unpaid designator */
+    .ts-unpaid { background: #FFF5F5 !important; }
+    .ts-unpaid-badge { font-size: 8px; font-weight: 800; color: #fff; background: #E74C3C; padding: 1px 4px; border-radius: 3px; flex-shrink: 0; letter-spacing: 0.5px; text-transform: uppercase; }
+
+    /* Holding bucket */
+    .holding-bucket { margin-top: 20px; background: #fff; border: 2px dashed #D0D4DE; border-radius: 10px; overflow: hidden; }
+    .holding-header { display: flex; align-items: center; gap: 8px; padding: 10px 14px; background: #F8F9FB; border-bottom: 1px solid #E8EAF0; font-size: 13px; font-weight: 700; color: var(--header-mid); }
+    .holding-count { display: inline-flex; align-items: center; justify-content: center; background: #E0E0E0; color: #666; font-size: 11px; font-weight: 700; min-width: 22px; height: 22px; border-radius: 11px; padding: 0 6px; }
+    .holding-items { padding: 10px 14px; display: flex; flex-wrap: wrap; gap: 6px; min-height: 36px; }
+    .holding-item { display: flex; align-items: center; gap: 6px; padding: 5px 10px; background: #F5F6FA; border: 1px solid #E8EAF0; border-radius: 6px; font-size: 11px; cursor: grab; transition: background 0.15s; }
+    .holding-item:hover { background: #EDF0F5; border-color: var(--color-gold); }
+    .holding-item.dragging { opacity: 0.3; }
+    .holding-item-unpaid { background: #FFF5F5; border-color: #F5B7B1; }
+    .holding-name { font-weight: 600; color: var(--text-primary); white-space: nowrap; }
+
+    .track-lunch { padding: 6px 10px; text-align: center; font-size: 10px; font-weight: 600; color: #999; background: #FAFBFC; border-bottom: 1px solid #E8EAF0; letter-spacing: 1px; text-transform: uppercase; }
+
+    /* Thematics view */
+    .thematics-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 16px; }
+    .thematic-card { background: #fff; border-radius: 10px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); border: 1px solid #E8EAF0; overflow: hidden; }
+    .thematic-card-header { display: flex; align-items: center; gap: 8px; padding: 10px 14px; background: linear-gradient(135deg, #1B2631, #2C3E50); color: #fff; font-size: 12px; }
+    .thematic-card-header .tc-mineral { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; border: 1px solid rgba(255,255,255,0.3); }
+    .thematic-card-header .tc-title { flex: 1; font-weight: 700; font-size: 13px; }
+    .thematic-card-header .tc-count { font-size: 10px; background: rgba(255,255,255,0.15); padding: 2px 8px; border-radius: 10px; flex-shrink: 0; }
+    .thematic-company { display: flex; align-items: center; gap: 6px; padding: 6px 14px; border-bottom: 1px solid #F0F2F5; font-size: 12px; }
+    .thematic-company:last-child { border-bottom: none; }
+    .thematic-company .tc-rank { font-size: 10px; color: #999; width: 18px; text-align: center; flex-shrink: 0; }
+    .thematic-company .tc-name { flex: 1; font-weight: 600; color: var(--text-primary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .thematic-company .tc-country { font-size: 10px; color: #666; flex-shrink: 0; }
+    .thematic-company .tc-mcap { font-size: 10px; color: #666; flex-shrink: 0; font-variant-numeric: tabular-nums; min-width: 48px; text-align: right; }
+    .thematic-company .tc-status-dot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
+    .thematic-company.tc-allocated { }
+    .thematic-company.tc-unallocated { background: #FFF9E6; }
+    .thematic-company .tc-session-badge { font-size: 9px; color: #999; background: #F0F2F5; padding: 1px 5px; border-radius: 3px; flex-shrink: 0; }
+    .thematic-singleton { }
+    .thematics-status-group { margin-bottom: 24px; }
+    .thematics-status-header { font-size: 16px; font-weight: 700; color: var(--header-mid); padding: 8px 0; border-bottom: 2px solid var(--color-gold); margin-bottom: 12px; }
+
+    /* Unallocated companies */
+    .unallocated-section { margin-top: 20px; background: #fff; border: 2px dashed #F5B7B1; border-radius: 10px; overflow: hidden; }
+    .unalloc-group { margin-bottom: 4px; }
+    .unalloc-group-label { font-size: 10px; font-weight: 700; color: #C0392B; padding: 6px 14px 2px; text-transform: uppercase; letter-spacing: 0.5px; }
+
+    /* Programmed filter bar */
+    .prog-filter-bar { display: flex; align-items: center; gap: 8px; margin-bottom: 16px; flex-wrap: wrap; }
+    .prog-filter-bar .prog-label { font-size: 11px; font-weight: 700; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.5px; }
+    .prog-chip { display: inline-flex; align-items: center; gap: 6px; padding: 6px 14px; border-radius: 20px; font-size: 12px; font-weight: 600; cursor: pointer; border: 2px solid transparent; transition: all 0.15s; user-select: none; }
+    .prog-chip.prog-yes { background: #EAFAF1; color: #1E8449; }
+    .prog-chip.prog-yes:hover, .prog-chip.prog-yes.active { background: #1E8449; color: #fff; border-color: #1E8449; }
+    .prog-chip.prog-no { background: #FDEDEC; color: #C0392B; }
+    .prog-chip.prog-no:hover, .prog-chip.prog-no.active { background: #C0392B; color: #fff; border-color: #C0392B; }
+    .prog-chip .chip-count { font-size: 10px; opacity: 0.8; }
+    .prog-filter-reset { font-size: 11px; color: var(--text-secondary); cursor: pointer; border: none; background: none; font-family: inherit; text-decoration: underline; padding: 4px 8px; display: none; }
+    .prog-filter-reset:hover { color: var(--text-primary); }
+
+    /* Dim non-matching slots when filter active */
+    .prog-filter-active .slot-card.prog-hidden,
+    .prog-filter-active .track-slot.prog-hidden,
+    .prog-filter-active .holding-item.prog-hidden,
+    .prog-filter-active .thematic-company.prog-hidden { opacity: 0.15; pointer-events: none; }
+  </style>
+</head>
+<body>
+
+  <!-- Header -->
+  <div class="page-header dgg-theme">
+    <img class="logo" src="/logos/dgg-logo.png" alt="Denver Gold Group">
+    <div class="header-text">
+      <h1><a href="/">Mining Forum Event Analytics</a></h1>
+      <div class="subtitle">Presentation Session Allocation</div>
+    </div>
+  </div>
+
+  <div class="sa-wrap">
+
+    <!-- Nav -->
+    <div class="sa-nav">
+      <h2>Session Allocation</h2>
+      <div class="sa-nav-links">
+        <a href="/admin" class="btn">Back to Admin</a>
+        <a href="/" class="btn">View Site</a>
+        <button class="btn" onclick="sessionStorage.removeItem('admin_token'); window.location.href='/admin'">Log Out</button>
+      </div>
+    </div>
+
+    <!-- Event tabs -->
+    <div class="event-tabs">
+      <button class="event-tab active" data-event="MFE26">Mining Forum Europe 2026</button>
+      <button class="event-tab" data-event="MFA26">Mining Forum Americas 2026</button>
+    </div>
+
+    <!-- Config panel -->
+    <div class="config-panel">
+      <h3>Event Configuration</h3>
+      <div class="config-grid">
+        <div class="config-field">
+          <label>Event Start Date</label>
+          <input type="date" id="cfg-start-date">
+        </div>
+        <div class="config-field">
+          <label>Event End Date</label>
+          <input type="date" id="cfg-end-date">
+        </div>
+        <div class="config-field">
+          <label>Day Start Time</label>
+          <input type="time" id="cfg-day-start" value="08:00">
+        </div>
+        <div class="config-field">
+          <label>Day End Time</label>
+          <input type="time" id="cfg-day-end" value="17:30">
+        </div>
+        <div class="config-field">
+          <label>Presentation Duration (min)</label>
+          <input type="number" id="cfg-duration" value="25" min="5" max="120">
+        </div>
+        <div class="config-field">
+          <label>Morning Tracks</label>
+          <input type="number" id="cfg-morning-tracks" value="3" min="1" max="10">
+        </div>
+        <div class="config-field">
+          <label>Afternoon Tracks</label>
+          <input type="number" id="cfg-afternoon-tracks" value="3" min="1" max="10">
+        </div>
+        <div class="config-field">
+          <label>Lunch Start</label>
+          <input type="time" id="cfg-lunch-start" value="12:00">
+        </div>
+        <div class="config-field">
+          <label>Lunch End</label>
+          <input type="time" id="cfg-lunch-end" value="13:30">
+        </div>
+      </div>
+      <div id="slot-calc-result"></div>
+
+      <!-- Workflow steps -->
+      <div class="workflow-steps">
+        <div class="workflow-step">
+          <span class="step-num">1</span>
+          <span class="step-label">Save Config</span>
+        </div>
+        <div class="workflow-step">
+          <span class="step-num">2</span>
+          <span class="step-label">Upload Companies</span>
+        </div>
+        <div class="workflow-step">
+          <span class="step-num">3</span>
+          <span class="step-label">Build Program</span>
+        </div>
+        <div class="workflow-step">
+          <span class="step-num">4</span>
+          <span class="step-label">Set Priorities</span>
+        </div>
+        <div class="workflow-step">
+          <span class="step-num">5</span>
+          <span class="step-label">Generate Schedule</span>
+        </div>
+      </div>
+
+      <div class="config-actions" style="margin-top:14px">
+        <button class="btn btn-gold" id="save-config-btn" onclick="saveConfig()">Save Config</button>
+        <button class="btn btn-blue" id="build-program-btn" onclick="buildProgram()">Build Program</button>
+        <button class="btn btn-green" id="generate-btn" onclick="generateSchedule()">Generate Schedule</button>
+        <button class="btn btn-danger" onclick="clearSchedule()">Clear All</button>
+      </div>
+    </div>
+
+    <!-- Presenting Companies upload -->
+    <div class="config-panel" style="border-color:#2980B9; margin-bottom:20px">
+      <h3>Presenting Companies</h3>
+      <p style="font-size:12px;color:var(--text-secondary);margin:0 0 12px 0">Upload a JSON or CSV list of companies with corporate presentations. Used by Generate Schedule to fill the program.</p>
+      <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap">
+        <input type="file" id="companies-import-file" accept=".json,.csv" style="padding:8px;font-size:12px;font-family:inherit;border:2px dashed #D0D4DE;border-radius:8px;background:#FAFBFC;cursor:pointer;flex:1;min-width:200px">
+        <button class="btn btn-gold" id="companies-import-btn" onclick="uploadPresentingCompanies()" disabled>Upload Companies</button>
+        <span id="companies-count" style="font-size:12px;color:var(--text-secondary)"></span>
+      </div>
+    </div>
+
+    <!-- Message bar -->
+    <div class="message-bar" id="message-bar"></div>
+
+    <!-- Stats bar -->
+    <div class="stats-bar">
+      <div class="stat-pill">
+        <div class="stat-num" id="stat-sessions">0</div>
+        <div class="stat-lbl">Sessions</div>
+      </div>
+      <div class="stat-pill">
+        <div class="stat-num" id="stat-placed">0</div>
+        <div class="stat-lbl">Companies Placed</div>
+      </div>
+      <div class="stat-pill">
+        <div class="stat-num" id="stat-filled">0 / 0</div>
+        <div class="stat-lbl">Sessions Filled</div>
+      </div>
+      <div class="stat-pill">
+        <div class="stat-num" id="stat-priorities">&mdash;</div>
+        <div class="stat-lbl">Priorities</div>
+      </div>
+    </div>
+
+    <!-- Programmed filter -->
+    <div class="prog-filter-bar" id="prog-filter-bar">
+      <span class="prog-label">Programmed</span>
+      <span class="prog-chip prog-yes" data-prog="yes" onclick="toggleProgFilter('yes')">Yes <span class="chip-count" id="prog-yes-count">0</span></span>
+      <span class="prog-chip prog-no" data-prog="no" onclick="toggleProgFilter('no')">No <span class="chip-count" id="prog-no-count">0</span></span>
+      <button class="prog-filter-reset" id="prog-filter-reset" onclick="clearProgFilter()">Clear</button>
+    </div>
+
+    <!-- View toggle + Export / Import bar -->
+    <div class="export-bar">
+      <div class="view-toggle">
+        <button class="view-btn active" data-view="day" onclick="switchView('day')">By Day</button>
+        <button class="view-btn" data-view="track" onclick="switchView('track')">By Track</button>
+        <button class="view-btn" data-view="thematics" onclick="switchView('thematics')">Thematics</button>
+      </div>
+      <span style="border-left:1px solid #E0E0E0;margin:0 8px"></span>
+      <button class="btn" onclick="exportSchedule('csv')">Export CSV</button>
+      <button class="btn" onclick="exportSchedule('json')">Export JSON</button>
+      <span style="border-left:1px solid #E0E0E0;margin:0 4px"></span>
+      <input type="file" id="import-file" accept=".json,.csv" style="display:none" onchange="handleImportFile(this)">
+      <button class="btn" onclick="document.getElementById('import-file').click()">Import Schedule</button>
+    </div>
+
+    <!-- Schedule grid -->
+    <div id="schedule-grid">
+      <div style="text-align:center;padding:60px;color:#7F8C8D">
+        <h3>No program built</h3>
+        <p style="margin-top:8px;font-size:13px">1. Configure the event above and save. 2. Click <strong>Build Program</strong> to create session containers. 3. Optionally edit priorities. 4. Click <strong>Generate Schedule</strong> to fill companies.</p>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="page-footer">
+    &copy; 2026 Denver Gold Group. Admin Dashboard.
+  </div>
+
+  <script src="/js/session-allocator.js?v=2"></script>
+
+</body>
+</html>

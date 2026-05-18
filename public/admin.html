@@ -3,7 +3,12 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Admin — Mining Forum Analytics</title>
+  <link rel="icon" type="image/png" href="/favicon/favicon-96x96.png" sizes="96x96">
+  <link rel="icon" type="image/svg+xml" href="/favicon/favicon.svg">
+  <link rel="shortcut icon" href="/favicon/favicon.ico">
+  <link rel="apple-touch-icon" sizes="180x180" href="/favicon/apple-touch-icon.png">
+  <link rel="manifest" href="/favicon/site.webmanifest">
+  <title>Data Center — Mining Forum Analytics</title>
   <link rel="stylesheet" href="/css/styles.css">
   <style>
     .admin-wrap {
@@ -224,7 +229,7 @@
     <img class="logo" src="/logos/dgg-logo.png" alt="Denver Gold Group">
     <div class="header-text">
       <h1><a href="/">Mining Forum Event Analytics</a></h1>
-      <div class="subtitle">Admin Dashboard</div>
+      <div class="subtitle">Data Center</div>
     </div>
   </div>
 
@@ -244,8 +249,11 @@
     <div class="admin-wrap">
 
       <div class="admin-header">
-        <h2>Data Management</h2>
+        <h2>Data Center</h2>
         <div>
+          <a href="/admin-companies" class="btn btn-outline" style="margin-right:8px">Company Program Status</a>
+          <a href="/admin-sessions" class="btn btn-outline" style="margin-right:8px">Session Allocation</a>
+          <a href="/activity-log" class="btn btn-outline" style="margin-right:8px">Activity Log</a>
           <a href="/" class="btn btn-outline" style="margin-right:8px">View Site</a>
           <button class="btn btn-outline" onclick="doLogout()">Log Out</button>
         </div>
@@ -257,31 +265,21 @@
           <div class="stat-num" id="stat-companies" style="color:#8B6914">—</div>
           <div class="stat-lbl">DGG Companies</div>
         </div>
-        <div class="stat-card">
-          <div class="stat-num" id="stat-mfe" style="color:#1B5E20">—</div>
-          <div class="stat-lbl">MFE26 Participants</div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-num" id="stat-mfa" style="color:#1A237E">—</div>
-          <div class="stat-lbl">MFA26 Participants</div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-num" id="stat-mfe-attendees" style="color:#1B5E20">—</div>
-          <div class="stat-lbl">MFE26 Attendees</div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-num" id="stat-mfa-attendees" style="color:#1A237E">—</div>
-          <div class="stat-lbl">MFA26 Attendees</div>
-        </div>
+      </div>
+      <div id="dynamic-stats" style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:16px"></div>
+
+      <!-- Section: Analytics Uploads -->
+      <div style="margin-bottom:12px;padding-bottom:4px;border-bottom:2px solid #1B5E20">
+        <h3 style="font-size:14px;font-weight:700;color:#1B5E20;margin:0;text-transform:uppercase;letter-spacing:0.5px">Analytics Uploads</h3>
       </div>
 
       <!-- Upload: Companies CSV -->
       <div class="upload-section">
-        <h3>Upload Companies CSV</h3>
+        <h3>Upload Companies</h3>
         <div class="desc">Sync the <strong>companies</strong> table with the CSV (file of record). New companies are added, existing companies are updated, and companies not in the CSV are removed.</div>
         <div class="upload-row">
           <div class="file-input-wrap">
-            <input type="file" id="companies-file" accept=".csv">
+            <input type="file" id="companies-file" accept=".json,.csv">
           </div>
           <button class="btn btn-gold" id="companies-upload-btn" onclick="uploadCSV('companies')" disabled>Upload Companies</button>
         </div>
@@ -292,72 +290,221 @@
         <div class="upload-result" id="companies-result"></div>
       </div>
 
-      <!-- Upload: MFE26 Event CSV -->
+      <!-- Upload: Event Participations -->
       <div class="upload-section">
-        <h3>Upload MFE26 Event Participations CSV</h3>
-        <div class="desc">Sync <strong>Mining Forum Europe 2026</strong> participations with the CSV (file of record). New companies are added, existing companies are updated, and companies no longer in any event are removed.</div>
+        <h3>Upload Event Participations</h3>
+        <div class="desc">Replace participations for a specific event with the CSV (file of record). Companies not yet in the database are auto-created.</div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:flex-end;margin-bottom:10px">
+          <div style="min-width:140px">
+            <label style="font-size:11px;font-weight:600;color:#666;display:block;margin-bottom:4px">Event Code</label>
+            <select id="ep-event-select" style="width:100%;padding:8px 12px;font-size:12px;font-family:inherit;border:2px solid #E0E0E0;border-radius:6px;background:#fff">
+              <option value="">Select event...</option>
+            </select>
+          </div>
+          <div style="flex:1;min-width:180px">
+            <label style="font-size:11px;font-weight:600;color:#666;display:block;margin-bottom:4px">Or enter custom code</label>
+            <input type="text" id="ep-custom-code" placeholder="e.g. MFE24" style="width:100%;padding:8px 12px;font-size:12px;font-family:inherit;border:2px solid #E0E0E0;border-radius:6px;outline:none;text-transform:uppercase" maxlength="10">
+          </div>
+        </div>
         <div class="upload-row">
           <div class="file-input-wrap">
-            <input type="file" id="mfe26-file" accept=".csv">
+            <input type="file" id="ep-file" accept=".json,.csv">
           </div>
-          <button class="btn btn-gold" id="mfe26-upload-btn" onclick="uploadCSV('mfe26')" disabled>Upload MFE26</button>
+          <button class="btn btn-gold" id="ep-upload-btn" onclick="uploadEventParticipations()">Upload Participations</button>
         </div>
-        <div class="upload-progress" id="mfe26-progress">
-          <div class="progress-bar"><div class="progress-fill" id="mfe26-progress-fill"></div></div>
-          <div class="progress-text" id="mfe26-progress-text">Uploading...</div>
+        <div class="upload-progress" id="ep-progress">
+          <div class="progress-bar"><div class="progress-fill" id="ep-progress-fill"></div></div>
+          <div class="progress-text" id="ep-progress-text">Uploading...</div>
         </div>
-        <div class="upload-result" id="mfe26-result"></div>
+        <div class="upload-result" id="ep-result"></div>
       </div>
 
-      <!-- Upload: MFA26 Event CSV -->
+      <!-- Upload: Event Attendees -->
       <div class="upload-section">
-        <h3>Upload MFA26 Event Participations CSV</h3>
-        <div class="desc">Sync <strong>Mining Forum Americas 2026</strong> participations with the CSV (file of record). New companies are added, existing companies are updated, and companies no longer in any event are removed.</div>
+        <h3>Upload Event Attendees</h3>
+        <div class="desc">Replace attendee contacts (delegates, participants, speakers) for a specific event. Staff rows are excluded automatically.</div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:flex-end;margin-bottom:10px">
+          <div style="min-width:140px">
+            <label style="font-size:11px;font-weight:600;color:#666;display:block;margin-bottom:4px">Event Code</label>
+            <select id="att-event-select" style="width:100%;padding:8px 12px;font-size:12px;font-family:inherit;border:2px solid #E0E0E0;border-radius:6px;background:#fff">
+              <option value="">Select event...</option>
+            </select>
+          </div>
+          <div style="flex:1;min-width:180px">
+            <label style="font-size:11px;font-weight:600;color:#666;display:block;margin-bottom:4px">Or enter custom code</label>
+            <input type="text" id="att-custom-code" placeholder="e.g. MFE24" style="width:100%;padding:8px 12px;font-size:12px;font-family:inherit;border:2px solid #E0E0E0;border-radius:6px;outline:none;text-transform:uppercase" maxlength="10">
+          </div>
+        </div>
         <div class="upload-row">
           <div class="file-input-wrap">
-            <input type="file" id="mfa26-file" accept=".csv">
+            <input type="file" id="att-file" accept=".json,.csv">
           </div>
-          <button class="btn btn-gold" id="mfa26-upload-btn" onclick="uploadCSV('mfa26')" disabled>Upload MFA26</button>
+          <button class="btn btn-gold" id="att-upload-btn" onclick="uploadEventAttendees()">Upload Attendees</button>
         </div>
-        <div class="upload-progress" id="mfa26-progress">
-          <div class="progress-bar"><div class="progress-fill" id="mfa26-progress-fill"></div></div>
-          <div class="progress-text" id="mfa26-progress-text">Uploading...</div>
+        <div class="upload-progress" id="att-progress">
+          <div class="progress-bar"><div class="progress-fill" id="att-progress-fill"></div></div>
+          <div class="progress-text" id="att-progress-text">Uploading...</div>
         </div>
-        <div class="upload-result" id="mfa26-result"></div>
+        <div class="upload-result" id="att-result"></div>
       </div>
 
-      <!-- Upload: MFE26 Attendees CSV -->
-      <div class="upload-section">
-        <h3>Upload MFE26 Attendees CSV</h3>
-        <div class="desc">Replace <strong>Mining Forum Europe 2026</strong> attendee contacts (delegates, participants, speakers). Staff rows are excluded automatically.</div>
-        <div class="upload-row">
-          <div class="file-input-wrap">
-            <input type="file" id="mfe26-attendees-file" accept=".csv">
-          </div>
-          <button class="btn btn-gold" id="mfe26-attendees-upload-btn" onclick="uploadCSV('mfe26-attendees')" disabled>Upload MFE26 Attendees</button>
-        </div>
-        <div class="upload-progress" id="mfe26-attendees-progress">
-          <div class="progress-bar"><div class="progress-fill" id="mfe26-attendees-progress-fill"></div></div>
-          <div class="progress-text" id="mfe26-attendees-progress-text">Uploading...</div>
-        </div>
-        <div class="upload-result" id="mfe26-attendees-result"></div>
+      <!-- Existing event data summary -->
+      <div class="upload-section" id="event-data-summary" style="display:none">
+        <h3>Event Data Summary</h3>
+        <div id="event-data-table"></div>
       </div>
 
-      <!-- Upload: MFA26 Attendees CSV -->
+      <!-- Section: Post Show Reports -->
+      <div style="margin:24px 0 12px;padding-bottom:4px;border-bottom:2px solid var(--color-gold)">
+        <h3 style="font-size:14px;font-weight:700;color:var(--color-gold);margin:0;text-transform:uppercase;letter-spacing:0.5px">Post Show Reports</h3>
+      </div>
+
+      <!-- PSR Quick Links -->
       <div class="upload-section">
-        <h3>Upload MFA26 Attendees CSV</h3>
-        <div class="desc">Replace <strong>Mining Forum Americas 2026</strong> attendee contacts (delegates, participants, speakers). Staff rows are excluded automatically.</div>
+        <h3>Reports</h3>
+        <div class="desc">View and edit Post Show Reports. Admins can edit data inline; viewers see read-only reports.</div>
+        <div id="psr-report-links" style="display:flex;gap:8px;flex-wrap:wrap"></div>
+      </div>
+
+      <!-- PSR: Upload Member Tracking -->
+      <div class="upload-section">
+        <h3>Upload Member Tracking</h3>
+        <div class="desc">Upload the <strong>Member Event Tracking</strong> spreadsheet (.xlsx). Replaces all tracking data for the selected event. Companies from the prior year not in the file are automatically marked "Not Returning".</div>
         <div class="upload-row">
-          <div class="file-input-wrap">
-            <input type="file" id="mfa26-attendees-file" accept=".csv">
+          <div style="min-width:110px">
+            <select id="tracking-event" style="width:100%;padding:8px 12px;font-size:12px;font-family:inherit;border:2px solid #E0E0E0;border-radius:6px;background:#fff">
+              <option value="">Loading events...</option>
+            </select>
           </div>
-          <button class="btn btn-gold" id="mfa26-attendees-upload-btn" onclick="uploadCSV('mfa26-attendees')" disabled>Upload MFA26 Attendees</button>
+          <div class="file-input-wrap">
+            <input type="file" id="tracking-file" accept=".xlsx,.xls">
+          </div>
+          <button class="btn btn-gold" id="tracking-upload-btn" onclick="uploadTracking()" disabled>Upload Tracking</button>
         </div>
-        <div class="upload-progress" id="mfa26-attendees-progress">
-          <div class="progress-bar"><div class="progress-fill" id="mfa26-attendees-progress-fill"></div></div>
-          <div class="progress-text" id="mfa26-attendees-progress-text">Uploading...</div>
+        <div class="upload-progress" id="tracking-progress">
+          <div class="progress-bar"><div class="progress-fill" id="tracking-progress-fill"></div></div>
+          <div class="progress-text" id="tracking-progress-text">Uploading...</div>
         </div>
-        <div class="upload-result" id="mfa26-attendees-result"></div>
+        <div class="upload-result" id="tracking-result"></div>
+      </div>
+
+      <!-- PSR: Upload Member Cancellations -->
+      <div class="upload-section">
+        <h3>Upload Member Cancellations</h3>
+        <div class="desc">Upload the <strong>Member Cancellations</strong> spreadsheet (.xlsx). Replaces all cancellation data for the selected event.</div>
+        <div class="upload-row">
+          <div style="min-width:110px">
+            <select id="cxl-event" style="width:100%;padding:8px 12px;font-size:12px;font-family:inherit;border:2px solid #E0E0E0;border-radius:6px;background:#fff">
+              <option value="">Loading events...</option>
+            </select>
+          </div>
+          <div class="file-input-wrap">
+            <input type="file" id="cxl-file" accept=".xlsx,.xls">
+          </div>
+          <button class="btn btn-gold" id="cxl-upload-btn" onclick="uploadCancellations()" disabled>Upload Cancellations</button>
+        </div>
+        <div class="upload-progress" id="cxl-progress">
+          <div class="progress-bar"><div class="progress-fill" id="cxl-progress-fill"></div></div>
+          <div class="progress-text" id="cxl-progress-text">Uploading...</div>
+        </div>
+        <div class="upload-result" id="cxl-result"></div>
+      </div>
+
+      <!-- PSR: Upload Member Meetings -->
+      <div class="upload-section">
+        <h3>Upload Member Meetings</h3>
+        <div class="desc">Upload the <strong>Total Confirmed Meetings w/ Requests Made</strong> spreadsheet (.xlsx). Shows company meeting activity with requests and success ratio.</div>
+        <div class="upload-row">
+          <div style="min-width:110px">
+            <select id="mm-event" style="width:100%;padding:8px 12px;font-size:12px;font-family:inherit;border:2px solid #E0E0E0;border-radius:6px;background:#fff">
+              <option value="">Loading events...</option>
+            </select>
+          </div>
+          <div class="file-input-wrap">
+            <input type="file" id="mm-file" accept=".xlsx,.xls" onchange="document.getElementById('mm-upload-btn').disabled=!this.files.length">
+          </div>
+          <button class="btn btn-gold" id="mm-upload-btn" onclick="uploadMemberMeetings()" disabled>Upload Member Meetings</button>
+        </div>
+        <div class="upload-progress" id="mm-progress">
+          <div class="progress-bar"><div class="progress-fill" id="mm-progress-fill"></div></div>
+          <div class="progress-text" id="mm-progress-text">Uploading...</div>
+        </div>
+        <div class="upload-result" id="mm-result"></div>
+      </div>
+
+      <!-- PSR: Upload Participant Meetings -->
+      <div class="upload-section">
+        <h3>Upload Participant Meetings</h3>
+        <div class="desc">Upload the <strong>Total Confirmed Meeting Counts</strong> spreadsheet (.xlsx). Shows individual participant meeting rankings.</div>
+        <div class="upload-row">
+          <div style="min-width:110px">
+            <select id="pm-event" style="width:100%;padding:8px 12px;font-size:12px;font-family:inherit;border:2px solid #E0E0E0;border-radius:6px;background:#fff">
+              <option value="">Loading events...</option>
+            </select>
+          </div>
+          <div class="file-input-wrap">
+            <input type="file" id="pm-file" accept=".xlsx,.xls" onchange="document.getElementById('pm-upload-btn').disabled=!this.files.length">
+          </div>
+          <button class="btn btn-gold" id="pm-upload-btn" onclick="uploadParticipantMeetings()" disabled>Upload Participant Meetings</button>
+        </div>
+        <div class="upload-progress" id="pm-progress">
+          <div class="progress-bar"><div class="progress-fill" id="pm-progress-fill"></div></div>
+          <div class="progress-text" id="pm-progress-text">Uploading...</div>
+        </div>
+        <div class="upload-result" id="pm-result"></div>
+      </div>
+
+      <!-- PSR: Upload Webcast Metrics -->
+      <div class="upload-section">
+        <h3>Upload Webcast Metrics</h3>
+        <div class="desc">Upload the <strong>Video Metrics</strong> spreadsheet (.xlsx). Shows company video view counts and watch durations. Multiple sheets become separate sub-sections.</div>
+        <div class="upload-row">
+          <div style="min-width:110px">
+            <select id="wc-event" style="width:100%;padding:8px 12px;font-size:12px;font-family:inherit;border:2px solid #E0E0E0;border-radius:6px;background:#fff">
+              <option value="">Loading events...</option>
+            </select>
+          </div>
+          <div class="file-input-wrap">
+            <input type="file" id="wc-file" accept=".xlsx,.xls" onchange="document.getElementById('wc-upload-btn').disabled=!this.files.length">
+          </div>
+          <button class="btn btn-gold" id="wc-upload-btn" onclick="uploadWebcasts()" disabled>Upload Webcast Metrics</button>
+        </div>
+        <div class="upload-progress" id="wc-progress">
+          <div class="progress-bar"><div class="progress-fill" id="wc-progress-fill"></div></div>
+          <div class="progress-text" id="wc-progress-text">Uploading...</div>
+        </div>
+        <div class="upload-result" id="wc-result"></div>
+      </div>
+
+      <!-- PSR User Management -->
+      <div class="upload-section" id="psr-users-section">
+        <h3>PSR Report Users</h3>
+        <div class="desc">Manage who can view or edit Post Show Reports. Users sign in via magic link.</div>
+        <div id="psr-users-list" style="margin-bottom:16px"></div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:flex-end">
+          <div style="flex:1;min-width:160px">
+            <label style="font-size:11px;font-weight:600;color:#666;display:block;margin-bottom:4px">Email</label>
+            <input type="email" id="psr-user-email" placeholder="user@company.com" style="width:100%;padding:8px 12px;font-size:12px;font-family:inherit;border:2px solid #E0E0E0;border-radius:6px;outline:none">
+          </div>
+          <div style="min-width:120px">
+            <label style="font-size:11px;font-weight:600;color:#666;display:block;margin-bottom:4px">Name</label>
+            <input type="text" id="psr-user-name" placeholder="Full Name" style="width:100%;padding:8px 12px;font-size:12px;font-family:inherit;border:2px solid #E0E0E0;border-radius:6px;outline:none">
+          </div>
+          <div style="min-width:90px">
+            <label style="font-size:11px;font-weight:600;color:#666;display:block;margin-bottom:4px">Role</label>
+            <select id="psr-user-role" style="width:100%;padding:8px 12px;font-size:12px;font-family:inherit;border:2px solid #E0E0E0;border-radius:6px;background:#fff">
+              <option value="viewer">Viewer</option>
+              <option value="admin">Admin</option>
+            </select>
+          </div>
+          <button class="btn btn-gold" onclick="addPsrUser()" style="white-space:nowrap">Add User</button>
+        </div>
+        <div class="upload-result" id="psr-user-result"></div>
+      </div>
+
+      <!-- Section: Admin -->
+      <div style="margin:24px 0 12px;padding-bottom:4px;border-bottom:2px solid #E74C3C">
+        <h3 style="font-size:14px;font-weight:700;color:#E74C3C;margin:0;text-transform:uppercase;letter-spacing:0.5px">Admin</h3>
       </div>
 
       <!-- Danger zone -->
@@ -376,18 +523,24 @@
     &copy; 2026 Denver Gold Group. Admin Dashboard.
   </div>
 
+  <script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
   <script>
     var adminToken = sessionStorage.getItem('admin_token') || '';
 
     // Auto-login if token exists
     if (adminToken) showDashboard();
 
+    // Populate event selectors
+    populateEventSelectors();
+
     // Enable upload buttons when file selected
-    ['companies', 'mfe26', 'mfa26', 'mfe26-attendees', 'mfa26-attendees'].forEach(function(t) {
+    ['companies'].forEach(function(t) {
       document.getElementById(t + '-file').addEventListener('change', function() {
         document.getElementById(t + '-upload-btn').disabled = !this.files.length;
       });
     });
+
+    // No disabled-state listeners needed — buttons validate on click
 
     // Enter key on password
     document.getElementById('password-input').addEventListener('keydown', function(e) {
@@ -431,6 +584,69 @@
       document.getElementById('login-screen').style.display = 'none';
       document.getElementById('dashboard').style.display = 'block';
       loadStats();
+      loadPsrUsers();
+      loadPsrReportLinks();
+      loadTrackingEventSelector();
+      loadCxlEventSelector();
+      loadMeetingEventSelectors();
+    }
+
+    async function loadPsrReportLinks() {
+      try {
+        var res = await fetch('/api/psr?action=events', { headers: { 'Authorization': 'Bearer ' + adminToken } });
+        var data = await res.json();
+        var el = document.getElementById('psr-report-links');
+        if (!data.ok || !data.events || !data.events.length) {
+          el.innerHTML = '<span style="font-size:12px;color:#999">No PSR events found.</span>';
+          return;
+        }
+        var eventColors = { MFE: '#1B5E20', MFA: '#1A237E' };
+        var html = '';
+        data.events.forEach(function(evt) {
+          var color = eventColors[evt.event_type] || '#8B6914';
+          html += '<a href="/psr/' + evt.event_code + '" style="display:inline-flex;align-items:center;gap:6px;padding:10px 18px;background:#fff;border:2px solid ' + color + ';border-radius:8px;text-decoration:none;color:' + color + ';font-size:13px;font-weight:600;font-family:inherit;transition:all 0.15s"' +
+            ' onmouseover="this.style.background=\'' + color + '\';this.style.color=\'#fff\'" onmouseout="this.style.background=\'#fff\';this.style.color=\'' + color + '\'"' +
+            '>PSR-' + evt.event_code + '</a>';
+        });
+        el.innerHTML = html;
+      } catch (err) {
+        console.error('PSR links error:', err);
+      }
+    }
+
+    // Known event codes for dropdowns (current + prior years)
+    var EVENT_CODES = [
+      { code: 'MFE26', label: 'MFE26 — Mining Forum Europe 2026', color: '#1B5E20' },
+      { code: 'MFA26', label: 'MFA26 — Mining Forum Americas 2026', color: '#1A237E' },
+      { code: 'MFE25', label: 'MFE25 — Mining Forum Europe 2025', color: '#1B5E20' },
+      { code: 'MFA25', label: 'MFA25 — Mining Forum Americas 2025', color: '#1A237E' },
+      { code: 'MFE24', label: 'MFE24 — Mining Forum Europe 2024', color: '#1B5E20' },
+      { code: 'MFA24', label: 'MFA24 — Mining Forum Americas 2024', color: '#1A237E' },
+      { code: 'MFE23', label: 'MFE23 — Mining Forum Europe 2023', color: '#1B5E20' },
+      { code: 'MFA23', label: 'MFA23 — Mining Forum Americas 2023', color: '#1A237E' }
+    ];
+
+    function populateEventSelectors() {
+      var selects = [
+        document.getElementById('ep-event-select'),
+        document.getElementById('att-event-select')
+      ];
+      selects.forEach(function(sel) {
+        if (!sel) return;
+        EVENT_CODES.forEach(function(e) {
+          var opt = document.createElement('option');
+          opt.value = e.code;
+          opt.textContent = e.label;
+          sel.appendChild(opt);
+        });
+      });
+    }
+
+    function getEventCode(prefix) {
+      var sel = document.getElementById(prefix + '-event-select');
+      var custom = document.getElementById(prefix + '-custom-code');
+      var code = (custom && custom.value.trim()) || (sel && sel.value) || '';
+      return code.toUpperCase();
     }
 
     async function loadStats() {
@@ -441,16 +657,50 @@
         var data = await res.json();
         if (data.ok) {
           document.getElementById('stat-companies').textContent = data.companies || 0;
-          document.getElementById('stat-mfe').textContent = data.mfe26 || 0;
-          document.getElementById('stat-mfa').textContent = data.mfa26 || 0;
-          document.getElementById('stat-mfe-attendees').textContent = data.mfe26_attendees || 0;
-          document.getElementById('stat-mfa-attendees').textContent = data.mfa26_attendees || 0;
+
+          // Build dynamic event stats
+          var container = document.getElementById('dynamic-stats');
+          container.innerHTML = '';
+          var parts = data.participations || {};
+          var atts = data.attendees || {};
+          // Collect all event codes
+          var codes = {};
+          Object.keys(parts).forEach(function(k) { codes[k] = true; });
+          Object.keys(atts).forEach(function(k) { codes[k] = true; });
+          // Sort: current year first, then descending
+          var sorted = Object.keys(codes).sort(function(a, b) { return b.localeCompare(a); });
+          sorted.forEach(function(code) {
+            var isEurope = code.indexOf('MFE') === 0;
+            var color = isEurope ? '#1B5E20' : '#1A237E';
+            var pCount = parts[code] || 0;
+            var aCount = atts[code] || 0;
+            if (pCount) {
+              container.innerHTML += '<div class="stat-card"><div class="stat-num" style="color:' + color + '">' + pCount + '</div><div class="stat-lbl">' + code + ' Participants</div></div>';
+            }
+            if (aCount) {
+              container.innerHTML += '<div class="stat-card"><div class="stat-num" style="color:' + color + '">' + aCount + '</div><div class="stat-lbl">' + code + ' Attendees</div></div>';
+            }
+          });
+
+          // Event data summary table
+          if (sorted.length) {
+            var summaryEl = document.getElementById('event-data-summary');
+            var tableEl = document.getElementById('event-data-table');
+            summaryEl.style.display = 'block';
+            var html = '<table class="psr-table" style="font-size:12px"><thead><tr><th>Event</th><th class="num">Participants</th><th class="num">Attendees</th></tr></thead><tbody>';
+            sorted.forEach(function(code) {
+              html += '<tr><td>' + code + '</td><td class="num">' + (parts[code] || 0) + '</td><td class="num">' + (atts[code] || 0) + '</td></tr>';
+            });
+            html += '</tbody></table>';
+            tableEl.innerHTML = html;
+          }
         }
       } catch (err) {
         console.error('Stats error:', err);
       }
     }
 
+    // Generic CSV upload for companies (still uses old target ID)
     async function uploadCSV(target) {
       var fileInput = document.getElementById(target + '-file');
       var progressEl = document.getElementById(target + '-progress');
@@ -473,13 +723,21 @@
         fillEl.style.width = '40%';
         textEl.textContent = 'Uploading to server...';
 
+        var isJSON = file.name.endsWith('.json');
+        var payload = { target: target };
+        if (isJSON) {
+          payload.data = JSON.parse(text);
+        } else {
+          payload.csv = text;
+        }
+
         var res = await fetch('/api/upload', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
             'Authorization': 'Bearer ' + adminToken
           },
-          body: JSON.stringify({ target: target, csv: text })
+          body: JSON.stringify(payload)
         });
 
         fillEl.style.width = '80%';
@@ -508,6 +766,769 @@
       }
 
       btn.disabled = false;
+    }
+
+    // Event Participations upload
+    async function uploadEventParticipations() {
+      var code = getEventCode('ep');
+      if (!code) { alert('Please select or enter an event code.'); return; }
+      var fileInput = document.getElementById('ep-file');
+      if (!fileInput.files.length) { alert('Please choose a CSV file first.'); return; }
+      await doGenericUpload(code, fileInput, 'ep');
+    }
+
+    // Event Attendees upload
+    async function uploadEventAttendees() {
+      var code = getEventCode('att');
+      if (!code) { alert('Please select or enter an event code.'); return; }
+      var fileInput = document.getElementById('att-file');
+      if (!fileInput.files.length) { alert('Please choose a CSV file first.'); return; }
+      await doGenericUpload(code + '-attendees', fileInput, 'att');
+    }
+
+    async function doGenericUpload(target, fileInput, prefix) {
+      var progressEl = document.getElementById(prefix + '-progress');
+      var fillEl = document.getElementById(prefix + '-progress-fill');
+      var textEl = document.getElementById(prefix + '-progress-text');
+      var resultEl = document.getElementById(prefix + '-result');
+      var btn = document.getElementById(prefix + '-upload-btn');
+
+      var file = fileInput.files[0];
+      btn.disabled = true;
+      progressEl.style.display = 'block';
+      resultEl.style.display = 'none';
+      fillEl.style.width = '20%';
+      textEl.textContent = 'Reading file...';
+
+      try {
+        var text = await file.text();
+        fillEl.style.width = '40%';
+        textEl.textContent = 'Uploading ' + target.toUpperCase() + '...';
+
+        var isJSON = file.name.endsWith('.json');
+        var payload = { target: target.toLowerCase() };
+        if (isJSON) {
+          payload.data = JSON.parse(text);
+        } else {
+          payload.csv = text;
+        }
+
+        var res = await fetch('/api/upload', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer ' + adminToken
+          },
+          body: JSON.stringify(payload)
+        });
+
+        fillEl.style.width = '80%';
+        textEl.textContent = 'Processing...';
+
+        var data = await res.json();
+        fillEl.style.width = '100%';
+
+        if (data.ok) {
+          resultEl.className = 'upload-result success';
+          resultEl.textContent = data.message;
+          textEl.textContent = 'Done!';
+          loadStats();
+        } else {
+          resultEl.className = 'upload-result error';
+          resultEl.textContent = 'Error: ' + (data.error || 'Unknown error');
+          textEl.textContent = 'Failed';
+        }
+        resultEl.style.display = 'block';
+      } catch (err) {
+        resultEl.className = 'upload-result error';
+        resultEl.textContent = 'Upload failed: ' + err.message;
+        resultEl.style.display = 'block';
+        textEl.textContent = 'Failed';
+      }
+
+      btn.disabled = false;
+    }
+
+    // ── Tracking Upload ────────────────────────────────────
+    document.getElementById('tracking-file').addEventListener('change', function() {
+      document.getElementById('tracking-upload-btn').disabled = !this.files.length;
+    });
+
+    async function loadTrackingEventSelector() {
+      try {
+        var res = await fetch('/api/psr?action=events', { headers: { 'Authorization': 'Bearer ' + adminToken } });
+        var data = await res.json();
+        var sel = document.getElementById('tracking-event');
+        if (!data.ok || !data.events || !data.events.length) {
+          sel.innerHTML = '<option value="">No events</option>';
+          return;
+        }
+        sel.innerHTML = '';
+        data.events.forEach(function(e) {
+          var opt = document.createElement('option');
+          opt.value = JSON.stringify({ event_code: e.event_code, event_type: e.event_type, year: e.year });
+          opt.textContent = e.event_code + ' — ' + e.event_name;
+          sel.appendChild(opt);
+        });
+      } catch (err) {
+        console.error('Event selector error:', err);
+      }
+    }
+
+    async function uploadTracking() {
+      var fileInput = document.getElementById('tracking-file');
+      var eventSel = document.getElementById('tracking-event');
+      var progressEl = document.getElementById('tracking-progress');
+      var fillEl = document.getElementById('tracking-progress-fill');
+      var textEl = document.getElementById('tracking-progress-text');
+      var resultEl = document.getElementById('tracking-result');
+      var btn = document.getElementById('tracking-upload-btn');
+
+      if (!fileInput.files.length || !eventSel.value) return;
+      var evt = JSON.parse(eventSel.value);
+
+      btn.disabled = true;
+      progressEl.style.display = 'block';
+      resultEl.style.display = 'none';
+      fillEl.style.width = '20%';
+      textEl.textContent = 'Reading spreadsheet...';
+
+      try {
+        var arrayBuffer = await fileInput.files[0].arrayBuffer();
+        fillEl.style.width = '40%';
+        textEl.textContent = 'Parsing...';
+
+        var workbook = XLSX.read(arrayBuffer, { type: 'array' });
+
+        // Parse main sheet (first sheet) — active members
+        var sheet = workbook.Sheets[workbook.SheetNames[0]];
+        var jsonRows = XLSX.utils.sheet_to_json(sheet, { range: 1 }); // skip title row
+
+        // Map columns
+        var rows = jsonRows.filter(function(r) { return r['Company']; }).map(function(r) {
+          return {
+            company: r['Company'] || '',
+            track: r['Track'] || '',
+            status: r['Status'] || '',
+            mineral: r['Mineral'] || '',
+            country: r['Primary Country'] || '',
+            market_cap: r['Market Cap'] || null,
+            first_year: r['1st Year'] || null,
+            first_event: r['1st Event'] || '',
+            total_events: r['Total Events'] || null
+          };
+        });
+
+        // Check all sheets for "Not Returning" data
+        var notReturningRows = [];
+        workbook.SheetNames.forEach(function(name) {
+          if (name.toLowerCase().indexOf('not return') !== -1 || name.toLowerCase().indexOf('not_return') !== -1) {
+            var nrSheet = workbook.Sheets[name];
+            var nrJson = XLSX.utils.sheet_to_json(nrSheet, { range: 1 });
+            nrJson.filter(function(r) { return r['Company']; }).forEach(function(r) {
+              notReturningRows.push({
+                company: r['Company'] || '',
+                track: 'Not Returning',
+                status: r['Status'] || '',
+                mineral: r['Mineral'] || '',
+                country: r['Primary Country'] || '',
+                market_cap: r['Market Cap'] || null,
+                first_year: null,
+                first_event: null,
+                total_events: null
+              });
+            });
+          }
+        });
+
+        // Also pick up any "Not Returning" track values from the main sheet
+        rows.forEach(function(r) {
+          if (r.track && r.track.toLowerCase().replace(/ /g, '_') === 'not_returning') {
+            // Already in rows — will be handled server-side
+          }
+        });
+
+        if (!rows.length && !notReturningRows.length) {
+          resultEl.className = 'upload-result error';
+          resultEl.textContent = 'No data rows found in spreadsheet.';
+          resultEl.style.display = 'block';
+          btn.disabled = false;
+          progressEl.style.display = 'none';
+          return;
+        }
+
+        fillEl.style.width = '60%';
+        var totalMsg = rows.length + ' members';
+        if (notReturningRows.length) totalMsg += ' + ' + notReturningRows.length + ' not returning';
+        textEl.textContent = 'Uploading ' + totalMsg + '...';
+
+        var res = await fetch('/api/psr', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + adminToken },
+          body: JSON.stringify({
+            action: 'upload-tracking',
+            event_code: evt.event_code,
+            event_type: evt.event_type,
+            year: evt.year,
+            rows: rows,
+            not_returning_rows: notReturningRows
+          })
+        });
+
+        fillEl.style.width = '100%';
+        var data = await res.json();
+
+        if (data.ok) {
+          resultEl.className = 'upload-result success';
+          resultEl.textContent = data.message + ' (Total: ' + data.total + ')';
+          textEl.textContent = 'Done!';
+        } else {
+          resultEl.className = 'upload-result error';
+          resultEl.textContent = 'Error: ' + (data.error || 'Unknown');
+          textEl.textContent = 'Failed';
+        }
+        resultEl.style.display = 'block';
+      } catch (err) {
+        resultEl.className = 'upload-result error';
+        resultEl.textContent = 'Upload failed: ' + err.message;
+        resultEl.style.display = 'block';
+        textEl.textContent = 'Failed';
+      }
+      btn.disabled = false;
+    }
+
+    // ── Cancellations Upload ─────────────────────────────
+    document.getElementById('cxl-file').addEventListener('change', function() {
+      document.getElementById('cxl-upload-btn').disabled = !this.files.length;
+    });
+
+    async function loadCxlEventSelector() {
+      try {
+        var res = await fetch('/api/psr?action=events', { headers: { 'Authorization': 'Bearer ' + adminToken } });
+        var data = await res.json();
+        var sel = document.getElementById('cxl-event');
+        if (!data.ok || !data.events || !data.events.length) {
+          sel.innerHTML = '<option value="">No events</option>';
+          return;
+        }
+        sel.innerHTML = '';
+        data.events.forEach(function(e) {
+          var opt = document.createElement('option');
+          opt.value = e.event_code;
+          opt.textContent = e.event_code + ' — ' + e.event_name;
+          sel.appendChild(opt);
+        });
+      } catch (err) { console.error('CXL event selector error:', err); }
+    }
+
+    async function uploadCancellations() {
+      var fileInput = document.getElementById('cxl-file');
+      var eventCode = document.getElementById('cxl-event').value;
+      var progressEl = document.getElementById('cxl-progress');
+      var fillEl = document.getElementById('cxl-progress-fill');
+      var textEl = document.getElementById('cxl-progress-text');
+      var resultEl = document.getElementById('cxl-result');
+      var btn = document.getElementById('cxl-upload-btn');
+
+      if (!fileInput.files.length || !eventCode) { alert('Select an event and file.'); return; }
+
+      btn.disabled = true;
+      progressEl.style.display = 'block';
+      resultEl.style.display = 'none';
+      fillEl.style.width = '20%';
+      textEl.textContent = 'Reading spreadsheet...';
+
+      try {
+        var arrayBuffer = await fileInput.files[0].arrayBuffer();
+        fillEl.style.width = '40%';
+        textEl.textContent = 'Parsing...';
+
+        var workbook = XLSX.read(arrayBuffer, { type: 'array', cellDates: true });
+        var sheet = workbook.Sheets[workbook.SheetNames[0]];
+        var jsonRows = XLSX.utils.sheet_to_json(sheet);
+
+        var rows = jsonRows.filter(function(r) { return r['Company']; }).map(function(r) {
+          var mc = r['Market Cap'];
+          if (typeof mc === 'string' && mc.toLowerCase() === 'private') mc = null;
+          return {
+            company: r['Company'] || '',
+            status: r['Status'] || '',
+            mineral: r['Mineral'] || '',
+            primary_country: r['Primary Country'] || '',
+            market_cap: mc || null,
+            cxl_date: r['CXL Date'] ? new Date(r['CXL Date']).toISOString() : null,
+            company_reason: r['Company Reason'] || '',
+            dgg_response: r['DGG Response'] || ''
+          };
+        });
+
+        if (!rows.length) {
+          resultEl.className = 'upload-result error';
+          resultEl.textContent = 'No data rows found in spreadsheet.';
+          resultEl.style.display = 'block';
+          btn.disabled = false;
+          progressEl.style.display = 'none';
+          return;
+        }
+
+        fillEl.style.width = '60%';
+        textEl.textContent = 'Uploading ' + rows.length + ' cancellations...';
+
+        var res = await fetch('/api/psr', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + adminToken },
+          body: JSON.stringify({ action: 'upload-cancellations', event_code: eventCode, rows: rows })
+        });
+
+        fillEl.style.width = '100%';
+        var data = await res.json();
+
+        if (data.ok) {
+          resultEl.className = 'upload-result success';
+          resultEl.textContent = data.message;
+          textEl.textContent = 'Done!';
+        } else {
+          resultEl.className = 'upload-result error';
+          resultEl.textContent = 'Error: ' + (data.error || 'Unknown');
+          textEl.textContent = 'Failed';
+        }
+        resultEl.style.display = 'block';
+      } catch (err) {
+        resultEl.className = 'upload-result error';
+        resultEl.textContent = 'Upload failed: ' + err.message;
+        resultEl.style.display = 'block';
+        textEl.textContent = 'Failed';
+      }
+      btn.disabled = false;
+    }
+
+    // ── Meeting Data Uploads ────────────────────────────────
+    async function loadMeetingEventSelectors() {
+      try {
+        var r = await fetch('/api/psr?action=events', { headers: { 'Authorization': 'Bearer ' + adminToken } });
+        var d = await r.json();
+        if (!d.ok) return;
+        ['mm-event', 'pm-event', 'wc-event'].forEach(function(selId) {
+          var sel = document.getElementById(selId);
+          sel.innerHTML = '<option value="">Select event</option>';
+          d.events.forEach(function(e) {
+            var opt = document.createElement('option');
+            opt.value = e.event_code;
+            opt.textContent = e.event_code + ' — ' + e.event_name;
+            sel.appendChild(opt);
+          });
+        });
+      } catch (err) { console.error('Meeting event selector error:', err); }
+    }
+
+    async function uploadMemberMeetings() {
+      var fileInput = document.getElementById('mm-file');
+      var eventCode = document.getElementById('mm-event').value;
+      var progressEl = document.getElementById('mm-progress');
+      var fillEl = document.getElementById('mm-progress-fill');
+      var textEl = document.getElementById('mm-progress-text');
+      var resultEl = document.getElementById('mm-result');
+      var btn = document.getElementById('mm-upload-btn');
+
+      if (!fileInput.files.length || !eventCode) { alert('Select an event and file.'); return; }
+
+      btn.disabled = true;
+      progressEl.style.display = 'block';
+      resultEl.style.display = 'none';
+      fillEl.style.width = '20%';
+      textEl.textContent = 'Reading spreadsheet...';
+
+      try {
+        var arrayBuffer = await fileInput.files[0].arrayBuffer();
+        fillEl.style.width = '40%';
+        textEl.textContent = 'Parsing...';
+
+        var workbook = XLSX.read(arrayBuffer, { type: 'array' });
+        var sheet = workbook.Sheets[workbook.SheetNames[0]];
+        var jsonRows = XLSX.utils.sheet_to_json(sheet);
+
+        // Columns: Company ID, Company Name, Last Login, Requests Made, Total Confirmed Meetings
+        var rows = jsonRows.filter(function(r) { return r['Company Name']; }).map(function(r) {
+          return {
+            company_name: r['Company Name'] || '',
+            requests_made: parseInt(r['Requests Made']) || 0,
+            confirmed_meetings: parseInt(r['Total Confirmed Meetings']) || 0
+          };
+        });
+        // Sort by confirmed meetings descending
+        rows.sort(function(a, b) { return b.confirmed_meetings - a.confirmed_meetings; });
+
+        if (!rows.length) {
+          resultEl.className = 'upload-result error';
+          resultEl.textContent = 'No data rows found. Expected columns: Company Name, Requests Made, Total Confirmed Meetings.';
+          resultEl.style.display = 'block';
+          btn.disabled = false;
+          progressEl.style.display = 'none';
+          return;
+        }
+
+        fillEl.style.width = '60%';
+        textEl.textContent = 'Uploading ' + rows.length + ' member meeting records...';
+
+        var res = await fetch('/api/psr', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + adminToken },
+          body: JSON.stringify({ action: 'upload-member-meetings', event_code: eventCode, rows: rows })
+        });
+
+        fillEl.style.width = '100%';
+        var data = await res.json();
+
+        if (data.ok) {
+          resultEl.className = 'upload-result success';
+          resultEl.textContent = data.message;
+          textEl.textContent = 'Done!';
+        } else {
+          resultEl.className = 'upload-result error';
+          resultEl.textContent = 'Error: ' + (data.error || 'Unknown');
+          textEl.textContent = 'Failed';
+        }
+        resultEl.style.display = 'block';
+      } catch (err) {
+        resultEl.className = 'upload-result error';
+        resultEl.textContent = 'Upload failed: ' + err.message;
+        resultEl.style.display = 'block';
+        textEl.textContent = 'Failed';
+      }
+      btn.disabled = false;
+    }
+
+    async function uploadParticipantMeetings() {
+      var fileInput = document.getElementById('pm-file');
+      var eventCode = document.getElementById('pm-event').value;
+      var progressEl = document.getElementById('pm-progress');
+      var fillEl = document.getElementById('pm-progress-fill');
+      var textEl = document.getElementById('pm-progress-text');
+      var resultEl = document.getElementById('pm-result');
+      var btn = document.getElementById('pm-upload-btn');
+
+      if (!fileInput.files.length || !eventCode) { alert('Select an event and file.'); return; }
+
+      btn.disabled = true;
+      progressEl.style.display = 'block';
+      resultEl.style.display = 'none';
+      fillEl.style.width = '20%';
+      textEl.textContent = 'Reading spreadsheet...';
+
+      try {
+        var arrayBuffer = await fileInput.files[0].arrayBuffer();
+        fillEl.style.width = '40%';
+        textEl.textContent = 'Parsing...';
+
+        var workbook = XLSX.read(arrayBuffer, { type: 'array' });
+        var sheet = workbook.Sheets[workbook.SheetNames[0]];
+        var jsonRows = XLSX.utils.sheet_to_json(sheet);
+
+        // Columns: Attendee ID, First Name, Last Name, Company Name, Total Confirmed Meetings
+        // Merge same-company same-count participants into one row
+        var byKey = {};
+        var keyOrder = [];
+        jsonRows.forEach(function(r) {
+          if (!r['First Name'] && !r['Last Name']) return;
+          var name = ((r['First Name'] || '') + ' ' + (r['Last Name'] || '')).trim();
+          var company = r['Company Name'] || '';
+          var count = parseInt(r['Total Confirmed Meetings']) || 0;
+          var key = company + '|' + count;
+          if (!byKey[key]) {
+            byKey[key] = { names: [], company_name: company, confirmed_meetings: count };
+            keyOrder.push(key);
+          }
+          byKey[key].names.push(name);
+        });
+
+        var rows = keyOrder.map(function(key) {
+          var entry = byKey[key];
+          return {
+            name: entry.names.join(', '),
+            company_name: entry.company_name,
+            confirmed_meetings: entry.confirmed_meetings
+          };
+        });
+        // Sort by confirmed meetings descending
+        rows.sort(function(a, b) { return b.confirmed_meetings - a.confirmed_meetings; });
+
+        if (!rows.length) {
+          resultEl.className = 'upload-result error';
+          resultEl.textContent = 'No data rows found. Expected columns: First Name, Last Name, Company Name, Total Confirmed Meetings.';
+          resultEl.style.display = 'block';
+          btn.disabled = false;
+          progressEl.style.display = 'none';
+          return;
+        }
+
+        fillEl.style.width = '60%';
+        textEl.textContent = 'Uploading ' + rows.length + ' participant meeting records...';
+
+        var res = await fetch('/api/psr', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + adminToken },
+          body: JSON.stringify({ action: 'upload-participant-meetings', event_code: eventCode, rows: rows })
+        });
+
+        fillEl.style.width = '100%';
+        var data = await res.json();
+
+        if (data.ok) {
+          resultEl.className = 'upload-result success';
+          resultEl.textContent = data.message;
+          textEl.textContent = 'Done!';
+        } else {
+          resultEl.className = 'upload-result error';
+          resultEl.textContent = 'Error: ' + (data.error || 'Unknown');
+          textEl.textContent = 'Failed';
+        }
+        resultEl.style.display = 'block';
+      } catch (err) {
+        resultEl.className = 'upload-result error';
+        resultEl.textContent = 'Upload failed: ' + err.message;
+        resultEl.style.display = 'block';
+        textEl.textContent = 'Failed';
+      }
+      btn.disabled = false;
+    }
+
+    // ── Upload Webcast Metrics ──────────────────────────────
+    function parseDurationToMin(s) {
+      if (!s || typeof s !== 'string') return 0;
+      var h = 0, m = 0, sec = 0;
+      var hMatch = s.match(/(\d+)\s*h/);
+      var mMatch = s.match(/(\d+)\s*m/);
+      var sMatch = s.match(/(\d+)\s*s/);
+      if (hMatch) h = parseInt(hMatch[1]);
+      if (mMatch) m = parseInt(mMatch[1]);
+      if (sMatch) sec = parseInt(sMatch[1]);
+      return h * 60 + m + sec / 60;
+    }
+
+    async function uploadWebcasts() {
+      var fileInput = document.getElementById('wc-file');
+      var eventCode = document.getElementById('wc-event').value;
+      var progressEl = document.getElementById('wc-progress');
+      var fillEl = document.getElementById('wc-progress-fill');
+      var textEl = document.getElementById('wc-progress-text');
+      var resultEl = document.getElementById('wc-result');
+      var btn = document.getElementById('wc-upload-btn');
+
+      if (!fileInput.files.length || !eventCode) { alert('Select an event and file.'); return; }
+
+      btn.disabled = true;
+      progressEl.style.display = 'block';
+      resultEl.style.display = 'none';
+      fillEl.style.width = '20%';
+      textEl.textContent = 'Reading spreadsheet...';
+
+      // Map sheet names to webcast_type values
+      var sheetTypeMap = {
+        'event summary': 'event_summary',
+        'keynote speakers': 'keynote',
+        'keynotes': 'keynote',
+        'company summary': 'company_summary',
+        'companies': 'corporate',
+        'panels': 'panel'
+      };
+
+      try {
+        var arrayBuffer = await fileInput.files[0].arrayBuffer();
+        fillEl.style.width = '40%';
+        textEl.textContent = 'Parsing...';
+
+        var workbook = XLSX.read(arrayBuffer, { type: 'array' });
+        var rows = [];
+        var sortOrder = 0;
+
+        workbook.SheetNames.forEach(function(sheetName) {
+          var sheet = workbook.Sheets[sheetName];
+          var jsonRows = XLSX.utils.sheet_to_json(sheet);
+          var wType = sheetTypeMap[sheetName.toLowerCase().trim()] || sheetName.toLowerCase().replace(/\s+/g, '_');
+          var hasAvgViews = (wType === 'event_summary' || wType === 'company_summary');
+
+          jsonRows.forEach(function(r) {
+            var name = r['Company'] || r['Company Name'] || r['Name'] || r['Type'] || r['Status'] || r['Title'] || '';
+            if (!name) return;
+            var views = parseInt(r['Total Views'] || r['Views'] || 0) || 0;
+            var totalDur = parseDurationToMin(String(r['Total Duration'] || ''));
+            var avgDur = parseDurationToMin(String(r['Average Duration'] || r['Avg Duration'] || ''));
+            sortOrder++;
+            var row = {
+              webcast_type: wType,
+              entity_name: name,
+              total_views: views,
+              total_duration_min: Math.round(totalDur * 10000) / 10000,
+              avg_duration_min: Math.round(avgDur * 10000) / 10000,
+              sort_order: sortOrder
+            };
+            if (hasAvgViews) {
+              var av = r['Average Views'] || r['Avg Views'];
+              row.avg_views = av != null ? (parseInt(av) || 0) : null;
+            }
+            rows.push(row);
+          });
+        });
+
+        if (!rows.length) {
+          resultEl.className = 'upload-result error';
+          resultEl.textContent = 'No data rows found. Check that sheets have recognized column headers.';
+          resultEl.style.display = 'block';
+          btn.disabled = false;
+          progressEl.style.display = 'none';
+          return;
+        }
+
+        fillEl.style.width = '60%';
+        textEl.textContent = 'Uploading ' + rows.length + ' webcast records...';
+
+        var res = await fetch('/api/psr', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + adminToken },
+          body: JSON.stringify({ action: 'upload-webcasts', event_code: eventCode, rows: rows })
+        });
+
+        fillEl.style.width = '100%';
+        var data = await res.json();
+
+        if (data.ok) {
+          resultEl.className = 'upload-result success';
+          resultEl.textContent = data.message;
+          textEl.textContent = 'Done!';
+        } else {
+          resultEl.className = 'upload-result error';
+          resultEl.textContent = 'Error: ' + (data.error || 'Unknown');
+          textEl.textContent = 'Failed';
+        }
+        resultEl.style.display = 'block';
+      } catch (err) {
+        resultEl.className = 'upload-result error';
+        resultEl.textContent = 'Upload failed: ' + err.message;
+        resultEl.style.display = 'block';
+        textEl.textContent = 'Failed';
+      }
+      btn.disabled = false;
+    }
+
+    // ── PSR User Management ────────────────────────────────
+    async function loadPsrUsers() {
+      try {
+        var res = await fetch('/api/psr-auth?action=list-users', {
+          headers: { 'Authorization': 'Bearer ' + adminToken }
+        });
+        var data = await res.json();
+        if (!data.ok) return;
+        var el = document.getElementById('psr-users-list');
+        if (!data.users || !data.users.length) {
+          el.innerHTML = '<div style="font-size:12px;color:#999;padding:8px 0">No users yet.</div>';
+          return;
+        }
+        var html = '<table style="width:100%;border-collapse:collapse;font-size:12px">';
+        html += '<thead><tr><th style="text-align:left;padding:6px 8px;border-bottom:2px solid #E0E0E0;font-size:10px;text-transform:uppercase;color:#999">Email</th><th style="text-align:left;padding:6px 8px;border-bottom:2px solid #E0E0E0;font-size:10px;text-transform:uppercase;color:#999">Name</th><th style="padding:6px 8px;border-bottom:2px solid #E0E0E0;font-size:10px;text-transform:uppercase;color:#999">Role</th><th style="padding:6px 8px;border-bottom:2px solid #E0E0E0;font-size:10px;text-transform:uppercase;color:#999">Actions</th></tr></thead><tbody>';
+        data.users.forEach(function(u) {
+          html += '<tr>';
+          html += '<td style="padding:6px 8px;border-bottom:1px solid #F0F2F5">' + u.email + '</td>';
+          html += '<td style="padding:6px 8px;border-bottom:1px solid #F0F2F5">' + (u.name || '—') + '</td>';
+          html += '<td style="padding:6px 8px;border-bottom:1px solid #F0F2F5;text-align:center"><span style="padding:2px 8px;border-radius:4px;font-size:10px;font-weight:600;background:' + (u.role === 'admin' ? '#EBF5FB;color:#1A5276' : '#F5F6FA;color:#666') + '">' + u.role + '</span></td>';
+          html += '<td style="padding:6px 8px;border-bottom:1px solid #F0F2F5;text-align:center;white-space:nowrap">';
+          html += '<button onclick="sendMagicLink(' + u.id + ',\'' + u.email + '\')" style="font-size:11px;padding:3px 8px;border:1px solid #E0E0E0;background:#fff;border-radius:4px;cursor:pointer;font-family:inherit;margin-right:4px" title="Generate login link">Send Link</button>';
+          html += '<button onclick="togglePsrRole(' + u.id + ',\'' + u.role + '\')" style="font-size:11px;padding:3px 8px;border:1px solid #E0E0E0;background:#fff;border-radius:4px;cursor:pointer;font-family:inherit;margin-right:4px" title="Toggle role">' + (u.role === 'admin' ? 'Make Viewer' : 'Make Admin') + '</button>';
+          html += '<button onclick="removePsrUser(' + u.id + ')" style="font-size:11px;padding:3px 8px;border:1px solid #F5B7B1;background:#fff;border-radius:4px;cursor:pointer;font-family:inherit;color:#C0392B" title="Remove user">Remove</button>';
+          html += '</td></tr>';
+        });
+        html += '</tbody></table>';
+        el.innerHTML = html;
+      } catch (err) {
+        console.error('PSR users error:', err);
+      }
+    }
+
+    async function addPsrUser() {
+      var email = document.getElementById('psr-user-email').value.trim();
+      var name = document.getElementById('psr-user-name').value.trim();
+      var role = document.getElementById('psr-user-role').value;
+      var resultEl = document.getElementById('psr-user-result');
+      if (!email) { alert('Email is required'); return; }
+
+      try {
+        var res = await fetch('/api/psr-auth', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + adminToken },
+          body: JSON.stringify({ action: 'add-user', email: email, name: name, role: role })
+        });
+        var data = await res.json();
+        if (data.ok) {
+          document.getElementById('psr-user-email').value = '';
+          document.getElementById('psr-user-name').value = '';
+          resultEl.className = 'upload-result success';
+          resultEl.textContent = 'User added: ' + email;
+          resultEl.style.display = 'block';
+          loadPsrUsers();
+          setTimeout(function() { resultEl.style.display = 'none'; }, 3000);
+        } else {
+          resultEl.className = 'upload-result error';
+          resultEl.textContent = data.error || 'Failed to add user';
+          resultEl.style.display = 'block';
+        }
+      } catch (err) {
+        resultEl.className = 'upload-result error';
+        resultEl.textContent = 'Error: ' + err.message;
+        resultEl.style.display = 'block';
+      }
+    }
+
+    async function removePsrUser(id) {
+      if (!confirm('Remove this user?')) return;
+      try {
+        var res = await fetch('/api/psr-auth', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + adminToken },
+          body: JSON.stringify({ action: 'remove-user', id: id })
+        });
+        var data = await res.json();
+        if (data.ok) loadPsrUsers();
+        else alert('Error: ' + (data.error || 'Unknown'));
+      } catch (err) { alert('Error: ' + err.message); }
+    }
+
+    async function togglePsrRole(id, currentRole) {
+      var newRole = currentRole === 'admin' ? 'viewer' : 'admin';
+      try {
+        var res = await fetch('/api/psr-auth', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + adminToken },
+          body: JSON.stringify({ action: 'update-user', id: id, role: newRole })
+        });
+        var data = await res.json();
+        if (data.ok) loadPsrUsers();
+        else alert('Error: ' + (data.error || 'Unknown'));
+      } catch (err) { alert('Error: ' + err.message); }
+    }
+
+    async function sendMagicLink(id, email) {
+      try {
+        var res = await fetch('/api/psr-auth', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + adminToken },
+          body: JSON.stringify({ action: 'request-link', email: email, base_url: window.location.origin })
+        });
+        var data = await res.json();
+        if (data.ok) {
+          if (data.magic_url) {
+            // Copy to clipboard
+            if (navigator.clipboard) {
+              navigator.clipboard.writeText(data.magic_url);
+              alert('Login link copied to clipboard!' + (data.email_sent ? ' Email also sent.' : ''));
+            } else {
+              prompt('Login link (copy it):', data.magic_url);
+            }
+          } else if (data.email_sent) {
+            alert('Login link emailed to ' + email);
+          }
+        } else {
+          alert('Error: ' + (data.error || 'Unknown'));
+        }
+      } catch (err) { alert('Error: ' + err.message); }
     }
 
     async function purgeTable(target) {

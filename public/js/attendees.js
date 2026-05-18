@@ -8,7 +8,7 @@ var CHART_COLORS = [
 
 function renderAttendees(attendees, cfg) {
   if (!attendees || attendees.length === 0) {
-    return '<div style="padding:60px;text-align:center;color:#7F8C8D"><h3>No attendee data available</h3><p style="margin-top:8px;font-size:12px">Upload an attendees CSV from the Admin panel.</p></div>';
+    return '<div style="padding:60px;text-align:center;color:#7F8C8D"><h3>No attendee data available</h3></div>';
   }
 
   var all = attendees;
@@ -18,7 +18,7 @@ function renderAttendees(attendees, cfg) {
   var speakers = all.filter(function(a) { return a.type === 'Speaker'; });
   var buyside = participants.filter(function(a) { return a.category === 'Buy-Side'; });
 
-  var MULT = 1.11;
+  var MULT = 1.045;
 
   var html = '';
 

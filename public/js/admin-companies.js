@@ -143,6 +143,9 @@ function acRender(companies) {
   html += '<button class="prog-filter-reset' + (_acPayFilter ? ' visible' : '') + '" id="ac-pay-reset" onclick="acClearPay()">Clear</button>';
   html += '</div>';
 
+  // Filter summary
+  html += '<div class="ac-filter-summary" id="ac-filter-summary"></div>';
+
   // Table
   html += acBuildTable(companies);
 
@@ -460,12 +463,14 @@ function acToggleProg(val) {
   _acProgFilter = _acProgFilter === val ? null : val;
   acUpdateProgUI();
   acApplyProgFilter();
+  acUpdateFilteredCount();
 }
 
 function acClearProg() {
   _acProgFilter = null;
   acUpdateProgUI();
   acApplyProgFilter();
+  acUpdateFilteredCount();
 }
 
 function acUpdateProgUI() {
@@ -493,12 +498,14 @@ function acTogglePay(val) {
   _acPayFilter = _acPayFilter === val ? null : val;
   acUpdatePayUI();
   acApplyPayFilter();
+  acUpdateFilteredCount();
 }
 
 function acClearPay() {
   _acPayFilter = null;
   acUpdatePayUI();
   acApplyPayFilter();
+  acUpdateFilteredCount();
 }
 
 function acUpdatePayUI() {
@@ -521,6 +528,61 @@ function acApplyPayFilter() {
       row.classList.toggle('pay-dimmed', !match);
     }
   });
+}
+
+// ---- Filter summary ----
+function acUpdateFilteredCount() {
+  var el = document.getElementById('ac-filter-summary');
+  if (!el) return;
+
+  var anyFilter = _acFilters.mineral || _acFilters.status || _acFilters.country ||
+    _acFilters.exchange || _acFilters.octile || _acProgFilter || _acPayFilter;
+  if (!anyFilter) {
+    el.style.display = 'none';
+    return;
+  }
+
+  var total = 0;
+  var matched = 0;
+  var matchedMcap = 0;
+  var companies = _acData[_acEvent] || [];
+  total = companies.length;
+
+  document.querySelectorAll('#ac-table tbody tr[data-mineral]').forEach(function(row) {
+    var hidden = row.style.display === 'none';
+    var dimmed = row.classList.contains('prog-dimmed') || row.classList.contains('pay-dimmed');
+    if (!hidden && !dimmed) matched++;
+  });
+
+  // Build active filter tags
+  var tags = [];
+  if (_acFilters.mineral) tags.push(_acFilters.mineral);
+  if (_acFilters.status) tags.push(acShortStatus(_acFilters.status));
+  if (_acFilters.country) tags.push(_acFilters.country);
+  if (_acFilters.exchange) tags.push(_acFilters.exchange);
+  if (_acFilters.octile) tags.push('O' + _acFilters.octile);
+  if (_acProgFilter === 'yes') tags.push('Programmed');
+  if (_acProgFilter === 'no') tags.push('Not Programmed');
+  if (_acPayFilter === 'paid') tags.push('Paid');
+  if (_acPayFilter === 'unpaid') tags.push('Unpaid');
+  if (_acPayFilter === 'none') tags.push('No Payment Data');
+
+  var tagHtml = tags.map(function(t) {
+    return '<span class="filter-tag">' + escHtml(t) + '</span>';
+  }).join('');
+
+  el.style.display = '';
+  el.innerHTML = '<span class="filter-count">' + matched + '</span> of ' + total + ' companies' + tagHtml +
+    '<button class="filter-clear-all" onclick="acClearAllFilters()">Clear All</button>';
+}
+
+function acClearAllFilters() {
+  _acFilters = { mineral: null, status: null, country: null, exchange: null, octile: null };
+  _acProgFilter = null;
+  _acPayFilter = null;
+  acUpdateProgUI();
+  acUpdatePayUI();
+  acApplyAllFilters();
 }
 
 // ---- Mineral/Status/Country/Exchange filters ----
@@ -629,6 +691,9 @@ function acApplyAllFilters() {
   // Also apply prog and pay filters (dimming pattern)
   acApplyProgFilter();
   acApplyPayFilter();
+
+  // Update filtered count
+  acUpdateFilteredCount();
 }
 
 function acResetMineral() { _acFilters.mineral = null; acApplyAllFilters(); }

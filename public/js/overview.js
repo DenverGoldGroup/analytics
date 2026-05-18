@@ -77,8 +77,9 @@ function renderTopCompaniesTable(companies, cfg) {
   top.forEach(function(c, i) {
     var mg = getMineralGroup(c.primary_mineral);
     var flag = getFlag(c.primary_country);
-    var profileLink = c.profile_url
-      ? '<a href="' + c.profile_url + '" target="_blank" style="color:inherit;text-decoration:none">' + escHtml(c.company_name) + '</a>'
+    var safeUrl = safeHref(c.profile_url);
+    var profileLink = safeUrl
+      ? '<a href="' + safeUrl + '" target="_blank" rel="noopener" style="color:inherit;text-decoration:none">' + escHtml(c.company_name) + '</a>'
       : escHtml(c.company_name);
 
     html += '<tr>';

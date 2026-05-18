@@ -22,7 +22,8 @@ function verifyToken(authHeader) {
   if (parts.length !== 3) return false;
 
   const [tokenBytes, timestamp, providedSignature] = parts;
-  const secret = (process.env.ADMIN_PASSWORD || '') + (process.env.SUPABASE_SERVICE_ROLE_KEY || 'fallback');
+  if (!process.env.ADMIN_PASSWORD || !process.env.SUPABASE_SERVICE_ROLE_KEY) return false;
+  const secret = process.env.ADMIN_PASSWORD + process.env.SUPABASE_SERVICE_ROLE_KEY;
 
   const expectedSignature = crypto
     .createHmac('sha256', secret)
@@ -138,7 +139,7 @@ async function refreshPrices(sb, apiKey) {
 }
 
 module.exports = async function handler(req, res) {
-  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Access-Control-Allow-Origin', 'https://analytics.miningforum.com');
   res.setHeader('Access-Control-Allow-Methods', 'GET, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
 
@@ -228,7 +229,7 @@ module.exports = async function handler(req, res) {
 
   } catch (err) {
     console.error('Metals API error:', err);
-    return res.status(500).json({ ok: false, error: err.message });
+    return res.status(500).json({ ok: false, error: 'Internal server error' });
   }
 };
 

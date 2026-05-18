@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="icon" type="image/png" href="/favicon/favicon-96x96.png" sizes="96x96">
+  <link rel="icon" type="image/svg+xml" href="/favicon/favicon.svg">
+  <link rel="shortcut icon" href="/favicon/favicon.ico">
+  <link rel="apple-touch-icon" sizes="180x180" href="/favicon/apple-touch-icon.png">
+  <link rel="manifest" href="/favicon/site.webmanifest">
+  <title>Post Show Report — Sign In</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Inter', sans-serif; background: #F0F2F5; min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+    .login-wrap { max-width: 420px; width: 100%; padding: 24px; }
+    .login-card { background: #fff; border-radius: 12px; padding: 40px 32px; box-shadow: 0 4px 20px rgba(0,0,0,0.1); text-align: center; }
+    .login-card .logo { height: 48px; margin-bottom: 24px; }
+    .login-card h1 { font-size: 22px; font-weight: 800; color: #1B2631; margin-bottom: 6px; }
+    .login-card .sub { font-size: 13px; color: #7F8C8D; margin-bottom: 24px; line-height: 1.5; }
+    .login-card input[type="email"] {
+      width: 100%; padding: 12px 16px; font-size: 14px;
+      border: 2px solid #E0E0E0; border-radius: 8px;
+      font-family: inherit; outline: none; transition: border-color 0.2s;
+    }
+    .login-card input[type="email"]:focus { border-color: #D4A017; }
+    .btn-gold {
+      display: block; width: 100%; margin-top: 16px; padding: 12px;
+      font-size: 14px; font-weight: 700; font-family: inherit;
+      border: none; border-radius: 8px; cursor: pointer;
+      color: #fff; background: #D4A017; transition: background 0.2s;
+    }
+    .btn-gold:hover { background: #B8860B; }
+    .btn-gold:disabled { opacity: 0.5; cursor: not-allowed; }
+    .status { margin-top: 16px; padding: 12px 16px; border-radius: 8px; font-size: 13px; line-height: 1.5; display: none; }
+    .status.success { display: block; background: #EAFAF1; color: #1E8449; border: 1px solid #A9DFBF; }
+    .status.error { display: block; background: #FDEDEC; color: #C0392B; border: 1px solid #F5B7B1; }
+    .status.info { display: block; background: #EBF5FB; color: #1A5276; border: 1px solid #AED6F1; }
+    .spinner { display: inline-block; width: 32px; height: 32px; border: 3px solid #E0E0E0; border-top-color: #D4A017; border-radius: 50%; animation: spin 0.8s linear infinite; margin-bottom: 16px; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .footer { margin-top: 24px; font-size: 11px; color: #999; text-align: center; letter-spacing: 0.3px; }
+  </style>
+</head>
+<body>
+
+  <div class="login-wrap">
+    <!-- Login form -->
+    <div class="login-card" id="login-form-card">
+      <img class="logo" src="/logos/dgg-logo.png" alt="Denver Gold Group">
+      <h1>Post Show Report</h1>
+      <p class="sub">Enter your email address to receive a secure sign-in link</p>
+      <form id="login-form" onsubmit="requestLink(event)">
+        <input type="email" id="email-input" placeholder="you@company.com" required autocomplete="email">
+        <button type="submit" class="btn-gold" id="submit-btn">Send Login Link</button>
+      </form>
+      <div class="status" id="status"></div>
+    </div>
+
+    <!-- Verify state -->
+    <div class="login-card" id="verify-card" style="display:none">
+      <div class="spinner"></div>
+      <h1>Verifying</h1>
+      <p class="sub">Checking your login link...</p>
+      <div class="status" id="verify-status"></div>
+    </div>
+
+    <div class="footer">Denver Gold Group — Confidential</div>
+  </div>
+
+  <script>
+    var params = new URLSearchParams(window.location.search);
+    var redirect = params.get('redirect') || '/psr/MFE26';
+    var verifyToken = params.get('verify');
+
+    // Already logged in? Go straight through.
+    if (sessionStorage.getItem('psr_token') || sessionStorage.getItem('admin_token')) {
+      window.location.href = redirect;
+    }
+
+    // If verify param present, auto-verify the magic link
+    if (verifyToken) {
+      document.getElementById('login-form-card').style.display = 'none';
+      document.getElementById('verify-card').style.display = 'block';
+      verifyMagicLink(verifyToken);
+    }
+
+    function requestLink(e) {
+      e.preventDefault();
+      var email = document.getElementById('email-input').value.trim();
+      var btn = document.getElementById('submit-btn');
+      var statusEl = document.getElementById('status');
+      if (!email) return;
+
+      btn.disabled = true;
+      btn.textContent = 'Sending...';
+      statusEl.className = 'status';
+      statusEl.removeAttribute('style');
+
+      fetch('/api/psr-auth', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action: 'request-link',
+          email: email,
+          redirect: redirect
+        })
+      })
+      .then(function(r) { return r.json(); })
+      .then(function(data) {
+        if (data.ok) {
+          if (data.email_sent) {
+            statusEl.className = 'status success';
+            statusEl.textContent = 'Login link sent! Check your email (expires in 15 minutes).';
+          } else {
+            statusEl.className = 'status info';
+            statusEl.textContent = 'Your account was found. Please ask your administrator to share your access link.';
+          }
+        } else {
+          statusEl.className = 'status error';
+          statusEl.textContent = data.error || 'Something went wrong.';
+        }
+        btn.disabled = false;
+        btn.textContent = 'Send Login Link';
+      })
+      .catch(function(err) {
+        statusEl.className = 'status error';
+        statusEl.textContent = 'Connection error. Please try again.';
+        btn.disabled = false;
+        btn.textContent = 'Send Login Link';
+      });
+    }
+
+    function verifyMagicLink(token) {
+      var statusEl = document.getElementById('verify-status');
+
+      fetch('/api/psr-auth?action=verify&token=' + encodeURIComponent(token))
+        .then(function(r) { return r.json(); })
+        .then(function(data) {
+          if (data.ok) {
+            sessionStorage.setItem('psr_token', data.token);
+            sessionStorage.setItem('psr_user', JSON.stringify(data.user));
+            statusEl.className = 'status success';
+            statusEl.textContent = 'Welcome, ' + (data.user.name || data.user.email) + '! Redirecting...';
+            setTimeout(function() { window.location.href = redirect; }, 600);
+          } else {
+            statusEl.className = 'status error';
+            statusEl.textContent = data.error || 'Invalid link. Please request a new one.';
+            setTimeout(function() {
+              document.getElementById('verify-card').style.display = 'none';
+              document.getElementById('login-form-card').style.display = 'block';
+            }, 2500);
+          }
+        })
+        .catch(function(err) {
+          statusEl.className = 'status error';
+          statusEl.textContent = 'Connection error. Please try again.';
+        });
+    }
+  </script>
+
+</body>
+</html>

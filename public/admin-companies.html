@@ -71,6 +71,16 @@
     .data-table tbody tr.prog-dimmed { opacity: 0.15; pointer-events: none; }
     .data-table tbody tr.pay-dimmed { opacity: 0.15; pointer-events: none; }
 
+    /* Filter summary bar */
+    .ac-filter-summary { display: none; padding: 10px 16px; margin-bottom: 16px; background: #FFF8E1; border: 2px solid var(--color-gold); border-radius: 10px; font-size: 13px; font-weight: 600; color: var(--header-mid); align-items: center; gap: 8px; flex-wrap: wrap; }
+    .ac-filter-summary { display: none; }
+    .ac-filter-summary[style*="display: none"] { display: none !important; }
+    .ac-filter-summary:not([style*="display: none"]) { display: flex; }
+    .ac-filter-summary .filter-count { font-size: 20px; font-weight: 800; color: var(--color-gold); margin-right: 2px; }
+    .ac-filter-summary .filter-tag { display: inline-flex; padding: 3px 10px; border-radius: 12px; font-size: 11px; font-weight: 600; background: var(--header-mid); color: #fff; margin-left: 4px; }
+    .ac-filter-summary .filter-clear-all { margin-left: auto; font-size: 11px; font-weight: 600; color: var(--text-secondary); background: none; border: 1px solid #ccc; border-radius: 6px; cursor: pointer; padding: 4px 12px; font-family: inherit; }
+    .ac-filter-summary .filter-clear-all:hover { color: var(--header-mid); border-color: var(--color-gold); }
+
     /* Upload panel */
     .ac-upload-panel { background: #fff; border: 2px solid var(--color-gold); border-radius: 12px; padding: 16px 20px; margin-bottom: 16px; }
     .ac-upload-panel h3 { font-size: 14px; font-weight: 700; color: var(--header-mid); margin: 0 0 6px 0; }
@@ -152,7 +162,7 @@
   </div>
 
   <script src="/js/supabase-client.js?v=3"></script>
-  <script src="/js/admin-companies.js?v=6"></script>
+  <script src="/js/admin-companies.js?v=7"></script>
 
 </body>
 </html>
