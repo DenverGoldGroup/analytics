@@ -38,6 +38,7 @@
       color: var(--text-secondary);
       margin-bottom: 24px;
     }
+    .login-card input[type="email"],
     .login-card input[type="password"] {
       width: 100%;
       padding: 10px 14px;
@@ -47,7 +48,10 @@
       font-family: inherit;
       outline: none;
       transition: border-color 0.2s;
+      margin-bottom: 10px;
+      box-sizing: border-box;
     }
+    .login-card input[type="email"]:focus,
     .login-card input[type="password"]:focus {
       border-color: var(--color-gold);
     }
@@ -237,10 +241,11 @@
   <div id="login-screen">
     <div class="login-card">
       <h2>Admin Login</h2>
-      <p>Enter the admin password to manage data uploads.</p>
+      <p>Sign in to manage data uploads.</p>
+      <input type="email" id="email-input" placeholder="Email" autocomplete="username">
       <input type="password" id="password-input" placeholder="Password" autocomplete="current-password">
       <button class="btn btn-gold" onclick="doLogin()">Sign In</button>
-      <div class="login-error" id="login-error">Invalid password. Please try again.</div>
+      <div class="login-error" id="login-error">Invalid credentials. Please try again.</div>
     </div>
   </div>
 
@@ -251,9 +256,12 @@
       <div class="admin-header">
         <h2>Data Center</h2>
         <div>
+          <span id="admin-user-badge" style="display:inline-flex;align-items:center;gap:6px;padding:6px 12px;background:#F5F6FA;border-radius:8px;font-size:11px;font-weight:600;color:var(--text-secondary);margin-right:8px"></span>
           <a href="/admin-companies" class="btn btn-outline" style="margin-right:8px">Company Program Status</a>
           <a href="/admin-sessions" class="btn btn-outline" style="margin-right:8px">Session Allocation</a>
           <a href="/activity-log" class="btn btn-outline" style="margin-right:8px">Activity Log</a>
+          <a href="/admin-deals" class="btn btn-outline" style="margin-right:8px">M&amp;A Deals</a>
+          <a id="manage-users-link" href="/admin-users" class="btn btn-outline" style="margin-right:8px;display:none">Manage Users</a>
           <a href="/" class="btn btn-outline" style="margin-right:8px">View Site</a>
           <button class="btn btn-outline" onclick="doLogout()">Log Out</button>
         </div>
@@ -523,12 +531,54 @@
     &copy; 2026 Denver Gold Group. Admin Dashboard.
   </div>
 
-  <script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
+  <script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js" integrity="sha384-EnyY0/GSHQGSxSgMwaIPzSESbqoOLSexfnSMN2AP+39Ckmn92stwABZynq1JyzdT" crossorigin="anonymous"></script>
   <script>
     var adminToken = sessionStorage.getItem('admin_token') || '';
 
-    // Auto-login if token exists
-    if (adminToken) showDashboard();
+    // Handle magic link: ?magic=TOKEN
+    (function() {
+      var params = new URLSearchParams(window.location.search);
+      var magicToken = params.get('magic');
+      if (magicToken) {
+        // Clear URL immediately
+        window.history.replaceState({}, '', '/admin');
+        // Verify magic link
+        fetch('/api/auth', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ action: 'verify-magic-link', token: magicToken })
+        }).then(function(res) { return res.json(); }).then(function(data) {
+          if (data.ok) {
+            adminToken = data.token;
+            sessionStorage.setItem('admin_token', adminToken);
+            if (data.user) sessionStorage.setItem('admin_user', JSON.stringify(data.user));
+            showDashboard();
+          } else {
+            var errEl = document.getElementById('login-error');
+            errEl.textContent = data.error || 'Magic link is invalid or expired.';
+            errEl.style.display = 'block';
+          }
+        }).catch(function(err) {
+          var errEl = document.getElementById('login-error');
+          errEl.textContent = 'Connection error: ' + err.message;
+          errEl.style.display = 'block';
+        });
+      } else if (adminToken) {
+        showDashboard();
+      }
+    })();
+
+    // Known event codes for dropdowns (current + prior years)
+    var EVENT_CODES = [
+      { code: 'MFE26', label: 'MFE26 — Mining Forum Europe 2026', color: '#1B5E20' },
+      { code: 'MFA26', label: 'MFA26 — Mining Forum Americas 2026', color: '#1A237E' },
+      { code: 'MFE25', label: 'MFE25 — Mining Forum Europe 2025', color: '#1B5E20' },
+      { code: 'MFA25', label: 'MFA25 — Mining Forum Americas 2025', color: '#1A237E' },
+      { code: 'MFE24', label: 'MFE24 — Mining Forum Europe 2024', color: '#1B5E20' },
+      { code: 'MFA24', label: 'MFA24 — Mining Forum Americas 2024', color: '#1A237E' },
+      { code: 'MFE23', label: 'MFE23 — Mining Forum Europe 2023', color: '#1B5E20' },
+      { code: 'MFA23', label: 'MFA23 — Mining Forum Americas 2023', color: '#1A237E' }
+    ];
 
     // Populate event selectors
     populateEventSelectors();
@@ -542,28 +592,42 @@
 
     // No disabled-state listeners needed — buttons validate on click
 
-    // Enter key on password
+    // Enter key on login fields
+    document.getElementById('email-input').addEventListener('keydown', function(e) {
+      if (e.key === 'Enter') document.getElementById('password-input').focus();
+    });
     document.getElementById('password-input').addEventListener('keydown', function(e) {
       if (e.key === 'Enter') doLogin();
     });
 
     async function doLogin() {
+      var email = document.getElementById('email-input').value.trim();
       var pw = document.getElementById('password-input').value;
       var errEl = document.getElementById('login-error');
       errEl.style.display = 'none';
+
+      if (!email || !pw) {
+        errEl.textContent = 'Please enter your email and password.';
+        errEl.style.display = 'block';
+        return;
+      }
 
       try {
         var res = await fetch('/api/auth', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ password: pw })
+          body: JSON.stringify({ email: email, password: pw })
         });
         var data = await res.json();
         if (data.ok) {
           adminToken = data.token;
           sessionStorage.setItem('admin_token', adminToken);
+          if (data.user) {
+            sessionStorage.setItem('admin_user', JSON.stringify(data.user));
+          }
           showDashboard();
         } else {
+          errEl.textContent = data.error || 'Invalid credentials. Please try again.';
           errEl.style.display = 'block';
         }
       } catch (err) {
@@ -575,14 +639,25 @@
     function doLogout() {
       adminToken = '';
       sessionStorage.removeItem('admin_token');
+      sessionStorage.removeItem('admin_user');
       document.getElementById('dashboard').style.display = 'none';
       document.getElementById('login-screen').style.display = 'block';
+      document.getElementById('email-input').value = '';
       document.getElementById('password-input').value = '';
     }
 
     function showDashboard() {
       document.getElementById('login-screen').style.display = 'none';
       document.getElementById('dashboard').style.display = 'block';
+      var userBadge = document.getElementById('admin-user-badge');
+      try {
+        var u = JSON.parse(sessionStorage.getItem('admin_user') || '{}');
+        userBadge.textContent = u.name || u.email || '';
+        // Show "Manage Users" link for super_admins
+        if (u.role === 'super_admin') {
+          document.getElementById('manage-users-link').style.display = '';
+        }
+      } catch (e) { userBadge.textContent = ''; }
       loadStats();
       loadPsrUsers();
       loadPsrReportLinks();
@@ -613,18 +688,6 @@
         console.error('PSR links error:', err);
       }
     }
-
-    // Known event codes for dropdowns (current + prior years)
-    var EVENT_CODES = [
-      { code: 'MFE26', label: 'MFE26 — Mining Forum Europe 2026', color: '#1B5E20' },
-      { code: 'MFA26', label: 'MFA26 — Mining Forum Americas 2026', color: '#1A237E' },
-      { code: 'MFE25', label: 'MFE25 — Mining Forum Europe 2025', color: '#1B5E20' },
-      { code: 'MFA25', label: 'MFA25 — Mining Forum Americas 2025', color: '#1A237E' },
-      { code: 'MFE24', label: 'MFE24 — Mining Forum Europe 2024', color: '#1B5E20' },
-      { code: 'MFA24', label: 'MFA24 — Mining Forum Americas 2024', color: '#1A237E' },
-      { code: 'MFE23', label: 'MFE23 — Mining Forum Europe 2023', color: '#1B5E20' },
-      { code: 'MFA23', label: 'MFA23 — Mining Forum Americas 2023', color: '#1A237E' }
-    ];
 
     function populateEventSelectors() {
       var selects = [

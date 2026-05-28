@@ -1,0 +1,640 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="icon" type="image/png" href="/favicon/favicon-96x96.png" sizes="96x96">
+  <link rel="icon" type="image/svg+xml" href="/favicon/favicon.svg">
+  <link rel="shortcut icon" href="/favicon/favicon.ico">
+  <link rel="apple-touch-icon" sizes="180x180" href="/favicon/apple-touch-icon.png">
+  <link rel="manifest" href="/favicon/site.webmanifest">
+  <title>Manage Users — Mining Forum Analytics</title>
+  <link rel="stylesheet" href="/css/styles.css">
+  <style>
+    .admin-wrap {
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 32px 24px;
+    }
+    .admin-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 24px;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+    .admin-header h2 {
+      font-size: 20px;
+      font-weight: 700;
+      color: var(--header-mid);
+    }
+    .btn {
+      display: inline-block;
+      padding: 10px 20px;
+      font-size: 13px;
+      font-weight: 600;
+      font-family: inherit;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .btn-gold { background: var(--color-gold); color: #fff; }
+    .btn-gold:hover { background: #B8860B; }
+    .btn-gold:disabled { opacity: 0.5; cursor: not-allowed; }
+    .btn-outline {
+      background: transparent;
+      border: 2px solid #E0E0E0;
+      color: var(--text-primary);
+    }
+    .btn-outline:hover { border-color: var(--color-gold); }
+    .btn-sm {
+      padding: 5px 12px;
+      font-size: 11px;
+      border-radius: 6px;
+    }
+
+    .card {
+      background: #fff;
+      border-radius: 12px;
+      padding: 24px;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+      margin-bottom: 20px;
+    }
+    .card h3 {
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--header-mid);
+      margin-bottom: 4px;
+    }
+    .card .desc {
+      font-size: 12px;
+      color: var(--text-secondary);
+      margin-bottom: 16px;
+    }
+
+    /* User table */
+    .users-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+    }
+    .users-table th {
+      text-align: left;
+      padding: 8px 10px;
+      border-bottom: 2px solid #E0E0E0;
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: #999;
+      font-weight: 600;
+    }
+    .users-table td {
+      padding: 10px 10px;
+      border-bottom: 1px solid #F0F2F5;
+      vertical-align: middle;
+    }
+    .users-table tr:hover td {
+      background: #FAFBFC;
+    }
+
+    .role-badge {
+      display: inline-block;
+      padding: 2px 10px;
+      border-radius: 4px;
+      font-size: 10px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.3px;
+    }
+    .role-badge.super_admin {
+      background: #FEF9E7;
+      color: #7D6608;
+      border: 1px solid #F9E79F;
+    }
+    .role-badge.admin {
+      background: #EBF5FB;
+      color: #1A5276;
+      border: 1px solid #AED6F1;
+    }
+
+    .status-dot {
+      display: inline-block;
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      margin-right: 6px;
+    }
+    .status-dot.active { background: #27AE60; }
+    .status-dot.inactive { background: #E74C3C; }
+
+    .action-btn {
+      font-size: 11px;
+      padding: 4px 10px;
+      border: 1px solid #E0E0E0;
+      background: #fff;
+      border-radius: 4px;
+      cursor: pointer;
+      font-family: inherit;
+      margin-right: 4px;
+      transition: all 0.15s;
+    }
+    .action-btn:hover {
+      border-color: var(--color-gold);
+      background: #FAFBFC;
+    }
+    .action-btn.danger {
+      border-color: #F5B7B1;
+      color: #C0392B;
+    }
+    .action-btn.danger:hover {
+      background: #FDEDEC;
+    }
+
+    /* Add user form */
+    .form-row {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      align-items: flex-end;
+    }
+    .form-group {
+      flex: 1;
+      min-width: 140px;
+    }
+    .form-group label {
+      display: block;
+      font-size: 11px;
+      font-weight: 600;
+      color: #666;
+      margin-bottom: 4px;
+    }
+    .form-group input,
+    .form-group select {
+      width: 100%;
+      padding: 8px 12px;
+      font-size: 12px;
+      font-family: inherit;
+      border: 2px solid #E0E0E0;
+      border-radius: 6px;
+      outline: none;
+      background: #fff;
+      box-sizing: border-box;
+      transition: border-color 0.2s;
+    }
+    .form-group input:focus,
+    .form-group select:focus {
+      border-color: var(--color-gold);
+    }
+
+    .alert {
+      padding: 10px 16px;
+      border-radius: 8px;
+      font-size: 12px;
+      margin-top: 12px;
+    }
+    .alert.success {
+      background: #EAFAF1;
+      color: #1E8449;
+      border: 1px solid #A9DFBF;
+    }
+    .alert.error {
+      background: #FDEDEC;
+      color: #C0392B;
+      border: 1px solid #F5B7B1;
+    }
+
+    /* Access denied */
+    .access-denied {
+      text-align: center;
+      padding: 80px 24px;
+    }
+    .access-denied h2 {
+      font-size: 20px;
+      color: #E74C3C;
+      margin-bottom: 8px;
+    }
+    .access-denied p {
+      font-size: 13px;
+      color: var(--text-secondary);
+      margin-bottom: 24px;
+    }
+
+    /* Modal overlay */
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.4);
+      z-index: 1000;
+      justify-content: center;
+      align-items: center;
+    }
+    .modal-overlay.active {
+      display: flex;
+    }
+    .modal {
+      background: #fff;
+      border-radius: 12px;
+      padding: 28px;
+      width: 400px;
+      max-width: 90vw;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.15);
+    }
+    .modal h3 {
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--header-mid);
+      margin-bottom: 16px;
+    }
+    .modal .form-group {
+      margin-bottom: 12px;
+      min-width: 0;
+    }
+    .modal-actions {
+      display: flex;
+      gap: 8px;
+      justify-content: flex-end;
+      margin-top: 20px;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Header -->
+  <div class="page-header dgg-theme">
+    <img class="logo" src="/logos/dgg-logo.png" alt="Denver Gold Group">
+    <div class="header-text">
+      <h1><a href="/">Mining Forum Event Analytics</a></h1>
+      <div class="subtitle">User Management</div>
+    </div>
+  </div>
+
+  <!-- Access denied (shown if not super_admin) -->
+  <div id="access-denied" class="access-denied" style="display:none">
+    <h2>Access Denied</h2>
+    <p>Only Super Admins can manage users.</p>
+    <a href="/admin" class="btn btn-outline">Back to Data Center</a>
+  </div>
+
+  <!-- Main content -->
+  <div id="main-content" style="display:none">
+    <div class="admin-wrap">
+
+      <div class="admin-header">
+        <h2>Manage Admin Users</h2>
+        <div>
+          <span id="user-badge" style="display:inline-flex;align-items:center;gap:6px;padding:6px 12px;background:#F5F6FA;border-radius:8px;font-size:11px;font-weight:600;color:var(--text-secondary);margin-right:8px"></span>
+          <a href="/admin" class="btn btn-outline" style="margin-right:8px">Data Center</a>
+          <button class="btn btn-outline" onclick="doLogout()">Log Out</button>
+        </div>
+      </div>
+
+      <!-- Users list -->
+      <div class="card">
+        <h3>Admin Users</h3>
+        <div class="desc">Users who can sign in to the Data Center to upload data and manage settings.</div>
+        <div id="users-table-wrap">
+          <div style="font-size:12px;color:#999;padding:16px 0;text-align:center">Loading...</div>
+        </div>
+      </div>
+
+      <!-- Add user form -->
+      <div class="card">
+        <h3>Add New User</h3>
+        <div class="desc">Create a new admin account. The user will sign in with email and password, or via a magic link you can send them.</div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Email</label>
+            <input type="email" id="new-email" placeholder="user@denvergold.org">
+          </div>
+          <div class="form-group">
+            <label>Name</label>
+            <input type="text" id="new-name" placeholder="Full Name">
+          </div>
+          <div class="form-group" style="min-width:120px;flex:0.5">
+            <label>Role</label>
+            <select id="new-role">
+              <option value="admin">Admin</option>
+              <option value="super_admin">Super Admin</option>
+            </select>
+          </div>
+          <div class="form-group" style="min-width:140px">
+            <label>Password</label>
+            <input type="password" id="new-password" placeholder="Min 8 characters">
+          </div>
+          <button class="btn btn-gold" onclick="createUser()" style="white-space:nowrap;margin-bottom:2px">Add User</button>
+        </div>
+        <div id="create-result" class="alert" style="display:none"></div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Reset Password Modal -->
+  <div class="modal-overlay" id="reset-pw-modal">
+    <div class="modal">
+      <h3>Reset Password</h3>
+      <div class="form-group">
+        <label>User</label>
+        <input type="text" id="reset-pw-email" disabled style="background:#F5F6FA">
+      </div>
+      <div class="form-group">
+        <label>New Password</label>
+        <input type="password" id="reset-pw-value" placeholder="Min 8 characters">
+      </div>
+      <div id="reset-pw-error" class="alert error" style="display:none"></div>
+      <div class="modal-actions">
+        <button class="btn btn-outline btn-sm" onclick="closeModal('reset-pw-modal')">Cancel</button>
+        <button class="btn btn-gold btn-sm" onclick="doResetPassword()">Reset Password</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Magic Link Result Modal -->
+  <div class="modal-overlay" id="magic-link-modal">
+    <div class="modal">
+      <h3>Magic Link Sent</h3>
+      <div id="magic-link-body" style="font-size:13px;color:#555;line-height:1.6"></div>
+      <div class="form-group" style="margin-top:12px">
+        <label>Login URL</label>
+        <input type="text" id="magic-link-url" readonly style="background:#F5F6FA;font-size:11px;cursor:text">
+      </div>
+      <div class="modal-actions">
+        <button class="btn btn-outline btn-sm" onclick="closeModal('magic-link-modal')">Close</button>
+        <button class="btn btn-gold btn-sm" onclick="copyMagicLink()">Copy Link</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="page-footer">
+    &copy; 2026 Denver Gold Group. Admin Dashboard.
+  </div>
+
+  <script>
+    var adminToken = sessionStorage.getItem('admin_token') || '';
+    var adminUser = null;
+    var _resetPwId = null;
+
+    try {
+      adminUser = JSON.parse(sessionStorage.getItem('admin_user') || '{}');
+    } catch (e) { adminUser = {}; }
+
+    // Check access
+    if (!adminToken) {
+      window.location.href = '/admin';
+    } else if (adminUser.role !== 'super_admin') {
+      document.getElementById('access-denied').style.display = 'block';
+    } else {
+      document.getElementById('main-content').style.display = 'block';
+      var badge = document.getElementById('user-badge');
+      badge.textContent = adminUser.name || adminUser.email || '';
+      loadUsers();
+    }
+
+    function doLogout() {
+      sessionStorage.removeItem('admin_token');
+      sessionStorage.removeItem('admin_user');
+      window.location.href = '/admin';
+    }
+
+    function closeModal(id) {
+      document.getElementById(id).classList.remove('active');
+    }
+
+    // ── Load users ──────────────────────────────────────────
+    async function loadUsers() {
+      try {
+        var res = await fetch('/api/admin-users?action=list', {
+          headers: { 'Authorization': 'Bearer ' + adminToken }
+        });
+        var data = await res.json();
+        if (!data.ok) {
+          if (res.status === 403) {
+            document.getElementById('main-content').style.display = 'none';
+            document.getElementById('access-denied').style.display = 'block';
+            return;
+          }
+          document.getElementById('users-table-wrap').innerHTML = '<div style="color:#E74C3C;font-size:12px">Error: ' + (data.error || 'Unknown') + '</div>';
+          return;
+        }
+        renderUsers(data.users || []);
+      } catch (err) {
+        document.getElementById('users-table-wrap').innerHTML = '<div style="color:#E74C3C;font-size:12px">Connection error: ' + err.message + '</div>';
+      }
+    }
+
+    function renderUsers(users) {
+      if (!users.length) {
+        document.getElementById('users-table-wrap').innerHTML = '<div style="font-size:12px;color:#999;padding:12px 0">No admin users yet. Add one below.</div>';
+        return;
+      }
+
+      var html = '<table class="users-table"><thead><tr>';
+      html += '<th>Status</th><th>Email</th><th>Name</th><th>Role</th><th>Created</th><th style="text-align:right">Actions</th>';
+      html += '</tr></thead><tbody>';
+
+      users.forEach(function(u) {
+        var isSelf = u.email === adminUser.email;
+        var dateStr = u.created_at ? new Date(u.created_at).toLocaleDateString() : '—';
+
+        html += '<tr>';
+        html += '<td><span class="status-dot ' + (u.active ? 'active' : 'inactive') + '"></span>' + (u.active ? 'Active' : 'Disabled') + '</td>';
+        html += '<td style="font-weight:500">' + escHtml(u.email) + (isSelf ? ' <span style="font-size:10px;color:var(--color-gold);font-weight:600">(you)</span>' : '') + '</td>';
+        html += '<td>' + escHtml(u.name || '—') + '</td>';
+        html += '<td><span class="role-badge ' + u.role + '">' + u.role.replace('_', ' ') + '</span></td>';
+        html += '<td style="font-size:11px;color:#999">' + dateStr + '</td>';
+        html += '<td style="text-align:right;white-space:nowrap">';
+        html += '<button class="action-btn" onclick="sendMagicLink(\'' + escAttr(u.email) + '\')" title="Send login link">Magic Link</button>';
+        html += '<button class="action-btn" onclick="openResetPw(' + u.id + ',\'' + escAttr(u.email) + '\')" title="Reset password">Reset PW</button>';
+        if (!isSelf) {
+          html += '<button class="action-btn" onclick="toggleRole(' + u.id + ',\'' + u.role + '\')" title="Toggle role">' + (u.role === 'super_admin' ? 'Demote' : 'Promote') + '</button>';
+          html += '<button class="action-btn danger" onclick="toggleActive(' + u.id + ',' + u.active + ',\'' + escAttr(u.email) + '\')" title="' + (u.active ? 'Disable' : 'Enable') + '">' + (u.active ? 'Disable' : 'Enable') + '</button>';
+        }
+        html += '</td></tr>';
+      });
+
+      html += '</tbody></table>';
+      document.getElementById('users-table-wrap').innerHTML = html;
+    }
+
+    function escHtml(s) {
+      var d = document.createElement('div');
+      d.textContent = s || '';
+      return d.innerHTML;
+    }
+    function escAttr(s) {
+      return (s || '').replace(/'/g, "\\'").replace(/"/g, '&quot;');
+    }
+
+    // ── Create user ─────────────────────────────────────────
+    async function createUser() {
+      var email = document.getElementById('new-email').value.trim();
+      var name = document.getElementById('new-name').value.trim();
+      var role = document.getElementById('new-role').value;
+      var password = document.getElementById('new-password').value;
+      var resultEl = document.getElementById('create-result');
+      resultEl.style.display = 'none';
+
+      if (!email) { showResult(resultEl, 'error', 'Email is required'); return; }
+      if (!password || password.length < 8) { showResult(resultEl, 'error', 'Password must be at least 8 characters'); return; }
+
+      try {
+        var res = await fetch('/api/admin-users', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + adminToken },
+          body: JSON.stringify({ action: 'create', email: email, name: name, role: role, password: password })
+        });
+        var data = await res.json();
+        if (data.ok) {
+          document.getElementById('new-email').value = '';
+          document.getElementById('new-name').value = '';
+          document.getElementById('new-password').value = '';
+          showResult(resultEl, 'success', 'User created: ' + email);
+          loadUsers();
+        } else {
+          showResult(resultEl, 'error', data.error || 'Failed to create user');
+        }
+      } catch (err) {
+        showResult(resultEl, 'error', 'Error: ' + err.message);
+      }
+    }
+
+    // ── Toggle role ─────────────────────────────────────────
+    async function toggleRole(id, currentRole) {
+      var newRole = currentRole === 'super_admin' ? 'admin' : 'super_admin';
+      if (!confirm('Change this user\'s role to ' + newRole.replace('_', ' ') + '?')) return;
+      try {
+        var res = await fetch('/api/admin-users', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + adminToken },
+          body: JSON.stringify({ action: 'update', id: id, role: newRole })
+        });
+        var data = await res.json();
+        if (data.ok) loadUsers();
+        else alert('Error: ' + (data.error || 'Unknown'));
+      } catch (err) { alert('Error: ' + err.message); }
+    }
+
+    // ── Toggle active ───────────────────────────────────────
+    async function toggleActive(id, isActive, email) {
+      var verb = isActive ? 'disable' : 'enable';
+      if (!confirm('Are you sure you want to ' + verb + ' ' + email + '?')) return;
+      try {
+        var res = await fetch('/api/admin-users', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + adminToken },
+          body: JSON.stringify({ action: 'toggle-active', id: id })
+        });
+        var data = await res.json();
+        if (data.ok) loadUsers();
+        else alert('Error: ' + (data.error || 'Unknown'));
+      } catch (err) { alert('Error: ' + err.message); }
+    }
+
+    // ── Reset password ──────────────────────────────────────
+    function openResetPw(id, email) {
+      _resetPwId = id;
+      document.getElementById('reset-pw-email').value = email;
+      document.getElementById('reset-pw-value').value = '';
+      document.getElementById('reset-pw-error').style.display = 'none';
+      document.getElementById('reset-pw-modal').classList.add('active');
+      setTimeout(function() { document.getElementById('reset-pw-value').focus(); }, 100);
+    }
+
+    async function doResetPassword() {
+      var pw = document.getElementById('reset-pw-value').value;
+      var errEl = document.getElementById('reset-pw-error');
+      errEl.style.display = 'none';
+
+      if (!pw || pw.length < 8) {
+        errEl.textContent = 'Password must be at least 8 characters';
+        errEl.style.display = 'block';
+        return;
+      }
+
+      try {
+        var res = await fetch('/api/admin-users', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + adminToken },
+          body: JSON.stringify({ action: 'reset-password', id: _resetPwId, password: pw })
+        });
+        var data = await res.json();
+        if (data.ok) {
+          closeModal('reset-pw-modal');
+          loadUsers();
+        } else {
+          errEl.textContent = data.error || 'Failed';
+          errEl.style.display = 'block';
+        }
+      } catch (err) {
+        errEl.textContent = 'Error: ' + err.message;
+        errEl.style.display = 'block';
+      }
+    }
+
+    // ── Send magic link ─────────────────────────────────────
+    async function sendMagicLink(email) {
+      try {
+        var res = await fetch('/api/admin-users', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + adminToken },
+          body: JSON.stringify({ action: 'send-magic-link', email: email })
+        });
+        var data = await res.json();
+        if (data.ok) {
+          document.getElementById('magic-link-body').innerHTML =
+            (data.email_sent ? 'A login link was emailed to <strong>' + escHtml(email) + '</strong>.' : 'Email delivery not configured. Share the link below manually.') +
+            '<br>The link expires in 30 minutes.';
+          document.getElementById('magic-link-url').value = data.magic_url || '';
+          document.getElementById('magic-link-modal').classList.add('active');
+        } else {
+          alert('Error: ' + (data.error || 'Unknown'));
+        }
+      } catch (err) { alert('Error: ' + err.message); }
+    }
+
+    function copyMagicLink() {
+      var urlInput = document.getElementById('magic-link-url');
+      urlInput.select();
+      if (navigator.clipboard) {
+        navigator.clipboard.writeText(urlInput.value).then(function() {
+          alert('Link copied to clipboard!');
+        });
+      } else {
+        document.execCommand('copy');
+        alert('Link copied!');
+      }
+    }
+
+    // ── Helpers ──────────────────────────────────────────────
+    function showResult(el, type, msg) {
+      el.className = 'alert ' + type;
+      el.textContent = msg;
+      el.style.display = 'block';
+      if (type === 'success') {
+        setTimeout(function() { el.style.display = 'none'; }, 4000);
+      }
+    }
+
+    // Enter key in password field triggers create
+    document.getElementById('new-password').addEventListener('keydown', function(e) {
+      if (e.key === 'Enter') createUser();
+    });
+    document.getElementById('reset-pw-value').addEventListener('keydown', function(e) {
+      if (e.key === 'Enter') doResetPassword();
+    });
+
+    // Close modals with Escape
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'Escape') {
+        document.querySelectorAll('.modal-overlay.active').forEach(function(m) {
+          m.classList.remove('active');
+        });
+      }
+    });
+  </script>
+
+</body>
+</html>

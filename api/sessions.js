@@ -11,24 +11,48 @@ function getSupabase() {
   return createClient(SUPABASE_URL, key);
 }
 
+// Strip Markdown link syntax: [text](url) → text
+function stripMd(val) {
+  if (typeof val !== 'string') return val;
+  var m = val.match(/^\[([^\]]*)\]\([^)]*\)$/);
+  return m ? m[1] : val;
+}
+
+// Extract URL from Markdown link: [text](url) → url
+function stripMdUrl(val) {
+  if (typeof val !== 'string') return val;
+  var m = val.match(/^\[([^\]]*)\]\(([^)]*)\)$/);
+  return m ? m[2] : val;
+}
+
 function verifyToken(authHeader) {
   if (!authHeader || !authHeader.startsWith('Bearer ')) return false;
   var token = authHeader.replace('Bearer ', '');
   var parts = token.split('.');
-  if (parts.length !== 3) return false;
-  var tokenBytes = parts[0], timestamp = parts[1], providedSignature = parts[2];
   if (!process.env.ADMIN_PASSWORD || !process.env.SUPABASE_SERVICE_ROLE_KEY) return false;
   var secret = process.env.ADMIN_PASSWORD + process.env.SUPABASE_SERVICE_ROLE_KEY;
-  var expectedSignature = crypto
-    .createHmac('sha256', secret)
-    .update(tokenBytes + '.' + timestamp)
-    .digest('hex');
+  var payloadB64, providedSignature, payload;
+  if (parts.length === 4) {
+    payloadB64 = parts[2]; providedSignature = parts[3];
+    payload = parts[0] + '.' + parts[1] + '.' + payloadB64;
+  } else if (parts.length === 3) {
+    payloadB64 = ''; providedSignature = parts[2];
+    payload = parts[0] + '.' + parts[1];
+  } else { return false; }
+  var expectedSignature = crypto.createHmac('sha256', secret).update(payload).digest('hex');
   var sigBuf = Buffer.from(providedSignature);
   var expBuf = Buffer.from(expectedSignature);
   if (sigBuf.length !== expBuf.length || !crypto.timingSafeEqual(sigBuf, expBuf)) return false;
-  var age = Date.now() - parseInt(timestamp, 10);
+  var age = Date.now() - parseInt(parts[1], 10);
   if (isNaN(age) || age < 0 || age > 24 * 60 * 60 * 1000) return false;
-  return true;
+  if (!payloadB64) return { email: 'admin', role: 'super_admin' };
+  try {
+    var info = JSON.parse(Buffer.from(payloadB64, 'base64').toString('utf8'));
+    return { email: info.email || 'admin', role: info.role || 'admin' };
+  } catch (e) {
+    // Old 4-part token with plain email (pre-JSON era) — shared-password users are super_admin
+    return { email: Buffer.from(payloadB64, 'base64').toString('utf8'), role: 'super_admin' };
+  }
 }
 
 // ---- Helpers ----
@@ -1275,7 +1299,7 @@ module.exports = async function handler(req, res) {
         });
       }
 
-      // ---- Update program status (presentation_date) from JSON upload ----
+      // ---- Sync program data from JSON upload (update/insert/delete) ----
       if (action === 'update-program') {
         var companies = body.companies;
         if (!companies || !Array.isArray(companies) || companies.length === 0) {
@@ -1283,86 +1307,82 @@ module.exports = async function handler(req, res) {
         }
 
         var updated = 0;
+        var inserted = 0;
         var skipped = 0;
+        var deleted = 0;
         var errors = [];
+        var uploadedNames = [];
 
+        // Helper: build fields object from a JSON row
+        function buildFields(row) {
+          var f = {};
+          var pDate = row.presentation_date || row.PresentationDate || row.pres_date || row.date || null;
+          if (pDate !== undefined) f.presentation_date = pDate || null;
+          var pTime = row.presentation_time || row.PresentationTime || row.pres_time || row.time;
+          if (pTime !== undefined) f.presentation_time = pTime || '';
+          var pType = row.presentation_type || row.PresentationType || row.pres_type || row.type;
+          if (pType !== undefined) f.presentation_type = pType || '';
+          var pLoc = row.presentation_location || row.PresentationLocation || row.pres_location || row.location;
+          if (pLoc !== undefined) f.presentation_location = pLoc || '';
+          var mcapActual = row.market_cap_usd || row.MarketCapUSDActual;
+          if (mcapActual !== undefined && mcapActual !== '') f.market_cap_usd = Number(mcapActual) || null;
+          var mcapDisplay = row.market_cap_display || row.MarketCapUSD;
+          if (mcapDisplay !== undefined) f.market_cap_display = mcapDisplay || '';
+          var sPrice = row.stock_price_usd || row.StockPriceUSD;
+          if (sPrice !== undefined && sPrice !== '') f.stock_price_usd = Number(sPrice) || null;
+          var ftwRange = row.fifty_two_week_range || row.FiftyTwoWeekRangeUSD;
+          if (ftwRange !== undefined) f.fifty_two_week_range = ftwRange || '';
+          var oyr = row.one_year_return || row.OneYearReturn;
+          if (oyr !== undefined) f.one_year_return = oyr || '';
+          var tkr = row.ticker || row.Ticker;
+          if (tkr !== undefined) f.ticker = tkr || '';
+          var sym = row.stock_symbol || row.StockSymbol;
+          if (sym !== undefined) f.stock_symbol = sym || '';
+          var prodLow = row.production_low || row.ProductionLow;
+          if (prodLow !== undefined && prodLow !== '') f.production_low = Number(prodLow) || null;
+          var prodHigh = row.production_high || row.ProductionHigh;
+          if (prodHigh !== undefined && prodHigh !== '') f.production_high = Number(prodHigh) || null;
+          var resv = row.reserves || row.Reserves;
+          if (resv !== undefined && resv !== '') f.reserves = Number(resv) || null;
+          var rsrc = row.resources || row.Resources;
+          if (rsrc !== undefined && rsrc !== '') f.resources = Number(rsrc) || null;
+          var paySt = row.payment_status || row.PaymentStatus;
+          if (paySt !== undefined) f.payment_status = paySt || '';
+          var att = row.attendance || row.Attendance;
+          if (att !== undefined) f.attendance = att || '';
+          var profUrl = row.profile_url || row.Profile;
+          if (profUrl !== undefined) f.profile_url = stripMdUrl(profUrl) || '';
+          var webUrl = row.webcast_url || row.Webcast;
+          if (webUrl !== undefined) f.webcast_url = stripMdUrl(webUrl) || '';
+          var cStat = row.company_status || row.CompanyStatus;
+          if (cStat !== undefined) f.company_status = stripMd(cStat) || '';
+          var cMin = row.primary_mineral || row.PrimaryMineral;
+          if (cMin !== undefined) f.primary_mineral = stripMd(cMin) || '';
+          var cCountry = row.primary_country || row.PrimaryCountryOfOperation;
+          if (cCountry !== undefined) f.primary_country = stripMd(cCountry) || '';
+          var cExchange = row.primary_stock_exchange || row.PrimaryStockExchange;
+          if (cExchange !== undefined) f.primary_stock_exchange = stripMd(cExchange) || '';
+          var cRegion = row.primary_region || row.PrimaryRegionOfOperation;
+          if (cRegion !== undefined) f.primary_region = stripMd(cRegion) || '';
+          var cSubregion = row.primary_subregion || row.PrimarySubregionOfOperation;
+          if (cSubregion !== undefined) f.primary_subregion = stripMd(cSubregion) || '';
+          var curr = row.currency || row.Currency;
+          if (curr !== undefined) f.currency = curr || '';
+          return f;
+        }
+
+        // Phase 1: Update or insert each company from the JSON
         for (var ui = 0; ui < companies.length; ui++) {
           var row = companies[ui];
-          var name = row.company_name || row.CompanyNameForPublication || row.Company || row.name || '';
+          var rawName = row.company_name || row.CompanyNameForPublication || row.Company || row.name || '';
+          var name = stripMd(rawName);
           if (!name) { skipped++; continue; }
+          uploadedNames.push(name.toLowerCase());
 
-          var updateFields = {};
-          // presentation_date
-          var pDate = row.presentation_date || row.PresentationDate || row.pres_date || row.date || null;
-          if (pDate !== undefined) updateFields.presentation_date = pDate || null;
-          // presentation_time
-          var pTime = row.presentation_time || row.PresentationTime || row.pres_time || row.time;
-          if (pTime !== undefined) updateFields.presentation_time = pTime || '';
-          // presentation_type
-          var pType = row.presentation_type || row.PresentationType || row.pres_type || row.type;
-          if (pType !== undefined) updateFields.presentation_type = pType || '';
-          // presentation_location
-          var pLoc = row.presentation_location || row.PresentationLocation || row.pres_location || row.location;
-          if (pLoc !== undefined) updateFields.presentation_location = pLoc || '';
-          // market cap
-          var mcapActual = row.market_cap_usd || row.MarketCapUSDActual;
-          if (mcapActual !== undefined && mcapActual !== '') updateFields.market_cap_usd = Number(mcapActual) || null;
-          var mcapDisplay = row.market_cap_display || row.MarketCapUSD;
-          if (mcapDisplay !== undefined) updateFields.market_cap_display = mcapDisplay || '';
-          // stock price
-          var sPrice = row.stock_price_usd || row.StockPriceUSD;
-          if (sPrice !== undefined && sPrice !== '') updateFields.stock_price_usd = Number(sPrice) || null;
-          // 52-week range
-          var ftwRange = row.fifty_two_week_range || row.FiftyTwoWeekRangeUSD;
-          if (ftwRange !== undefined) updateFields.fifty_two_week_range = ftwRange || '';
-          // one-year return
-          var oyr = row.one_year_return || row.OneYearReturn;
-          if (oyr !== undefined) updateFields.one_year_return = oyr || '';
-          // ticker and symbol
-          var tkr = row.ticker || row.Ticker;
-          if (tkr !== undefined) updateFields.ticker = tkr || '';
-          var sym = row.stock_symbol || row.StockSymbol;
-          if (sym !== undefined) updateFields.stock_symbol = sym || '';
-          // production
-          var prodLow = row.production_low || row.ProductionLow;
-          if (prodLow !== undefined && prodLow !== '') updateFields.production_low = Number(prodLow) || null;
-          var prodHigh = row.production_high || row.ProductionHigh;
-          if (prodHigh !== undefined && prodHigh !== '') updateFields.production_high = Number(prodHigh) || null;
-          // reserves and resources
-          var resv = row.reserves || row.Reserves;
-          if (resv !== undefined && resv !== '') updateFields.reserves = Number(resv) || null;
-          var rsrc = row.resources || row.Resources;
-          if (rsrc !== undefined && rsrc !== '') updateFields.resources = Number(rsrc) || null;
-          // payment status
-          var paySt = row.payment_status || row.PaymentStatus;
-          if (paySt !== undefined) updateFields.payment_status = paySt || '';
-          // attendance
-          var att = row.attendance || row.Attendance;
-          if (att !== undefined) updateFields.attendance = att || '';
-          // profile and webcast URLs
-          var profUrl = row.profile_url || row.Profile;
-          if (profUrl !== undefined) updateFields.profile_url = profUrl || '';
-          var webUrl = row.webcast_url || row.Webcast;
-          if (webUrl !== undefined) updateFields.webcast_url = webUrl || '';
-          // company status, mineral, country, exchange, region
-          var cStat = row.company_status || row.CompanyStatus;
-          if (cStat !== undefined) updateFields.company_status = cStat || '';
-          var cMin = row.primary_mineral || row.PrimaryMineral;
-          if (cMin !== undefined) updateFields.primary_mineral = cMin || '';
-          var cCountry = row.primary_country || row.PrimaryCountryOfOperation;
-          if (cCountry !== undefined) updateFields.primary_country = cCountry || '';
-          var cExchange = row.primary_stock_exchange || row.PrimaryStockExchange;
-          if (cExchange !== undefined) updateFields.primary_stock_exchange = cExchange || '';
-          var cRegion = row.primary_region || row.PrimaryRegionOfOperation;
-          if (cRegion !== undefined) updateFields.primary_region = cRegion || '';
-          var cSubregion = row.primary_subregion || row.PrimarySubregionOfOperation;
-          if (cSubregion !== undefined) updateFields.primary_subregion = cSubregion || '';
-          // currency
-          var curr = row.currency || row.Currency;
-          if (curr !== undefined) updateFields.currency = curr || '';
-
+          var updateFields = buildFields(row);
           if (Object.keys(updateFields).length === 0) { skipped++; continue; }
 
+          // Try update first
           var { data: upd, error: updErr } = await sb
             .from('event_participations')
             .update(updateFields)
@@ -1375,15 +1395,92 @@ module.exports = async function handler(req, res) {
           } else if (upd && upd.length > 0) {
             updated++;
           } else {
-            skipped++;
-            errors.push(name + ': no matching participation found');
+            // No existing row — insert new participation
+            // Find or create the company in the companies table
+            var { data: existing } = await sb
+              .from('companies')
+              .select('id')
+              .ilike('company_name', name)
+              .limit(1);
+
+            var companyId;
+            if (existing && existing.length > 0) {
+              companyId = existing[0].id;
+            } else {
+              // Create new company
+              var newComp = { company_name: name };
+              if (updateFields.company_status) newComp.company_status = updateFields.company_status;
+              if (updateFields.primary_mineral) newComp.primary_mineral = updateFields.primary_mineral;
+              if (updateFields.primary_country) newComp.primary_country = updateFields.primary_country;
+              if (updateFields.primary_stock_exchange) newComp.primary_stock_exchange = updateFields.primary_stock_exchange;
+              if (updateFields.ticker) newComp.ticker = updateFields.ticker;
+              if (updateFields.stock_symbol) newComp.stock_symbol = updateFields.stock_symbol;
+              if (updateFields.currency) newComp.currency = updateFields.currency;
+              if (updateFields.market_cap_usd) newComp.market_cap_usd = updateFields.market_cap_usd;
+              if (updateFields.profile_url) newComp.profile_url = updateFields.profile_url;
+              var { data: created, error: createErr } = await sb
+                .from('companies')
+                .insert(newComp)
+                .select('id');
+              if (createErr || !created || !created.length) {
+                errors.push(name + ': failed to create company — ' + (createErr ? createErr.message : 'no id returned'));
+                skipped++;
+                continue;
+              }
+              companyId = created[0].id;
+            }
+
+            // Insert event participation
+            var insertRow = Object.assign({}, updateFields, {
+              company_id: companyId,
+              event_code: eventCode,
+              company_name: name,
+              participation_status: row.participation_status || row.ParticipationStatus || 'Accepted'
+            });
+            var { error: insErr } = await sb.from('event_participations').insert(insertRow);
+            if (insErr) {
+              errors.push(name + ': insert failed — ' + insErr.message);
+              skipped++;
+            } else {
+              inserted++;
+            }
           }
         }
 
+        // Phase 2: Delete participations not in the uploaded JSON
+        var { data: existing } = await sb
+          .from('event_participations')
+          .select('id, company_name')
+          .eq('event_code', eventCode);
+
+        if (existing && existing.length > 0) {
+          var toDelete = existing.filter(function(ep) {
+            return uploadedNames.indexOf(ep.company_name.toLowerCase()) === -1;
+          });
+          if (toDelete.length > 0) {
+            var deleteIds = toDelete.map(function(ep) { return ep.id; });
+            var { error: delErr } = await sb
+              .from('event_participations')
+              .delete()
+              .in('id', deleteIds);
+            if (delErr) {
+              errors.push('Delete failed: ' + delErr.message);
+            } else {
+              deleted = toDelete.length;
+            }
+          }
+        }
+
+        var msg = 'Synced ' + companies.length + ' companies for ' + eventCode + ': ';
+        msg += updated + ' updated, ' + inserted + ' inserted, ' + deleted + ' removed.';
+        if (skipped > 0) msg += ' Skipped: ' + skipped + '.';
+
         return res.status(200).json({
           ok: true,
-          message: 'Updated ' + updated + ' of ' + companies.length + ' companies for ' + eventCode + '.',
+          message: msg,
           updated: updated,
+          inserted: inserted,
+          deleted: deleted,
           skipped: skipped,
           errors: errors.length > 0 ? errors : undefined
         });

@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Agenda Structure Guide — Mining Forum Americas</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --color-dgg: #8B6914;
+      --color-mfa: #1A237E;
+      --color-mfa-dark: #0D1252;
+      --color-gold: #D4A017;
+      --bg-body: #F0F2F5;
+      --bg-card: #fff;
+      --text-primary: #2D3436;
+      --text-secondary: #7F8C8D;
+      --header-dark: #1B2631;
+      --header-mid: #2C3E50;
+      --color-producer: #27AE60;
+      --color-royalty: #2980B9;
+      --color-dev-cf: #E67E22;
+      --color-dev-pea: #F39C12;
+      --color-exp-adv: #9B59B6;
+      --color-exp-early: #1ABC9C;
+      --color-copper: #CA6F1E;
+      --color-silver: #7F8C8D;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: var(--bg-body);
+      color: var(--text-primary);
+      font-size: 14px;
+      line-height: 1.6;
+    }
+
+    /* Header */
+    .page-header {
+      background: linear-gradient(135deg, var(--color-mfa-dark), var(--color-mfa));
+      color: #fff;
+      padding: 28px 32px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 18px;
+      border-bottom: 4px solid var(--color-gold);
+    }
+    .page-header .logo { height: 56px; width: auto; flex-shrink: 0; }
+    .page-header .header-text { text-align: center; }
+    .page-header h1 { font-size: 22px; font-weight: 700; letter-spacing: -0.3px; }
+    .page-header .subtitle { font-size: 13px; opacity: 0.8; margin-top: 2px; }
+
+    /* Layout */
+    .container { max-width: 900px; margin: 0 auto; padding: 32px 24px 64px; }
+    .intro { font-size: 15px; color: var(--text-secondary); margin-bottom: 32px; line-height: 1.7; }
+
+    /* Section cards */
+    .section { background: var(--bg-card); border-radius: 12px; padding: 28px 32px; margin-bottom: 24px; box-shadow: 0 1px 4px rgba(0,0,0,0.06); }
+    .section h2 {
+      font-size: 16px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;
+      margin-bottom: 16px; padding-bottom: 10px;
+      border-bottom: 2px solid var(--color-gold);
+      color: var(--header-mid);
+    }
+    .section h3 { font-size: 14px; font-weight: 700; color: var(--text-primary); margin: 18px 0 8px; }
+    .section p, .section li { font-size: 13.5px; line-height: 1.7; }
+    .section ul, .section ol { padding-left: 20px; margin-bottom: 12px; }
+    .section li { margin-bottom: 4px; }
+
+    /* Stage hierarchy table */
+    .stage-table { width: 100%; border-collapse: collapse; margin: 12px 0 8px; }
+    .stage-table th {
+      text-align: left; font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px;
+      color: var(--text-secondary); padding: 6px 12px; border-bottom: 2px solid #E0E0E0;
+    }
+    .stage-table td { padding: 10px 12px; border-bottom: 1px solid #F0F0F0; font-size: 13px; }
+    .stage-table tr:last-child td { border-bottom: none; }
+    .stage-badge {
+      display: inline-block; width: 28px; height: 28px; border-radius: 6px;
+      text-align: center; line-height: 28px; font-weight: 800; font-size: 14px; color: #fff; margin-right: 8px;
+    }
+    .stage-1 { background: var(--color-mfa); }
+    .stage-2 { background: #34495E; }
+    .stage-3 { background: #7F8C8D; }
+    .stage-4 { background: #BDC3C7; color: #2D3436; }
+
+    /* Priority list */
+    .priority-list { list-style: none; padding: 0; counter-reset: priority; }
+    .priority-list li {
+      counter-increment: priority; padding: 8px 12px 8px 44px; position: relative;
+      border-left: 3px solid transparent; margin-bottom: 2px; border-radius: 0 6px 6px 0;
+    }
+    .priority-list li::before {
+      content: counter(priority); position: absolute; left: 8px; top: 8px;
+      width: 24px; height: 24px; border-radius: 50%; background: var(--color-mfa);
+      color: #fff; text-align: center; line-height: 24px; font-size: 12px; font-weight: 700;
+    }
+    .priority-list li:nth-child(1) { background: rgba(26,35,126,0.06); border-left-color: var(--color-mfa); }
+    .priority-list li:nth-child(2) { background: rgba(26,35,126,0.04); border-left-color: rgba(26,35,126,0.6); }
+    .priority-list li:nth-child(3) { background: rgba(26,35,126,0.03); border-left-color: rgba(26,35,126,0.4); }
+    .priority-list li:nth-child(n+4) { border-left-color: #E0E0E0; }
+    .priority-list li:nth-child(n+4)::before { background: #7F8C8D; }
+
+    /* Cadence diagram */
+    .cadence-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin: 16px 0; }
+    .cadence-card {
+      background: #FAFBFC; border-radius: 8px; padding: 16px; text-align: center; border: 1px solid #E8EAED;
+    }
+    .cadence-card .period { font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; color: var(--text-secondary); font-weight: 700; }
+    .cadence-card .arrow {
+      font-size: 28px; margin: 8px 0 4px; line-height: 1;
+    }
+    .cadence-card .desc { font-size: 12px; color: var(--text-primary); }
+    .arrow-up { color: var(--color-producer); }
+    .arrow-down { color: #E74C3C; }
+
+    /* Alignment priority chips */
+    .align-row { display: flex; gap: 8px; flex-wrap: wrap; margin: 12px 0; }
+    .align-chip {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 6px 14px; border-radius: 20px; font-size: 12px; font-weight: 600;
+      border: 1.5px solid;
+    }
+    .align-chip .num {
+      width: 20px; height: 20px; border-radius: 50%; text-align: center; line-height: 20px;
+      font-size: 11px; font-weight: 800; color: #fff;
+    }
+    .align-1 { border-color: var(--color-producer); color: var(--color-producer); }
+    .align-1 .num { background: var(--color-producer); }
+    .align-2 { border-color: var(--color-gold); color: #8B6914; }
+    .align-2 .num { background: var(--color-gold); }
+    .align-3 { border-color: var(--color-mfa); color: var(--color-mfa); }
+    .align-3 .num { background: var(--color-mfa); }
+    .align-4 { border-color: var(--text-secondary); color: var(--text-secondary); }
+    .align-4 .num { background: var(--text-secondary); }
+
+    /* Mineral cluster examples */
+    .mineral-clusters { display: flex; gap: 16px; margin: 12px 0; flex-wrap: wrap; }
+    .mineral-group {
+      flex: 1; min-width: 200px; background: #FAFBFC; border-radius: 8px; padding: 14px; border: 1px solid #E8EAED;
+    }
+    .mineral-group .label {
+      font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; font-weight: 700;
+      margin-bottom: 6px;
+    }
+    .mineral-group .items { font-size: 12px; color: var(--text-secondary); }
+    .mineral-precious .label { color: var(--color-gold); }
+    .mineral-base .label { color: var(--color-copper); }
+
+    /* Callout box */
+    .callout {
+      background: #FFF8E1; border-left: 4px solid var(--color-gold); border-radius: 0 8px 8px 0;
+      padding: 14px 18px; margin: 16px 0; font-size: 13px;
+    }
+    .callout strong { color: var(--color-dgg); }
+
+    /* Red flags */
+    .flags { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 12px 0; }
+    .flag {
+      display: flex; align-items: flex-start; gap: 8px; padding: 10px 14px;
+      background: #FFF5F5; border-radius: 8px; border: 1px solid #FECACA; font-size: 12px;
+    }
+    .flag .icon { font-size: 16px; flex-shrink: 0; line-height: 1.3; }
+
+    /* Footer */
+    .footer {
+      text-align: center; font-size: 11px; color: var(--text-secondary);
+      padding: 24px; border-top: 1px solid #E0E0E0; margin-top: 16px;
+    }
+
+    @media print {
+      body { background: #fff; font-size: 12px; }
+      .container { max-width: 100%; padding: 16px; }
+      .section { box-shadow: none; border: 1px solid #E0E0E0; break-inside: avoid; }
+      .page-header { print-color-adjust: exact; -webkit-print-color-adjust: exact; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="page-header">
+  <img src="/logos/dgg-logo.png" alt="DGG" class="logo">
+  <div class="header-text">
+    <h1>Mining Forum Americas &mdash; Agenda Structure Guide</h1>
+    <div class="subtitle">Internal Reference for Schedule Building &amp; Review</div>
+  </div>
+</div>
+
+<div class="container">
+
+  <p class="intro">
+    This guide documents the principles behind the MFA presentation schedule.
+    Use it when building the agenda, reviewing alignment, or onboarding new team members
+    to the scheduling process.
+  </p>
+
+  <!-- 1. Stage Hierarchy -->
+  <div class="section">
+    <h2>1. Stage Hierarchy</h2>
+    <p>Stages are ordered by market cap preference. The largest companies present on Stage 1; the smallest on Stage 4.</p>
+    <table class="stage-table">
+      <thead><tr><th>Stage</th><th>Profile</th><th>Typical Market Cap</th></tr></thead>
+      <tbody>
+        <tr>
+          <td><span class="stage-badge stage-1">1</span>Stage 1</td>
+          <td>Mega-cap producers, major royalties</td>
+          <td>$5B+</td>
+        </tr>
+        <tr>
+          <td><span class="stage-badge stage-2">2</span>Stage 2</td>
+          <td>Mid-cap producers, larger developers, royalty cluster</td>
+          <td>$1B &ndash; $6B</td>
+        </tr>
+        <tr>
+          <td><span class="stage-badge stage-3">3</span>Stage 3</td>
+          <td>Smaller producers, developers, base metals &amp; specialty</td>
+          <td>$250M &ndash; $2B</td>
+        </tr>
+        <tr>
+          <td><span class="stage-badge stage-4">4</span>Stage 4</td>
+          <td>Micro-cap explorers, early-stage developers, service providers</td>
+          <td>&lt;$500M</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- 2. Session Priority -->
+  <div class="section">
+    <h2>2. Session Priority</h2>
+    <p>Not all time slots are equal. The most prominent companies should be assigned to the highest-priority sessions first.</p>
+    <ol class="priority-list">
+      <li><strong>Tuesday morning, Stage 1</strong> &mdash; The prime session</li>
+      <li><strong>Monday afternoon</strong> (all stages, especially Stage 1)</li>
+      <li><strong>Monday morning</strong> (all stages)</li>
+      <li><strong>Tuesday afternoon</strong> (all stages)</li>
+      <li><strong>Tuesday morning, Stages 2&ndash;4</strong></li>
+      <li><strong>Wednesday</strong> (all stages &mdash; smallest companies / explorers)</li>
+    </ol>
+  </div>
+
+  <!-- 3. Market Cap Cadence -->
+  <div class="section">
+    <h2>3. Market Cap Cadence</h2>
+    <p>Within each half-day, market caps should follow an ascending-then-descending arc. This creates natural "peaks" around mid-morning and mid-afternoon.</p>
+    <div class="cadence-grid">
+      <div class="cadence-card">
+        <div class="period">Early Morning &rarr; ~10 AM</div>
+        <div class="arrow arrow-up">&#8599;</div>
+        <div class="desc">Market cap <strong>ascending</strong><br>Smallest &rarr; Largest</div>
+      </div>
+      <div class="cadence-card">
+        <div class="period">~10 AM &rarr; Lunch</div>
+        <div class="arrow arrow-down">&#8600;</div>
+        <div class="desc">Market cap <strong>descending</strong><br>Largest &rarr; Smallest</div>
+      </div>
+      <div class="cadence-card">
+        <div class="period">Post-Lunch &rarr; ~3 PM</div>
+        <div class="arrow arrow-up">&#8599;</div>
+        <div class="desc">Market cap <strong>ascending</strong><br>Smallest &rarr; Largest</div>
+      </div>
+      <div class="cadence-card">
+        <div class="period">~3 PM &rarr; Close</div>
+        <div class="arrow arrow-down">&#8600;</div>
+        <div class="desc">Market cap <strong>descending</strong><br>Largest &rarr; Smallest</div>
+      </div>
+    </div>
+    <div class="callout">
+      <strong>Note:</strong> This is a general pattern, not an absolute rule. Minor deviations are expected.
+      Large jumps (e.g., a $30B company among $4B peers) should be flagged unless confirmed as a deliberate placement.
+    </div>
+  </div>
+
+  <!-- 4. Thematic Alignment -->
+  <div class="section">
+    <h2>4. Thematic Alignment</h2>
+    <p>When grouping companies within a session block, align by these factors in priority order:</p>
+    <div class="align-row">
+      <span class="align-chip align-1"><span class="num">1</span> Status</span>
+      <span class="align-chip align-2"><span class="num">2</span> Mineral</span>
+      <span class="align-chip align-3"><span class="num">3</span> Market Cap</span>
+      <span class="align-chip align-4"><span class="num">4</span> Geography</span>
+    </div>
+
+    <h3>Status Grouping</h3>
+    <p>Producers with producers, developers with developers, explorers with explorers, royalties with royalties. Status transitions within a session (e.g., producers in the morning, developers in the afternoon) are fine.</p>
+
+    <h3>Mineral Clustering</h3>
+    <p>Companies should present alongside others with the same primary mineral. Where that isn't possible, the following clusters are acceptable:</p>
+    <div class="mineral-clusters">
+      <div class="mineral-group mineral-precious">
+        <div class="label">Precious Metals</div>
+        <div class="items">Gold, Silver, PGMs &mdash; can intermix freely</div>
+      </div>
+      <div class="mineral-group mineral-base">
+        <div class="label">Base / Energy Metals</div>
+        <div class="items">Copper, Lithium, Uranium, Zinc, Nickel &mdash; can be grouped together as a contrast to the precious metals majority</div>
+      </div>
+    </div>
+    <div class="callout">
+      <strong>Avoid:</strong> Placing a lithium or antimony company in an otherwise all-gold block, or a titanium company opening a copper session. These mineral orphans stand out and should be moved to a thematically compatible block.
+    </div>
+
+    <h3>Geography</h3>
+    <p>Where status, mineral, and market cap are similar, prefer geographic clustering: Australian gold producers together, West African gold together, Latin American copper together, etc. This is the lowest-priority factor &mdash; a nice-to-have, not a requirement.</p>
+  </div>
+
+  <!-- 5. Session Structure -->
+  <div class="section">
+    <h2>5. Session Structure</h2>
+
+    <h3>Basics</h3>
+    <ul>
+      <li>Sessions are defined by <strong>moderator assignment</strong>. Each moderator runs a contiguous block of 4&ndash;6 companies (up to 12 for all-day single-moderator stages).</li>
+      <li>Each presentation slot is <strong>20 minutes</strong>. Session breaks appear as header rows with a moderator name but no company.</li>
+      <li><strong>Within-session reordering</strong> is easy &mdash; just shuffle the rows within a moderator's block.</li>
+      <li><strong>Cross-session swaps</strong> require moderator reassignment and are more disruptive.</li>
+    </ul>
+
+    <h3>Moderator Assignment Rules</h3>
+    <ol>
+      <li><strong>No consecutive sessions.</strong> A moderator should not run back-to-back sessions without a break. If a moderator has two sessions on the same day, separate them with at least one session gap (e.g., early AM and post-lunch, not late AM and early PM).</li>
+      <li><strong>Spread across days.</strong> When a moderator is assigned multiple sessions, distribute them across different days where possible rather than stacking them on a single day.</li>
+      <li><strong>Best-fit coverage alignment.</strong> Match moderators to sessions based on their reported coverage expertise &mdash; mineral focus, geographic specialization, or company-stage familiarity (e.g., a moderator who covers Australian gold should moderate the Australian gold producer block, not the Latin American copper block).</li>
+    </ol>
+    <div class="callout">
+      <strong>Exception:</strong> A single moderator (often the event lead) may run all-day blocks on lower-priority stages (Stage 3, Stage 4, Wednesday). This is acceptable when the session count exceeds available specialist moderators.
+    </div>
+  </div>
+
+  <!-- 6. Red Flags -->
+  <div class="section">
+    <h2>6. Common Red Flags</h2>
+    <p>When reviewing a draft schedule, watch for these patterns:</p>
+    <div class="flags">
+      <div class="flag">
+        <span class="icon">&#9888;</span>
+        <div><strong>MC Outlier</strong><br>A company &gt;3&times; or &lt;0.33&times; the session median market cap</div>
+      </div>
+      <div class="flag">
+        <span class="icon">&#9888;</span>
+        <div><strong>Mineral Orphan</strong><br>A single base metal company in an all-gold block (or vice versa)</div>
+      </div>
+      <div class="flag">
+        <span class="icon">&#9888;</span>
+        <div><strong>Cadence Break</strong><br>MC jumping sharply upward in what should be a descending portion</div>
+      </div>
+      <div class="flag">
+        <span class="icon">&#9888;</span>
+        <div><strong>Stage Misfit</strong><br>A $1B company on Stage 1 (too small) or $3B+ on Stage 3 (too big)</div>
+      </div>
+      <div class="flag">
+        <span class="icon">&#9888;</span>
+        <div><strong>Missing Data</strong><br>$0 or blank market cap &mdash; needs to be populated before scheduling</div>
+      </div>
+      <div class="flag">
+        <span class="icon">&#9888;</span>
+        <div><strong>Status Mismatch</strong><br>An explorer slotted between mega-cap producers in a premium session</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="footer">
+    &copy; 2026 The Denver Gold Group, Inc. &mdash; Internal reference document.
+  </div>
+
+</div>
+</body>
+</html>

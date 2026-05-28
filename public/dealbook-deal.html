@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="icon" type="image/png" href="/favicon/favicon-96x96.png" sizes="96x96">
+  <link rel="icon" type="image/svg+xml" href="/favicon/favicon.svg">
+  <link rel="shortcut icon" href="/favicon/favicon.ico">
+  <link rel="apple-touch-icon" sizes="180x180" href="/favicon/apple-touch-icon.png">
+  <link rel="manifest" href="/favicon/site.webmanifest">
+  <title>Deal Detail &mdash; M&amp;A Deal Book</title>
+  <link rel="stylesheet" href="/css/styles.css">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.106.1/dist/umd/supabase.min.js" integrity="sha384-dzQgxMPp/h+N0t5qDf6Bp516wKZr3pXgGMpA7/ZM6tiWkqYo90N060L03dxnZ8Tf" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+  <style>
+    .dd-wrap { max-width: 1200px; margin: 0 auto; padding: 20px 24px; }
+
+    /* Nav */
+    .dd-nav { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; flex-wrap: wrap; gap: 12px; }
+    .dd-nav h2 { font-size: 18px; font-weight: 700; color: var(--header-mid); margin: 0; }
+    .dd-nav-links { display: flex; gap: 8px; align-items: center; }
+    .dd-nav-links .btn { padding: 8px 16px; font-size: 12px; font-weight: 600; border-radius: 8px; cursor: pointer; text-decoration: none; display: inline-block; border: 2px solid #E0E0E0; background: transparent; color: var(--text-primary); font-family: inherit; }
+    .dd-nav-links .btn:hover { border-color: var(--color-gold); }
+
+    /* Loading */
+    .dd-loading { text-align: center; padding: 80px 20px; color: var(--text-secondary); font-size: 14px; }
+    .dd-loading .spinner { width: 28px; height: 28px; border: 3px solid #E0E0E0; border-top-color: var(--color-gold); border-radius: 50%; animation: spin 0.8s linear infinite; display: inline-block; margin-bottom: 12px; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .dd-error { text-align: center; padding: 80px 24px; color: var(--text-secondary); }
+    .dd-error h3 { font-size: 18px; font-weight: 700; color: var(--header-mid); margin-bottom: 8px; }
+
+    /* Deal banner */
+    .deal-banner { background: linear-gradient(135deg, #1B2631 0%, #2C3E50 50%, #1B2631 100%); border-radius: 16px; padding: 28px 32px; margin-bottom: 20px; display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: 24px; color: #fff; box-shadow: 0 4px 20px rgba(0,0,0,0.15); border: 1px solid rgba(212,160,23,0.3); }
+    .deal-party { text-align: center; }
+    .deal-party-label { font-size: 10px; text-transform: uppercase; letter-spacing: 1.5px; color: #95A5A6; margin-bottom: 4px; }
+    .deal-party-name { font-size: 20px; font-weight: 800; letter-spacing: 0.3px; }
+    .deal-party-ticker { font-size: 13px; color: var(--color-gold); font-weight: 600; margin-top: 2px; }
+    .deal-party-mcap { font-size: 11px; color: #ABB2B9; margin-top: 2px; }
+    .deal-center { text-align: center; padding: 0 16px; }
+    .deal-xr-badge { background: var(--color-gold); color: #fff; font-size: 22px; font-weight: 800; padding: 10px 20px; border-radius: 12px; display: inline-block; margin-bottom: 6px; }
+    .deal-xr-label { font-size: 11px; color: #ABB2B9; text-transform: uppercase; letter-spacing: 1px; }
+    .deal-type-badge { margin-top: 8px; font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: var(--color-gold); background: rgba(212,160,23,0.15); padding: 4px 12px; border-radius: 20px; display: inline-block; }
+    .deal-status-badge { margin-top: 6px; font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; padding: 3px 10px; border-radius: 20px; display: inline-block; }
+    .deal-status-pending { color: #E67E22; background: rgba(230,126,34,0.15); }
+    .deal-status-closed { color: #27AE60; background: rgba(39,174,96,0.15); }
+    .deal-dates { margin-top: 10px; font-size: 10px; color: #7F8C8D; letter-spacing: 0.3px; line-height: 1.6; }
+    .deal-dates span { display: inline-block; margin: 0 4px; }
+
+    /* Deal links bar */
+    .deal-links-bar { display: flex; justify-content: center; gap: 16px; margin-bottom: 20px; flex-wrap: wrap; }
+    .deal-link { display: inline-flex; align-items: center; gap: 6px; padding: 7px 16px; font-size: 11px; font-weight: 600; color: var(--header-mid); background: #fff; border: 1.5px solid #D0D4DE; border-radius: 8px; text-decoration: none; transition: all 0.15s; }
+    .deal-link:hover { border-color: var(--color-gold); color: var(--color-gold); }
+    .deal-link svg { width: 14px; height: 14px; flex-shrink: 0; }
+
+    /* Quick stats */
+    .quick-stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px; margin-bottom: 24px; }
+    .qs-card { background: #fff; border-radius: 10px; padding: 16px; box-shadow: 0 1px 4px rgba(0,0,0,0.06); text-align: center; border-top: 3px solid var(--color-gold); }
+    .qs-num { font-size: 24px; font-weight: 700; color: var(--header-mid); font-variant-numeric: tabular-nums; }
+    .qs-lbl { font-size: 10px; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.5px; margin-top: 4px; font-weight: 600; }
+
+    /* Section cards */
+    .section-card { background: #fff; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); margin-bottom: 20px; overflow: hidden; }
+    .section-header { display: flex; align-items: center; justify-content: space-between; padding: 16px 20px; border-bottom: 1px solid #E8EAF0; }
+    .section-header h3 { font-size: 15px; font-weight: 700; color: var(--header-mid); margin: 0; }
+    .section-header .badge { font-size: 10px; font-weight: 600; color: var(--color-gold); background: rgba(212,160,23,0.1); padding: 3px 10px; border-radius: 20px; }
+    .section-body { padding: 20px; }
+
+    /* Term sheet */
+    .term-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    .term-group h4 { font-size: 11px; font-weight: 700; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 10px; padding-bottom: 6px; border-bottom: 2px solid #E8EAF0; }
+    .term-row { display: flex; justify-content: space-between; align-items: baseline; padding: 6px 0; border-bottom: 1px solid #F5F6FA; font-size: 13px; }
+    .term-row:last-child { border-bottom: none; }
+    .term-key { color: var(--text-secondary); font-weight: 500; }
+    .term-val { font-weight: 600; color: var(--text-primary); text-align: right; }
+    .term-val.gold { color: var(--color-gold); }
+
+    /* Pro forma */
+    .pf-table { width: 100%; border-collapse: collapse; font-size: 12px; }
+    .pf-table th { padding: 10px 12px; text-align: left; font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; color: var(--text-secondary); border-bottom: 2px solid #E8EAF0; }
+    .pf-table th:not(:first-child) { text-align: right; }
+    .pf-table td { padding: 8px 12px; border-bottom: 1px solid #F5F6FA; }
+    .pf-table td:not(:first-child) { text-align: right; font-variant-numeric: tabular-nums; }
+    .pf-table .pf-metric { font-weight: 600; color: var(--text-primary); }
+    .pf-table .pf-combined { font-weight: 700; color: var(--color-gold); }
+    .pf-table tr:hover { background: #FAFBFC; }
+    .pf-table .pf-section-row td { padding-top: 14px; font-weight: 700; font-size: 10px; text-transform: uppercase; letter-spacing: 0.5px; color: var(--text-secondary); border-bottom: 2px solid #E8EAF0; }
+
+    /* Sensitivity */
+    .sens-controls { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px; margin-bottom: 24px; }
+    .sens-slider-group { }
+    .sens-label { font-size: 11px; font-weight: 700; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px; }
+    .sens-value { font-size: 18px; font-weight: 700; color: var(--header-mid); margin-bottom: 8px; font-variant-numeric: tabular-nums; }
+    .sens-range { width: 100%; -webkit-appearance: none; appearance: none; height: 6px; background: #E8EAF0; border-radius: 3px; outline: none; }
+    .sens-range::-webkit-slider-thumb { -webkit-appearance: none; width: 18px; height: 18px; background: var(--color-gold); border-radius: 50%; cursor: pointer; border: 2px solid #fff; box-shadow: 0 1px 4px rgba(0,0,0,0.2); }
+    .sens-range::-moz-range-thumb { width: 18px; height: 18px; background: var(--color-gold); border-radius: 50%; cursor: pointer; border: 2px solid #fff; box-shadow: 0 1px 4px rgba(0,0,0,0.2); }
+    .sens-bounds { display: flex; justify-content: space-between; font-size: 10px; color: #999; margin-top: 4px; font-variant-numeric: tabular-nums; }
+    .sens-table { width: 100%; border-collapse: collapse; font-size: 12px; margin-top: 16px; }
+    .sens-table th { padding: 10px 10px; text-align: right; font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.3px; color: var(--text-secondary); border-bottom: 2px solid #E8EAF0; }
+    .sens-table th:first-child { text-align: left; }
+    .sens-table td { padding: 8px 10px; text-align: right; border-bottom: 1px solid #F5F6FA; font-variant-numeric: tabular-nums; }
+    .sens-table td:first-child { text-align: left; font-weight: 600; }
+    .sens-table tr.sens-base { background: rgba(212,160,23,0.08); font-weight: 600; }
+    .sens-table tr.sens-live { background: rgba(39,174,96,0.10); font-weight: 600; }
+    .sens-table tr:hover { background: #FAFBFC; }
+    .sens-positive { color: #27AE60; }
+    .sens-negative { color: #E74C3C; }
+    .chart-wrap { max-height: 280px; margin-top: 20px; }
+
+    /* Timeline */
+    .timeline-track { display: flex; align-items: center; padding: 24px 0; position: relative; }
+    .timeline-line { flex: 1; height: 4px; background: #E8EAF0; position: relative; }
+    .timeline-line-fill { height: 100%; background: var(--color-gold); border-radius: 2px; transition: width 0.5s; }
+    .timeline-node { display: flex; flex-direction: column; align-items: center; gap: 8px; min-width: 100px; position: relative; z-index: 1; }
+    .timeline-dot { width: 24px; height: 24px; border-radius: 50%; border: 3px solid #E8EAF0; background: #fff; display: flex; align-items: center; justify-content: center; }
+    .timeline-dot.complete { border-color: var(--color-gold); background: var(--color-gold); }
+    .timeline-dot.complete::after { content: '\2713'; color: #fff; font-size: 12px; font-weight: 700; }
+    .timeline-dot.active { border-color: var(--color-gold); background: #fff; }
+    .timeline-dot.active::after { content: ''; width: 8px; height: 8px; background: var(--color-gold); border-radius: 50%; }
+    .timeline-date { font-size: 10px; color: #999; font-weight: 600; }
+    .timeline-label { font-size: 11px; font-weight: 600; color: var(--text-primary); text-align: center; }
+    .timeline-detail { font-size: 10px; color: var(--text-secondary); text-align: center; }
+
+    /* Assets grid */
+    .assets-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 10px; }
+    .asset-card { padding: 12px; border: 1px solid #E8EAF0; border-radius: 8px; }
+    .asset-name { font-size: 12px; font-weight: 700; color: var(--text-primary); }
+    .asset-region { font-size: 10px; color: var(--text-secondary); margin-top: 2px; }
+    .asset-prod { font-size: 14px; font-weight: 700; color: var(--color-gold); margin-top: 6px; }
+    .asset-prod-label { font-size: 9px; color: #999; text-transform: uppercase; }
+
+    /* Voting */
+    .voting-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    .voting-card { padding: 16px; background: #FAFBFC; border-radius: 8px; text-align: center; }
+    .voting-pct { font-size: 28px; font-weight: 800; color: var(--header-mid); }
+    .voting-label { font-size: 11px; color: var(--text-secondary); margin-top: 4px; }
+    .voting-desc { font-size: 10px; color: #999; margin-top: 4px; }
+
+    /* Spread */
+    .spread-bar { display: flex; align-items: center; gap: 12px; padding: 14px 20px; background: #FAFBFC; border-radius: 10px; margin-top: 16px; }
+    .spread-label { font-size: 11px; font-weight: 600; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.5px; white-space: nowrap; }
+    .spread-track { flex: 1; height: 10px; background: #E8EAF0; border-radius: 5px; position: relative; overflow: hidden; }
+    .spread-center { position: absolute; left: 50%; top: 0; bottom: 0; width: 2px; margin-left: -1px; background: #B0B8C4; z-index: 1; }
+    .spread-fill { position: absolute; top: 0; height: 100%; border-radius: 5px; transition: width 0.3s; opacity: 0.85; }
+    .spread-value { font-size: 18px; font-weight: 700; font-variant-numeric: tabular-nums; min-width: 60px; text-align: right; }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      .deal-banner { grid-template-columns: 1fr; text-align: center; gap: 16px; }
+      .deal-center { padding: 8px 0; }
+      .term-grid { grid-template-columns: 1fr; }
+      .sens-controls { grid-template-columns: 1fr; }
+      .quick-stats { grid-template-columns: repeat(2, 1fr); }
+      .voting-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Header -->
+  <div class="page-header dgg-theme">
+    <img class="logo" src="/logos/dgg-logo.png" alt="Denver Gold Group">
+    <div class="header-text">
+      <h1>M&amp;A Deal Book &mdash; Denver Gold Group</h1>
+      <div class="subtitle" id="deal-subtitle">Loading&hellip;</div>
+    </div>
+  </div>
+
+  <div class="dd-wrap">
+    <!-- Nav -->
+    <div class="dd-nav">
+      <h2 id="deal-title">Loading deal&hellip;</h2>
+      <div class="dd-nav-links">
+        <a href="/" class="btn">&larr; All Deals</a>
+        <button class="btn" onclick="sessionStorage.removeItem('dealbook_token'); window.location.href='/dealbook-login'">Log Out</button>
+      </div>
+    </div>
+
+    <div id="deal-content">
+      <div class="dd-loading">
+        <div class="spinner"></div><br>
+        Loading deal data&hellip;
+      </div>
+    </div>
+  </div>
+
+  <div id="deal-disclaimer"></div>
+
+  <script src="/js/deal-renderer.js?v=1"></script>
+  <script>
+  (function() {
+    'use strict';
+
+    var R = window.DealRenderer;
+
+    // Supabase client for live company data (companies table has public SELECT via RLS)
+    var SB_URL = 'https://ljyogcspkvqgjbiyzfbn.supabase.co';
+    var SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxqeW9nY3Nwa3ZxZ2piaXl6ZmJuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzMyODE5OTAsImV4cCI6MjA4ODg1Nzk5MH0.oBKfsngoLIUjZl-w-iZm3W8Q4kMuFAAICidEdszNyGE';
+    var sbClient = window.supabase && window.supabase.createClient
+      ? window.supabase.createClient(SB_URL, SB_KEY)
+      : null;
+
+    // Auth gate
+    var token = sessionStorage.getItem('dealbook_token') || sessionStorage.getItem('admin_token');
+    if (!token) {
+      window.location.href = '/dealbook-login?redirect=' + encodeURIComponent(window.location.pathname);
+      return;
+    }
+
+    // Extract slug from URL: /deals/some-slug
+    var pathParts = window.location.pathname.split('/').filter(function(p) { return p; });
+    var slug = pathParts.length >= 2 && pathParts[0] === 'deals' ? pathParts[1] : null;
+    if (!slug) {
+      document.getElementById('deal-content').innerHTML = '<div class="dd-error"><h3>Invalid URL</h3><p>No deal slug found in the URL.</p></div>';
+      return;
+    }
+
+    var liveGoldData = null;
+
+    async function fetchGoldPrice() {
+      try {
+        var res = await fetch('/api/metals');
+        var data = await res.json();
+        if (data.metals && data.metals.gold) {
+          liveGoldData = { price: data.metals.gold.price, updated_at: data.metals.gold.updated_at };
+        }
+      } catch (e) { /* ignore */ }
+    }
+
+    // Fetch live stock data from companies table and overlay onto deal object.
+    // announcementMC is preserved untouched so Deal Spread can show deltas.
+    // Note: companies table tickers have trailing colons (e.g. "AEM:")
+    async function applyLiveCompanyData(deal) {
+      if (!sbClient) return;
+      var b = deal.bidder;
+      var t = deal.target;
+      // Normalize tickers: strip trailing colon from deal data
+      var bTicker = (b && b.ticker && b.ticker !== '—') ? b.ticker.replace(/:$/, '') : null;
+      var tTicker = (t && t.ticker && t.ticker !== '—') ? t.ticker.replace(/:$/, '') : null;
+      // Build query tickers with trailing colon to match companies table format
+      var queryTickers = [];
+      if (bTicker) queryTickers.push(bTicker + ':');
+      if (tTicker) queryTickers.push(tTicker + ':');
+      if (queryTickers.length === 0) return;
+
+      try {
+        var result = await sbClient
+          .from('companies')
+          .select('ticker, market_cap_usd, market_cap_display')
+          .in('ticker', queryTickers);
+        if (result.error || !result.data) return;
+
+        result.data.forEach(function(co) {
+          if (!co.market_cap_usd) return;
+          var coTicker = co.ticker.replace(/:$/, '');
+          var mcM = co.market_cap_usd / 1e6; // raw USD -> millions
+          if (bTicker && coTicker === bTicker) {
+            b.marketCapUsd = mcM;
+            b.marketCapDisplay = co.market_cap_display;
+          } else if (tTicker && coTicker === tTicker) {
+            t.marketCapUsd = mcM;
+            t.marketCapDisplay = co.market_cap_display;
+          }
+        });
+
+        // Recalculate combined market cap from live values
+        if (deal.combined && b.marketCapUsd && t.marketCapUsd) {
+          deal.combined.marketCapUsd = b.marketCapUsd + t.marketCapUsd;
+        }
+      } catch (e) { /* fall back to static deal data */ }
+    }
+
+    async function loadDeal() {
+      try {
+        var res = await fetch('/api/deals?slug=' + encodeURIComponent(slug), {
+          headers: { 'Authorization': 'Bearer ' + token }
+        });
+        var data = await res.json();
+        if (!data.ok || !data.deal) {
+          document.getElementById('deal-content').innerHTML = '<div class="dd-error"><h3>Deal Not Found</h3><p>This deal may have been removed or is not yet published.</p><p><a href="/" style="color:var(--color-gold)">Back to all deals</a></p></div>';
+          return;
+        }
+
+        var deal = data.deal.deal_data;
+        if (!deal) {
+          document.getElementById('deal-content').innerHTML = '<div class="dd-error"><h3>Invalid Deal Data</h3><p>Deal data could not be loaded.</p></div>';
+          return;
+        }
+
+        // Overlay live stock data from companies table onto deal object
+        await applyLiveCompanyData(deal);
+
+        document.title = data.deal.title + ' — M&A Deal Book';
+        document.getElementById('deal-title').textContent = data.deal.title;
+        document.getElementById('deal-subtitle').textContent = deal.subtitle || data.deal.title;
+
+        renderDeal(deal);
+      } catch (e) {
+        document.getElementById('deal-content').innerHTML = '<div class="dd-error"><h3>Connection Error</h3><p>Could not load the deal. Please try again.</p></div>';
+      }
+    }
+
+    function renderDeal(deal) {
+      var html = '';
+
+      // Banner
+      html += '<div class="deal-banner">' + R.renderBanner(deal) + '</div>';
+
+      // Links
+      var linksHtml = R.renderLinks(deal);
+      if (linksHtml) html += '<div class="deal-links-bar">' + linksHtml + '</div>';
+
+      // Quick stats
+      html += '<div class="quick-stats">' + R.renderQuickStats(deal) + '</div>';
+
+      // Deal spread
+      var spreadHtml = R.renderDealSpread(deal, liveGoldData);
+      if (spreadHtml) {
+        html += '<div class="section-card">' +
+          '<div class="section-header"><h3>Deal Spread</h3><span class="badge">Live</span></div>' +
+          '<div class="section-body">' + spreadHtml + '</div>' +
+        '</div>';
+      }
+
+      // Term sheet
+      html += '<div class="section-card">' +
+        '<div class="section-header"><h3>Term Sheet</h3><span class="badge">' + R.escHtml(deal.bidder.shortName) + ' + ' + R.escHtml(deal.target.shortName) + '</span></div>' +
+        '<div class="section-body">' + R.renderTermSheet(deal) + '</div>' +
+      '</div>';
+
+      // Pro forma
+      html += '<div class="section-card">' +
+        '<div class="section-header"><h3>Pro Forma Comparison</h3><span class="badge">Bidder | Target | Combined</span></div>' +
+        '<div class="section-body">' + R.renderProForma(deal) + '</div>' +
+      '</div>';
+
+      // Sensitivity
+      html += '<div class="section-card">' +
+        '<div class="section-header"><h3>Sensitivity Analysis</h3><span class="badge">Interactive</span></div>' +
+        '<div class="section-body">' +
+          '<div class="sens-controls" id="sens-controls">' + R.renderSensitivityControls(deal) + '</div>' +
+          '<div id="sens-output"></div>' +
+          '<div class="chart-wrap"><canvas id="sens-chart"></canvas></div>' +
+        '</div>' +
+      '</div>';
+
+      // Assets
+      var assets = R.renderAssets(deal);
+      html += '<div class="section-card">' +
+        '<div class="section-header"><h3>Operating Assets</h3><span class="badge">' + R.fmtOz(assets.totalProd) + '/yr</span></div>' +
+        '<div class="section-body">' + assets.html + '</div>' +
+      '</div>';
+
+      // Progress
+      var progress = R.renderProgress(deal);
+      html += '<div class="section-card">' +
+        '<div class="section-header"><h3>Deal Progress</h3><span class="badge">' + R.escHtml(progress.badge) + '</span></div>' +
+        '<div class="section-body">' + progress.html + '</div>' +
+      '</div>';
+
+      document.getElementById('deal-content').innerHTML = html;
+      document.getElementById('deal-disclaimer').innerHTML = R.renderDisclaimer();
+
+      // Wire up sensitivity sliders
+      var sensChart = null;
+      function updateSens() {
+        var result = R.computeSensitivity(deal, liveGoldData ? liveGoldData.price : null);
+        document.getElementById('sens-output').innerHTML = result.html;
+        if (sensChart) sensChart.destroy();
+        sensChart = R.createSensChart('sens-chart', result.chartLabels, result.chartEbitda, result.chartFcf, deal.dealCurrency || (deal.bidder && deal.bidder.currency) || 'USD');
+      }
+
+      document.getElementById('sens-gold').addEventListener('input', updateSens);
+      document.getElementById('sens-aisc').addEventListener('input', updateSens);
+      document.getElementById('sens-res').addEventListener('input', updateSens);
+      updateSens();
+    }
+
+    // Init
+    Promise.all([fetchGoldPrice()]).then(function() {
+      loadDeal();
+    });
+  })();
+  </script>
+
+</body>
+</html>

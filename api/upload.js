@@ -11,32 +11,35 @@ function getSupabase() {
   return createClient(SUPABASE_URL, key);
 }
 
-// Verify admin token (matches new format: randomBytes.timestamp.signature)
+// Verify admin token — supports 4-part (new) and 3-part (legacy)
 function verifyToken(authHeader) {
   if (!authHeader || !authHeader.startsWith('Bearer ')) return false;
-  const token = authHeader.replace('Bearer ', '');
-  const parts = token.split('.');
-  if (parts.length !== 3) return false;
-
-  const [tokenBytes, timestamp, providedSignature] = parts;
+  var token = authHeader.replace('Bearer ', '');
+  var parts = token.split('.');
   if (!process.env.ADMIN_PASSWORD || !process.env.SUPABASE_SERVICE_ROLE_KEY) return false;
-  const secret = process.env.ADMIN_PASSWORD + process.env.SUPABASE_SERVICE_ROLE_KEY;
-
-  const expectedSignature = crypto
-    .createHmac('sha256', secret)
-    .update(tokenBytes + '.' + timestamp)
-    .digest('hex');
-
-  // Timing-safe comparison for signature
-  const sigBuf = Buffer.from(providedSignature);
-  const expBuf = Buffer.from(expectedSignature);
+  var secret = process.env.ADMIN_PASSWORD + process.env.SUPABASE_SERVICE_ROLE_KEY;
+  var payloadB64, providedSignature, payload;
+  if (parts.length === 4) {
+    payloadB64 = parts[2]; providedSignature = parts[3];
+    payload = parts[0] + '.' + parts[1] + '.' + payloadB64;
+  } else if (parts.length === 3) {
+    payloadB64 = ''; providedSignature = parts[2];
+    payload = parts[0] + '.' + parts[1];
+  } else { return false; }
+  var expectedSignature = crypto.createHmac('sha256', secret).update(payload).digest('hex');
+  var sigBuf = Buffer.from(providedSignature);
+  var expBuf = Buffer.from(expectedSignature);
   if (sigBuf.length !== expBuf.length || !crypto.timingSafeEqual(sigBuf, expBuf)) return false;
-
-  // Token valid for 24 hours
-  const age = Date.now() - parseInt(timestamp, 10);
+  var age = Date.now() - parseInt(parts[1], 10);
   if (isNaN(age) || age < 0 || age > 24 * 60 * 60 * 1000) return false;
-
-  return true;
+  if (!payloadB64) return { email: 'admin', role: 'super_admin' };
+  try {
+    var info = JSON.parse(Buffer.from(payloadB64, 'base64').toString('utf8'));
+    return { email: info.email || 'admin', role: info.role || 'admin' };
+  } catch (e) {
+    // Old 4-part token with plain email (pre-JSON era) — shared-password users are super_admin
+    return { email: Buffer.from(payloadB64, 'base64').toString('utf8'), role: 'super_admin' };
+  }
 }
 
 // Normalize a header: CamelCase → snake_case, lowercase, trim
@@ -311,7 +314,8 @@ module.exports = async function handler(req, res) {
       }
 
       if (target === 'companies') {
-        // CSV replaces all existing data.
+        // CSV/JSON replaces all existing data, but preserves enrichment fields
+        // (mineral, country, region, exchange) when incoming values are empty.
         var mapped = parsed.rows.map(r => mapCompanyRow(r)).filter(r => r.company_name);
 
         // Deduplicate by company name (keep first occurrence)
@@ -322,6 +326,29 @@ module.exports = async function handler(req, res) {
           if (!seen[nameKey]) {
             seen[nameKey] = true;
             unique.push(row);
+          }
+        });
+
+        // Fetch existing companies to preserve enrichment fields
+        var { data: existing } = await sb.from('companies')
+          .select('company_name, primary_mineral, primary_country, primary_region, primary_subregion, primary_stock_exchange');
+        var existingMap = {};
+        (existing || []).forEach(function(c) {
+          existingMap[c.company_name.toLowerCase().trim()] = c;
+        });
+
+        // Carry over enrichment fields from existing data when incoming is empty
+        var ENRICH_FIELDS = [
+          'primary_mineral', 'primary_country', 'primary_region',
+          'primary_subregion', 'primary_stock_exchange'
+        ];
+        unique.forEach(function(row) {
+          var key = row.company_name.toLowerCase().trim();
+          var prev = existingMap[key];
+          if (prev) {
+            ENRICH_FIELDS.forEach(function(f) {
+              if (!row[f] && prev[f]) row[f] = prev[f];
+            });
           }
         });
 

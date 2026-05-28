@@ -1,0 +1,448 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="icon" type="image/png" href="/favicon/favicon-96x96.png" sizes="96x96">
+  <link rel="icon" type="image/svg+xml" href="/favicon/favicon.svg">
+  <link rel="shortcut icon" href="/favicon/favicon.ico">
+  <link rel="apple-touch-icon" sizes="180x180" href="/favicon/apple-touch-icon.png">
+  <link rel="manifest" href="/favicon/site.webmanifest">
+  <title>Event Agenda — Mining Forum Analytics</title>
+  <link rel="stylesheet" href="/css/styles.css">
+  <style>
+    .ag-wrap { max-width: 1600px; margin: 0 auto; padding: 20px 24px; }
+
+    /* Nav */
+    .ag-nav { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 12px; }
+    .ag-nav h2 { font-size: 20px; font-weight: 700; color: var(--header-mid); margin: 0; }
+    .ag-nav-links { display: flex; gap: 8px; }
+    .ag-nav-links .btn { padding: 8px 16px; font-size: 12px; font-weight: 600; border-radius: 8px; cursor: pointer; text-decoration: none; display: inline-block; border: 2px solid #E0E0E0; background: transparent; color: var(--text-primary); font-family: inherit; }
+    .ag-nav-links .btn:hover { border-color: var(--color-gold); }
+
+    /* Event tabs */
+    .event-tabs { display: flex; gap: 0; margin-bottom: 0; }
+    .event-tab { padding: 10px 24px; font-size: 13px; font-weight: 600; cursor: pointer; border: 2px solid #E0E0E0; border-bottom: none; border-radius: 8px 8px 0 0; background: #F5F6FA; color: var(--text-secondary); font-family: inherit; }
+    .event-tab.active { background: #fff; color: var(--header-mid); border-color: var(--color-gold); border-bottom: 2px solid #fff; margin-bottom: -2px; position: relative; z-index: 1; }
+
+    /* Day tabs */
+    .day-tabs { display: flex; gap: 0; background: #fff; border: 2px solid var(--color-gold); border-bottom: none; border-radius: 0 12px 0 0; padding: 12px 16px 0; }
+    .day-tab { padding: 10px 20px; font-size: 12px; font-weight: 600; cursor: pointer; border: 2px solid #E0E0E0; border-bottom: none; border-radius: 8px 8px 0 0; background: #F5F6FA; color: var(--text-secondary); font-family: inherit; transition: all 0.15s; }
+    .day-tab.active { background: var(--header-mid); color: #fff; border-color: var(--header-mid); }
+    .day-tab .day-label { display: block; }
+    .day-tab .day-date { display: block; font-size: 10px; font-weight: 400; opacity: 0.7; margin-top: 1px; }
+
+    /* Content panel */
+    .agenda-panel { background: #fff; border: 2px solid var(--color-gold); border-radius: 0 0 12px 12px; padding: 0; min-height: 400px; }
+
+    /* Stats bar */
+    .ag-stats { display: flex; gap: 12px; padding: 16px 20px; border-bottom: 1px solid #F0F2F5; flex-wrap: wrap; align-items: center; }
+    .ag-stat { font-size: 12px; color: var(--text-secondary); }
+    .ag-stat strong { color: var(--header-mid); font-weight: 700; }
+
+    /* Track grid */
+    .track-grid { display: grid; gap: 0; }
+    .track-col { border-right: 1px solid #F0F2F5; min-width: 0; }
+    .track-col:last-child { border-right: none; }
+
+    /* Track header */
+    .track-hdr { padding: 12px 14px; font-size: 14px; font-weight: 700; color: #fff; position: sticky; top: 0; z-index: 2; }
+    .track-hdr.stage-1 { background: linear-gradient(135deg, #1B5E20, #2E7D32); }
+    .track-hdr.stage-2 { background: linear-gradient(135deg, #1A237E, #283593); }
+    .track-hdr.stage-3 { background: linear-gradient(135deg, #4A148C, #6A1B9A); }
+    .track-hdr.stage-4 { background: linear-gradient(135deg, #BF360C, #E65100); }
+    .track-hdr.stage-5 { background: linear-gradient(135deg, #006064, #00838F); }
+    .track-hdr .track-venue { font-size: 10px; font-weight: 400; opacity: 0.7; margin-top: 2px; }
+
+    /* Session slot */
+    .session-slot { padding: 10px 14px; border-bottom: 1px solid #F0F2F5; transition: background 0.15s; }
+    .session-slot:hover { background: #FAFBFC; }
+    .session-slot:last-child { border-bottom: none; }
+
+    .slot-time { font-size: 11px; font-weight: 700; color: var(--color-gold); font-variant-numeric: tabular-nums; margin-bottom: 3px; }
+    .slot-company { font-size: 13px; font-weight: 600; color: var(--text-primary); line-height: 1.3; display: flex; align-items: center; gap: 6px; }
+    .slot-mineral-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+    .slot-details { display: flex; align-items: center; gap: 8px; margin-top: 3px; flex-wrap: wrap; }
+    .slot-ticker { font-size: 10px; font-weight: 600; color: var(--header-mid); background: #F0F2F5; padding: 1px 6px; border-radius: 3px; }
+    .slot-status { font-size: 10px; color: #fff; padding: 1px 6px; border-radius: 3px; font-weight: 600; }
+    .slot-mcap { font-size: 10px; color: var(--text-secondary); font-variant-numeric: tabular-nums; }
+
+    /* Empty state */
+    .slot-empty { padding: 14px; text-align: center; font-size: 11px; color: #C0C4CC; }
+
+    /* Time divider (lunch, breaks) */
+    .time-divider { padding: 6px 14px; text-align: center; font-size: 10px; font-weight: 600; color: #999; background: #FAFBFC; border-bottom: 1px solid #F0F2F5; letter-spacing: 1px; text-transform: uppercase; }
+
+    /* Loading */
+    .ag-loading { display: flex; align-items: center; justify-content: center; padding: 60px; color: var(--text-secondary); font-size: 13px; }
+    .ag-loading .spinner { width: 20px; height: 20px; border: 2px solid #E0E0E0; border-top-color: var(--color-gold); border-radius: 50%; animation: spin 0.8s linear infinite; margin-right: 10px; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      .track-grid { grid-template-columns: 1fr !important; }
+      .track-col { border-right: none; border-bottom: 2px solid #F0F2F5; }
+      .day-tabs { flex-wrap: wrap; gap: 4px; padding: 12px 12px 0; }
+      .ag-wrap { padding: 12px; }
+      .event-tab { padding: 8px 14px; font-size: 12px; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Header -->
+  <div class="page-header dgg-theme" id="page-header">
+    <img class="logo" src="/logos/dgg-logo.png" alt="Denver Gold Group" id="header-logo">
+    <div class="header-text">
+      <h1><a href="/" style="color:#fff;text-decoration:none">Mining Forum Event Analytics</a></h1>
+      <div class="subtitle" id="header-subtitle">Event Agenda</div>
+    </div>
+  </div>
+
+  <div class="ag-wrap">
+
+    <!-- Nav -->
+    <div class="ag-nav">
+      <h2>Event Agenda</h2>
+      <div class="ag-nav-links">
+        <a href="/" class="btn">Overview</a>
+        <a href="/admin" class="btn">Admin</a>
+      </div>
+    </div>
+
+    <!-- Event tabs -->
+    <div class="event-tabs" id="event-tabs"></div>
+
+    <!-- Day tabs + content -->
+    <div class="day-tabs" id="day-tabs"></div>
+    <div class="agenda-panel" id="agenda-panel">
+      <div class="ag-loading" id="loading">
+        <div class="spinner"></div>Loading agenda&hellip;
+      </div>
+    </div>
+
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script>
+  (function() {
+    var SUPABASE_URL = 'https://ljyogcspkvqgjbiyzfbn.supabase.co';
+    var SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxqeW9nY3Nwa3ZxZ2piaXl6ZmJuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzMyODE5OTAsImV4cCI6MjA4ODg1Nzk5MH0.oBKfsngoLIUjZl-w-iZm3W8Q4kMuFAAICidEdszNyGE';
+    var sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+    // State
+    var allData = [];
+    var currentEvent = '';
+    var currentDate = '';
+    var events = [];
+
+    // Event display config
+    var EVENT_CONFIG = {
+      'MFE26': { label: 'Mining Forum Europe 2026', theme: 'mfe', logo: '/logos/mfe26-logo.png' },
+      'MFA26': { label: 'Mining Forum Americas 2026', theme: 'mfa', logo: '/logos/mfa26-logo.png' },
+      'MFE25': { label: 'Mining Forum Europe 2025', theme: 'mfe', logo: '/logos/mfe26-logo.png' }
+    };
+
+    // Color maps
+    var MINERAL_COLORS = {
+      'Gold': '#D4A017', 'Silver': '#7F8C8D', 'PGMs': '#8E44AD', 'Platinum': '#8E44AD',
+      'Copper': '#CA6F1E', 'Lithium': '#1ABC9C', 'Titanium': '#2980B9'
+    };
+    var STATUS_COLORS = {
+      'Producer': '#27AE60', 'Royalty / Streaming': '#2980B9',
+      'Developer (construction/feasibility)': '#E67E22', 'Developer (PEA/scoping)': '#F39C12',
+      'Explorer (advanced)': '#9B59B6', 'Explorer (early-stage)': '#1ABC9C',
+      'Bullion Holder': '#95A5A6'
+    };
+    var STATUS_SHORT = {
+      'Producer': 'Producer', 'Royalty / Streaming': 'Royalty',
+      'Developer (construction/feasibility)': 'Developer', 'Developer (PEA/scoping)': 'Developer',
+      'Explorer (advanced)': 'Explorer', 'Explorer (early-stage)': 'Explorer',
+      'Bullion Holder': 'Bullion'
+    };
+
+    // Stage gradient classes
+    var STAGE_CLASSES = ['stage-1', 'stage-2', 'stage-3', 'stage-4', 'stage-5'];
+
+    // ── Parse time string to minutes for sorting ──
+    function parseTimeToMinutes(timeStr) {
+      if (!timeStr) return 9999;
+      var match = timeStr.match(/^(\d{1,2}):(\d{2})\s*(AM|PM)$/i);
+      if (!match) return 9999;
+      var hours = parseInt(match[1], 10);
+      var minutes = parseInt(match[2], 10);
+      var ampm = match[3].toUpperCase();
+      if (ampm === 'AM' && hours === 12) hours = 0;
+      if (ampm === 'PM' && hours !== 12) hours += 12;
+      return hours * 60 + minutes;
+    }
+
+    // ── Format market cap ──
+    function formatMcap(val) {
+      if (!val) return '';
+      var n = parseFloat(val);
+      if (isNaN(n)) return '';
+      if (n >= 1e9) return '$' + (n / 1e9).toFixed(1) + 'B';
+      if (n >= 1e6) return '$' + (n / 1e6).toFixed(0) + 'M';
+      return '$' + (n / 1e3).toFixed(0) + 'K';
+    }
+
+    // ── Format date for display ──
+    function formatDate(dateStr) {
+      var d = new Date(dateStr + 'T00:00:00');
+      var days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+      var months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+      return days[d.getDay()] + ', ' + months[d.getMonth()] + ' ' + d.getDate();
+    }
+
+    function shortDate(dateStr) {
+      var d = new Date(dateStr + 'T00:00:00');
+      var months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+      return months[d.getMonth()] + ' ' + d.getDate();
+    }
+
+    // ── Extract stage number for sorting ──
+    function stageSort(location) {
+      var m = location.match(/Stage\s*(\d+)/i);
+      if (m) return parseInt(m[1], 10);
+      // Fallback: Ballroom 2 → 2, etc.
+      var b = location.match(/(\d+)/);
+      return b ? parseInt(b[1], 10) : 99;
+    }
+
+    // ── Extract short stage name ──
+    function stageName(location) {
+      var m = location.match(/Stage\s*\d+/i);
+      if (m) return m[0];
+      return location;
+    }
+
+    // ── Extract venue name ──
+    function venueName(location) {
+      var parts = location.split(':');
+      if (parts.length > 1) return parts[0].trim();
+      return '';
+    }
+
+    // ── Load data ──
+    async function loadData() {
+      var { data, error } = await sb
+        .from('event_participations')
+        .select('company_name, event_code, presentation_date, presentation_time, presentation_location, presentation_type, company_status, primary_mineral, ticker, primary_stock_exchange, market_cap_usd, webcast_url')
+        .not('presentation_date', 'is', null)
+        .not('presentation_time', 'is', null)
+        .not('presentation_location', 'is', null)
+        .order('presentation_date', { ascending: true });
+
+      if (error) {
+        document.getElementById('loading').innerHTML = '<span style="color:#E74C3C">Failed to load agenda data</span>';
+        console.error(error);
+        return;
+      }
+
+      allData = data || [];
+
+      // Determine available events (only those with programmed sessions)
+      var eventSet = {};
+      allData.forEach(function(row) {
+        if (!eventSet[row.event_code]) eventSet[row.event_code] = true;
+      });
+
+      // Order: MFE26 first, MFA26 second, others alphabetical
+      var priority = { 'MFE26': 1, 'MFA26': 2, 'MFE25': 3 };
+      events = Object.keys(eventSet).sort(function(a, b) {
+        return (priority[a] || 99) - (priority[b] || 99);
+      });
+
+      if (events.length === 0) {
+        document.getElementById('loading').innerHTML = '<span style="color:#999">No agenda data available</span>';
+        return;
+      }
+
+      renderEventTabs();
+      selectEvent(events[0]);
+    }
+
+    // ── Render event tabs ──
+    function renderEventTabs() {
+      var container = document.getElementById('event-tabs');
+      container.innerHTML = '';
+      events.forEach(function(code) {
+        var btn = document.createElement('button');
+        btn.className = 'event-tab';
+        btn.setAttribute('data-event', code);
+        btn.textContent = EVENT_CONFIG[code] ? EVENT_CONFIG[code].label : code;
+        btn.onclick = function() { selectEvent(code); };
+        container.appendChild(btn);
+      });
+    }
+
+    // ── Select event ──
+    function selectEvent(code) {
+      currentEvent = code;
+
+      // Update active tab
+      var tabs = document.querySelectorAll('.event-tab');
+      tabs.forEach(function(t) { t.classList.toggle('active', t.getAttribute('data-event') === code); });
+
+      // Update header theme
+      var cfg = EVENT_CONFIG[code] || {};
+      var header = document.getElementById('page-header');
+      header.className = 'page-header ' + (cfg.theme ? cfg.theme + '-theme' : 'dgg-theme');
+      var logo = document.getElementById('header-logo');
+      logo.src = cfg.logo || '/logos/dgg-logo.png';
+      document.getElementById('header-subtitle').textContent = cfg.label || code;
+
+      // Get dates for this event
+      var eventData = allData.filter(function(r) { return r.event_code === code; });
+      var dateSet = {};
+      eventData.forEach(function(r) { dateSet[r.presentation_date] = true; });
+      var dates = Object.keys(dateSet).sort();
+
+      renderDayTabs(dates);
+      if (dates.length > 0) {
+        selectDay(dates[0]);
+      } else {
+        document.getElementById('agenda-panel').innerHTML = '<div class="ag-loading"><span style="color:#999">No sessions programmed for this event</span></div>';
+      }
+    }
+
+    // ── Render day tabs ──
+    function renderDayTabs(dates) {
+      var container = document.getElementById('day-tabs');
+      container.innerHTML = '';
+      dates.forEach(function(d, i) {
+        var btn = document.createElement('button');
+        btn.className = 'day-tab';
+        btn.setAttribute('data-date', d);
+        btn.innerHTML = '<span class="day-label">Day ' + (i + 1) + '</span><span class="day-date">' + formatDate(d) + '</span>';
+        btn.onclick = function() { selectDay(d); };
+        container.appendChild(btn);
+      });
+    }
+
+    // ── Select day ──
+    function selectDay(dateStr) {
+      currentDate = dateStr;
+
+      // Update active day tab
+      var tabs = document.querySelectorAll('.day-tab');
+      tabs.forEach(function(t) { t.classList.toggle('active', t.getAttribute('data-date') === dateStr); });
+
+      // Filter data
+      var dayData = allData.filter(function(r) {
+        return r.event_code === currentEvent && r.presentation_date === dateStr;
+      });
+
+      renderAgenda(dayData);
+    }
+
+    // ── Render agenda grid ──
+    function renderAgenda(data) {
+      var panel = document.getElementById('agenda-panel');
+
+      if (data.length === 0) {
+        panel.innerHTML = '<div class="ag-loading"><span style="color:#999">No sessions for this day</span></div>';
+        return;
+      }
+
+      // Group by location (stage)
+      var stageMap = {};
+      data.forEach(function(row) {
+        var loc = row.presentation_location || 'TBD';
+        if (!stageMap[loc]) stageMap[loc] = [];
+        stageMap[loc].push(row);
+      });
+
+      // Sort stages by number
+      var stageKeys = Object.keys(stageMap).sort(function(a, b) {
+        return stageSort(a) - stageSort(b);
+      });
+
+      // Sort sessions within each stage by time
+      stageKeys.forEach(function(key) {
+        stageMap[key].sort(function(a, b) {
+          return parseTimeToMinutes(a.presentation_time) - parseTimeToMinutes(b.presentation_time);
+        });
+      });
+
+      // Stats
+      var totalPresentations = data.length;
+      var html = '<div class="ag-stats">';
+      html += '<div class="ag-stat"><strong>' + totalPresentations + '</strong> presentations</div>';
+      html += '<div class="ag-stat"><strong>' + stageKeys.length + '</strong> stages</div>';
+      html += '<div class="ag-stat"><strong>' + formatDate(currentDate) + '</strong></div>';
+      html += '</div>';
+
+      // Track grid
+      html += '<div class="track-grid" style="grid-template-columns: repeat(' + stageKeys.length + ', 1fr)">';
+
+      stageKeys.forEach(function(loc, idx) {
+        var sessions = stageMap[loc];
+        var stageClass = STAGE_CLASSES[idx % STAGE_CLASSES.length];
+        var venue = venueName(loc);
+        var stage = stageName(loc);
+
+        html += '<div class="track-col">';
+        html += '<div class="track-hdr ' + stageClass + '">';
+        html += stage;
+        if (venue) html += '<div class="track-venue">' + venue + '</div>';
+        html += '</div>';
+
+        // Render sessions with lunch break detection (once per track)
+        var lunchInserted = false;
+        sessions.forEach(function(row) {
+          var mins = parseTimeToMinutes(row.presentation_time);
+
+          // Insert lunch divider once when crossing from AM to PM block (noon boundary)
+          if (!lunchInserted && mins >= 720) { // 720 = 12:00 PM
+            html += '<div class="time-divider">Lunch Break</div>';
+            lunchInserted = true;
+          }
+
+          var mineralColor = MINERAL_COLORS[row.primary_mineral] || '#27AE60';
+          var statusColor = STATUS_COLORS[row.company_status] || '#95A5A6';
+          var statusShort = STATUS_SHORT[row.company_status] || row.company_status || '';
+          var mcap = formatMcap(row.market_cap_usd);
+
+          html += '<div class="session-slot">';
+          html += '<div class="slot-time">' + escapeHtml(row.presentation_time) + '</div>';
+          html += '<div class="slot-company">';
+          html += '<span class="slot-mineral-dot" style="background:' + mineralColor + '" title="' + escapeHtml(row.primary_mineral || '') + '"></span>';
+          html += escapeHtml(row.company_name);
+          html += '</div>';
+          html += '<div class="slot-details">';
+          if (row.ticker) {
+            html += '<span class="slot-ticker">' + escapeHtml(row.ticker) + '</span>';
+          }
+          if (statusShort) {
+            html += '<span class="slot-status" style="background:' + statusColor + '">' + escapeHtml(statusShort) + '</span>';
+          }
+          if (mcap) {
+            html += '<span class="slot-mcap">' + mcap + '</span>';
+          }
+          html += '</div>';
+          html += '</div>';
+        });
+
+        html += '</div>'; // track-col
+      });
+
+      html += '</div>'; // track-grid
+      panel.innerHTML = html;
+    }
+
+    // ── HTML escape ──
+    function escapeHtml(str) {
+      if (!str) return '';
+      var div = document.createElement('div');
+      div.appendChild(document.createTextNode(str));
+      return div.innerHTML;
+    }
+
+    // ── Init ──
+    loadData();
+  })();
+  </script>
+</body>
+</html>

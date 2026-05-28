@@ -248,6 +248,7 @@ function getSecret() {
   return process.env.ADMIN_PASSWORD + process.env.SUPABASE_SERVICE_ROLE_KEY;
 }
 
+// Verify admin token for write access — supports 4-part (new), 3-part (legacy), and PSR admin
 function verifyToken(authHeader) {
   if (!authHeader || !authHeader.startsWith('Bearer ')) return false;
   var secret = getSecret();
@@ -255,17 +256,25 @@ function verifyToken(authHeader) {
   var token = authHeader.replace('Bearer ', '');
   var parts = token.split('.');
 
-  // Admin token: randomBytes.timestamp.signature (3 parts)
+  // New admin token: randomBytes.timestamp.emailB64.signature (4 parts)
+  if (parts.length === 4 && parts[0] !== 'psr') {
+    var payload = parts[0] + '.' + parts[1] + '.' + parts[2];
+    var expectedSig = crypto.createHmac('sha256', secret).update(payload).digest('hex');
+    var sigBuf = Buffer.from(parts[3]);
+    var expBuf = Buffer.from(expectedSig);
+    if (sigBuf.length !== expBuf.length || !crypto.timingSafeEqual(sigBuf, expBuf)) return false;
+    var age = Date.now() - parseInt(parts[1], 10);
+    if (isNaN(age) || age < 0 || age > 24 * 60 * 60 * 1000) return false;
+    return true;
+  }
+
+  // Legacy admin token: randomBytes.timestamp.signature (3 parts)
   if (parts.length === 3) {
-    var tokenBytes = parts[0], timestamp = parts[1], providedSignature = parts[2];
-    var expectedSignature = crypto
-      .createHmac('sha256', secret)
-      .update(tokenBytes + '.' + timestamp)
-      .digest('hex');
-    var sigBuf = Buffer.from(providedSignature);
+    var expectedSignature = crypto.createHmac('sha256', secret).update(parts[0] + '.' + parts[1]).digest('hex');
+    var sigBuf = Buffer.from(parts[2]);
     var expBuf = Buffer.from(expectedSignature);
     if (sigBuf.length !== expBuf.length || !crypto.timingSafeEqual(sigBuf, expBuf)) return false;
-    var age = Date.now() - parseInt(timestamp, 10);
+    var age = Date.now() - parseInt(parts[1], 10);
     if (isNaN(age) || age < 0 || age > 24 * 60 * 60 * 1000) return false;
     return true;
   }
@@ -288,14 +297,24 @@ function verifyToken(authHeader) {
   return false;
 }
 
-// Verify any valid PSR token (admin or viewer) for read access
+// Verify any valid token (admin or PSR viewer) for read access
 function verifyReadToken(authHeader) {
   if (!authHeader || !authHeader.startsWith('Bearer ')) return false;
   var secret = getSecret();
   if (!secret) return false;
   var token = authHeader.replace('Bearer ', '');
   var parts = token.split('.');
-  // Admin token (3 parts)
+  // New admin token (4 parts)
+  if (parts.length === 4 && parts[0] !== 'psr') {
+    var payload = parts[0] + '.' + parts[1] + '.' + parts[2];
+    var expectedSig = crypto.createHmac('sha256', secret).update(payload).digest('hex');
+    var sigBuf = Buffer.from(parts[3]);
+    var expBuf = Buffer.from(expectedSig);
+    if (sigBuf.length !== expBuf.length || !crypto.timingSafeEqual(sigBuf, expBuf)) return false;
+    var age = Date.now() - parseInt(parts[1], 10);
+    return !(isNaN(age) || age < 0 || age > 24 * 60 * 60 * 1000);
+  }
+  // Legacy admin token (3 parts)
   if (parts.length === 3) {
     var expectedSig = crypto.createHmac('sha256', secret).update(parts[0] + '.' + parts[1]).digest('hex');
     var sigBuf = Buffer.from(parts[2]);
@@ -324,8 +343,22 @@ function extractTokenInfo(authHeader) {
   if (!authHeader || !authHeader.startsWith('Bearer ')) return { email: 'unknown', role: 'unknown' };
   var token = authHeader.replace('Bearer ', '');
   var parts = token.split('.');
-  // Admin token (3 parts) — site admin
-  if (parts.length === 3) return { email: 'admin', role: 'admin' };
+  // New admin token (4 parts) — JSON payload with email+role
+  if (parts.length === 4 && parts[0] !== 'psr') {
+    try {
+      var decoded = Buffer.from(parts[2], 'base64').toString('utf8');
+      var info = JSON.parse(decoded);
+      return { email: info.email || 'admin', role: info.role || 'admin' };
+    } catch (e) {
+      // Fallback: old 4-part token with plain email (pre-JSON era) — shared-password users are super_admin
+      try {
+        var email = Buffer.from(parts[2], 'base64').toString('utf8');
+        return { email: email, role: 'super_admin' };
+      } catch (e2) { return { email: 'admin', role: 'super_admin' }; }
+    }
+  }
+  // Legacy admin token (3 parts) — no email
+  if (parts.length === 3) return { email: 'admin', role: 'super_admin' };
   // PSR token (5 parts): psr.<base64url_email>.<role>.<ts>.<sig>
   if (parts.length === 5 && parts[0] === 'psr') {
     try {

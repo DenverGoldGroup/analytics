@@ -1,0 +1,2109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="icon" type="image/png" href="/favicon/favicon-96x96.png" sizes="96x96">
+  <link rel="icon" type="image/svg+xml" href="/favicon/favicon.svg">
+  <link rel="shortcut icon" href="/favicon/favicon.ico">
+  <link rel="apple-touch-icon" sizes="180x180" href="/favicon/apple-touch-icon.png">
+  <link rel="manifest" href="/favicon/site.webmanifest">
+  <title>M&amp;A Deal Evaluator &mdash; Mining Forum Analytics</title>
+  <link rel="stylesheet" href="/css/styles.css">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.106.1/dist/umd/supabase.min.js" integrity="sha384-dzQgxMPp/h+N0t5qDf6Bp516wKZr3pXgGMpA7/ZM6tiWkqYo90N060L03dxnZ8Tf" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+  <style>
+    .da-wrap { max-width: 1200px; margin: 0 auto; padding: 20px 24px; }
+
+    /* Nav */
+    .da-nav { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; flex-wrap: wrap; gap: 12px; }
+    .da-nav h2 { font-size: 20px; font-weight: 700; color: var(--header-mid); margin: 0; }
+    .da-nav-links { display: flex; gap: 8px; align-items: center; }
+    .da-nav-links .btn { padding: 8px 16px; font-size: 12px; font-weight: 600; border-radius: 8px; cursor: pointer; text-decoration: none; display: inline-block; border: 2px solid #E0E0E0; background: transparent; color: var(--text-primary); font-family: inherit; }
+    .da-nav-links .btn:hover { border-color: var(--color-gold); }
+
+    /* Auth gate */
+    .auth-gate { text-align: center; padding: 80px 24px; }
+    .auth-gate p { font-size: 14px; color: var(--text-secondary); }
+
+    /* Mode tabs */
+    .mode-tabs { display: flex; gap: 0; margin-bottom: 20px; }
+    .mode-tab { padding: 10px 24px; font-size: 13px; font-weight: 600; cursor: pointer; border: 2px solid #E0E0E0; border-bottom: none; border-radius: 8px 8px 0 0; background: #F5F6FA; color: var(--text-secondary); font-family: inherit; }
+    .mode-tab.active { background: #fff; color: var(--header-mid); border-color: var(--color-gold); border-bottom: 2px solid #fff; margin-bottom: -2px; position: relative; z-index: 1; }
+
+    /* Company selector */
+    .company-selector { background: #fff; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); padding: 20px; margin-bottom: 20px; border: 2px solid var(--color-gold); }
+    .company-selector-inner { display: grid; grid-template-columns: 1fr auto 1fr; gap: 16px; align-items: end; }
+    .cs-group { }
+    .cs-group label { display: block; font-size: 10px; font-weight: 700; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 6px; }
+    .cs-group select { width: 100%; padding: 10px 14px; font-size: 13px; font-family: inherit; font-weight: 600; border: 2px solid #E0E0E0; border-radius: 8px; outline: none; background: #fff; color: var(--text-primary); appearance: none; -webkit-appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='7'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%237F8C8D' stroke-width='1.5' fill='none'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 12px center; padding-right: 32px; cursor: pointer; }
+    .cs-group select:focus { border-color: var(--color-gold); }
+    .cs-group select:hover { border-color: #BDC3C7; }
+    .cs-vs { font-size: 14px; font-weight: 800; color: var(--color-gold); text-align: center; padding-bottom: 10px; letter-spacing: 2px; }
+    .cs-detail { display: flex; gap: 8px; margin-top: 6px; flex-wrap: wrap; }
+    .cs-chip { display: inline-block; font-size: 10px; font-weight: 600; padding: 2px 8px; border-radius: 10px; background: #F5F6FA; color: var(--text-secondary); }
+    .cs-chip.gold { background: rgba(212,160,23,0.12); color: #8B6914; }
+
+    /* Deal banner */
+    .deal-banner { background: linear-gradient(135deg, #1B2631 0%, #2C3E50 50%, #1B2631 100%); border-radius: 16px; padding: 28px 32px; margin-bottom: 20px; display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: 24px; color: #fff; box-shadow: 0 4px 20px rgba(0,0,0,0.15); border: 1px solid rgba(212,160,23,0.3); }
+    .deal-party { text-align: center; }
+    .deal-party-label { font-size: 10px; text-transform: uppercase; letter-spacing: 1.5px; color: #95A5A6; margin-bottom: 4px; }
+    .deal-party-name { font-size: 20px; font-weight: 800; letter-spacing: 0.3px; }
+    .deal-party-ticker { font-size: 13px; color: var(--color-gold); font-weight: 600; margin-top: 2px; }
+    .deal-party-price { font-size: 15px; font-weight: 700; margin-top: 6px; font-variant-numeric: tabular-nums; }
+    .deal-party-mcap { font-size: 11px; color: #ABB2B9; margin-top: 2px; }
+    .deal-center { text-align: center; padding: 0 16px; }
+    .deal-xr-badge { background: var(--color-gold); color: #fff; font-size: 22px; font-weight: 800; padding: 10px 20px; border-radius: 12px; display: inline-block; margin-bottom: 6px; }
+    .deal-xr-label { font-size: 11px; color: #ABB2B9; text-transform: uppercase; letter-spacing: 1px; }
+    .deal-type-badge { margin-top: 8px; font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: var(--color-gold); background: rgba(212,160,23,0.15); padding: 4px 12px; border-radius: 20px; display: inline-block; }
+    .deal-status-badge { margin-top: 6px; font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; padding: 3px 10px; border-radius: 20px; display: inline-block; }
+    .deal-status-pending { color: #E67E22; background: rgba(230,126,34,0.15); }
+    .deal-status-closed { color: #27AE60; background: rgba(39,174,96,0.15); }
+    .deal-dates { margin-top: 10px; font-size: 10px; color: #7F8C8D; letter-spacing: 0.3px; line-height: 1.6; }
+    .deal-dates span { display: inline-block; margin: 0 4px; }
+
+    /* Deal links bar */
+    .deal-links-bar { display: flex; justify-content: center; gap: 16px; margin-bottom: 20px; flex-wrap: wrap; }
+    .deal-link { display: inline-flex; align-items: center; gap: 6px; padding: 7px 16px; font-size: 11px; font-weight: 600; color: var(--header-mid); background: #fff; border: 1.5px solid #D0D4DE; border-radius: 8px; text-decoration: none; transition: all 0.15s; }
+    .deal-link:hover { border-color: var(--color-gold); color: var(--color-gold); }
+    .deal-link svg { width: 14px; height: 14px; flex-shrink: 0; }
+
+    /* Quick stats */
+    .quick-stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px; margin-bottom: 24px; }
+    .qs-card { background: #fff; border-radius: 10px; padding: 16px; box-shadow: 0 1px 4px rgba(0,0,0,0.06); text-align: center; border-top: 3px solid var(--color-gold); }
+    .qs-num { font-size: 24px; font-weight: 700; color: var(--header-mid); font-variant-numeric: tabular-nums; }
+    .qs-lbl { font-size: 10px; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.5px; margin-top: 4px; font-weight: 600; }
+
+    /* Section cards */
+    .section-card { background: #fff; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); margin-bottom: 20px; overflow: hidden; }
+    .section-header { display: flex; align-items: center; justify-content: space-between; padding: 16px 20px; border-bottom: 1px solid #E8EAF0; }
+    .section-header h3 { font-size: 15px; font-weight: 700; color: var(--header-mid); margin: 0; }
+    .section-header .badge { font-size: 10px; font-weight: 600; color: var(--color-gold); background: rgba(212,160,23,0.1); padding: 3px 10px; border-radius: 20px; }
+    .section-body { padding: 20px; }
+
+    /* Term sheet */
+    .term-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    .term-group h4 { font-size: 11px; font-weight: 700; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 10px; padding-bottom: 6px; border-bottom: 2px solid #E8EAF0; }
+    .term-row { display: flex; justify-content: space-between; align-items: baseline; padding: 6px 0; border-bottom: 1px solid #F5F6FA; font-size: 13px; }
+    .term-row:last-child { border-bottom: none; }
+    .term-key { color: var(--text-secondary); font-weight: 500; }
+    .term-val { font-weight: 600; color: var(--text-primary); text-align: right; }
+    .term-val.gold { color: var(--color-gold); }
+
+    /* Pro forma comparison */
+    .pf-table { width: 100%; border-collapse: collapse; font-size: 12px; }
+    .pf-table th { padding: 10px 12px; text-align: left; font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; color: var(--text-secondary); border-bottom: 2px solid #E8EAF0; }
+    .pf-table th:not(:first-child) { text-align: right; }
+    .pf-table td { padding: 8px 12px; border-bottom: 1px solid #F5F6FA; }
+    .pf-table td:not(:first-child) { text-align: right; font-variant-numeric: tabular-nums; }
+    .pf-table .pf-metric { font-weight: 600; color: var(--text-primary); }
+    .pf-table .pf-combined { font-weight: 700; color: var(--color-gold); }
+    .pf-table tr:hover { background: #FAFBFC; }
+    .pf-table .pf-section-row td { padding-top: 14px; font-weight: 700; font-size: 10px; text-transform: uppercase; letter-spacing: 0.5px; color: var(--text-secondary); border-bottom: 2px solid #E8EAF0; }
+
+    /* Sensitivity analysis */
+    .sens-controls { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px; margin-bottom: 24px; }
+    .sens-slider-group { }
+    .sens-label { font-size: 11px; font-weight: 700; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px; }
+    .sens-value { font-size: 18px; font-weight: 700; color: var(--header-mid); margin-bottom: 8px; font-variant-numeric: tabular-nums; }
+    .sens-range { width: 100%; -webkit-appearance: none; appearance: none; height: 6px; background: #E8EAF0; border-radius: 3px; outline: none; }
+    .sens-range::-webkit-slider-thumb { -webkit-appearance: none; width: 18px; height: 18px; background: var(--color-gold); border-radius: 50%; cursor: pointer; border: 2px solid #fff; box-shadow: 0 1px 4px rgba(0,0,0,0.2); }
+    .sens-range::-moz-range-thumb { width: 18px; height: 18px; background: var(--color-gold); border-radius: 50%; cursor: pointer; border: 2px solid #fff; box-shadow: 0 1px 4px rgba(0,0,0,0.2); }
+    .sens-bounds { display: flex; justify-content: space-between; font-size: 10px; color: #999; margin-top: 4px; font-variant-numeric: tabular-nums; }
+
+    /* Sensitivity table */
+    .sens-table { width: 100%; border-collapse: collapse; font-size: 12px; margin-top: 16px; }
+    .sens-table th { padding: 10px 10px; text-align: right; font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.3px; color: var(--text-secondary); border-bottom: 2px solid #E8EAF0; }
+    .sens-table th:first-child { text-align: left; }
+    .sens-table td { padding: 8px 10px; text-align: right; border-bottom: 1px solid #F5F6FA; font-variant-numeric: tabular-nums; }
+    .sens-table td:first-child { text-align: left; font-weight: 600; }
+    .sens-table tr.sens-base { background: rgba(212,160,23,0.08); font-weight: 600; }
+    .sens-table tr.sens-live { background: rgba(39,174,96,0.10); font-weight: 600; }
+    .sens-table tr:hover { background: #FAFBFC; }
+    .sens-positive { color: #27AE60; }
+    .sens-negative { color: #E74C3C; }
+    .sens-neutral { color: var(--text-primary); }
+
+    /* Chart */
+    .chart-wrap { max-height: 280px; margin-top: 20px; }
+
+    /* Timeline */
+    .timeline-track { display: flex; align-items: center; padding: 24px 0; position: relative; }
+    .timeline-line { flex: 1; height: 4px; background: #E8EAF0; position: relative; }
+    .timeline-line-fill { height: 100%; background: var(--color-gold); border-radius: 2px; transition: width 0.5s; }
+    .timeline-node { display: flex; flex-direction: column; align-items: center; gap: 8px; min-width: 100px; position: relative; z-index: 1; }
+    .timeline-dot { width: 24px; height: 24px; border-radius: 50%; border: 3px solid #E8EAF0; background: #fff; display: flex; align-items: center; justify-content: center; }
+    .timeline-dot.complete { border-color: var(--color-gold); background: var(--color-gold); }
+    .timeline-dot.complete::after { content: '\2713'; color: #fff; font-size: 12px; font-weight: 700; }
+    .timeline-dot.active { border-color: var(--color-gold); background: #fff; }
+    .timeline-dot.active::after { content: ''; width: 8px; height: 8px; background: var(--color-gold); border-radius: 50%; }
+    .timeline-date { font-size: 10px; color: #999; font-weight: 600; }
+    .timeline-label { font-size: 11px; font-weight: 600; color: var(--text-primary); text-align: center; }
+    .timeline-detail { font-size: 10px; color: var(--text-secondary); text-align: center; }
+
+    /* Assets grid */
+    .assets-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 10px; }
+    .asset-card { padding: 12px; border: 1px solid #E8EAF0; border-radius: 8px; }
+    .asset-name { font-size: 12px; font-weight: 700; color: var(--text-primary); }
+    .asset-region { font-size: 10px; color: var(--text-secondary); margin-top: 2px; }
+    .asset-prod { font-size: 14px; font-weight: 700; color: var(--color-gold); margin-top: 6px; }
+    .asset-prod-label { font-size: 9px; color: #999; text-transform: uppercase; }
+
+    /* Voting support */
+    .voting-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    .voting-card { padding: 16px; background: #FAFBFC; border-radius: 8px; text-align: center; }
+    .voting-pct { font-size: 28px; font-weight: 800; color: var(--header-mid); }
+    .voting-label { font-size: 11px; color: var(--text-secondary); margin-top: 4px; }
+    .voting-desc { font-size: 10px; color: #999; margin-top: 4px; }
+
+    /* Deal spread indicator */
+    .spread-bar { display: flex; align-items: center; gap: 12px; padding: 14px 20px; background: #FAFBFC; border-radius: 10px; margin-top: 16px; }
+    .spread-label { font-size: 11px; font-weight: 600; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.5px; white-space: nowrap; }
+    .spread-track { flex: 1; height: 10px; background: #E8EAF0; border-radius: 5px; position: relative; overflow: hidden; }
+    .spread-center { position: absolute; left: 50%; top: 0; bottom: 0; width: 2px; margin-left: -1px; background: #B0B8C4; z-index: 1; }
+    .spread-fill { position: absolute; top: 0; height: 100%; border-radius: 5px; transition: width 0.3s; opacity: 0.85; }
+    .spread-value { font-size: 18px; font-weight: 700; font-variant-numeric: tabular-nums; min-width: 60px; text-align: right; }
+
+    /* Current Deals tab styles */
+    .cd-toolbar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
+    .cd-toolbar h3 { font-size: 16px; font-weight: 700; color: var(--header-mid); margin: 0; }
+    .btn-gold { background: var(--color-gold); color: #fff; padding: 8px 16px; font-size: 12px; font-weight: 600; border-radius: 8px; cursor: pointer; border: none; font-family: inherit; }
+    .btn-gold:hover { background: #B8860B; }
+    .btn-gold:disabled { opacity: 0.5; cursor: not-allowed; }
+    .cd-table { width: 100%; border-collapse: collapse; font-size: 13px; background: #fff; border-radius: 12px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
+    .cd-table th { padding: 12px 16px; text-align: left; font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; color: var(--text-secondary); border-bottom: 2px solid #E8EAF0; background: #FAFBFC; }
+    .cd-table td { padding: 10px 16px; border-bottom: 1px solid #F5F6FA; }
+    .cd-table tr:hover { background: #FAFBFC; cursor: pointer; }
+    .cd-table .cd-status { display: inline-block; font-size: 10px; font-weight: 600; padding: 2px 10px; border-radius: 10px; }
+    .cd-status.draft { background: #ECEFF1; color: #607D8B; }
+    .cd-status.announced { background: #E8F5E9; color: #1B5E20; }
+    .cd-status.pending-vote { background: #FFF3E0; color: #E65100; }
+    .cd-status.closed { background: #E8F5E9; color: #1B5E20; }
+    .cd-status.terminated { background: #FFEBEE; color: #B71C1C; }
+    .cd-empty { text-align: center; padding: 60px 20px; color: var(--text-secondary); }
+    .cd-actions { display: flex; gap: 8px; }
+    .cd-actions .btn-sm { padding: 5px 12px; font-size: 11px; font-weight: 600; border-radius: 6px; cursor: pointer; border: 1.5px solid #D0D4DE; background: #fff; color: var(--text-primary); font-family: inherit; }
+    .cd-actions .btn-sm:hover { border-color: var(--color-gold); }
+    .cd-actions .btn-sm.danger { border-color: #E74C3C; color: #E74C3C; }
+    .cd-actions .btn-sm.danger:hover { background: #E74C3C; color: #fff; }
+    .cd-message { padding: 10px 16px; border-radius: 8px; font-size: 12px; margin-bottom: 16px; display: none; }
+    .cd-message.success { display: block; background: #EAFAF1; color: #1E8449; border: 1px solid #A9DFBF; }
+    .cd-message.error { display: block; background: #FDEDEC; color: #C0392B; border: 1px solid #F5B7B1; }
+
+    /* New Deal Build tab */
+    .ndb-section { background: #fff; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); padding: 24px; margin-bottom: 20px; }
+    .ndb-section h3 { font-size: 14px; font-weight: 700; color: var(--header-mid); margin: 0 0 16px 0; }
+    .ndb-picker { display: grid; grid-template-columns: 1fr auto 1fr; gap: 20px; align-items: start; }
+    .ndb-party { display: flex; flex-direction: column; align-items: center; gap: 10px; }
+    .ndb-logo-wrap { position: relative; cursor: pointer; }
+    .ndb-logo-wrap:hover .ndb-logo-overlay { opacity: 1; }
+    .ndb-logo { width: 72px; height: 72px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 22px; font-weight: 800; color: #fff; background: linear-gradient(135deg, #2C3E50, #1B2631); border: 3px solid #E8EAF0; overflow: hidden; }
+    .ndb-logo.selected { border-color: var(--color-gold); }
+    .ndb-logo img { width: 100%; height: 100%; object-fit: cover; }
+    .ndb-logo-overlay { position: absolute; inset: 0; border-radius: 50%; background: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; opacity: 0; transition: opacity 0.15s; pointer-events: none; }
+    .ndb-logo-overlay svg { width: 20px; height: 20px; fill: #fff; }
+    .ndb-logo-hint { font-size: 9px; color: #999; margin-top: 2px; text-align: center; }
+    .ndb-party select { width: 100%; padding: 10px 14px; font-size: 13px; font-family: inherit; font-weight: 600; border: 2px solid #E0E0E0; border-radius: 8px; outline: none; background: #fff; color: var(--text-primary); appearance: none; -webkit-appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='7'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%237F8C8D' stroke-width='1.5' fill='none'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 12px center; padding-right: 32px; cursor: pointer; }
+    .ndb-party select:focus { border-color: var(--color-gold); }
+    .ndb-party-label { font-size: 10px; font-weight: 700; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 1px; }
+    .ndb-party-info { display: flex; gap: 6px; flex-wrap: wrap; justify-content: center; }
+    .ndb-vs { font-size: 18px; font-weight: 800; color: var(--color-gold); letter-spacing: 3px; padding-top: 40px; }
+    .ndb-urls { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .ndb-url-group { }
+    .ndb-url-group label { display: block; font-size: 10px; font-weight: 700; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px; }
+    .ndb-url-group input[type="url"], .ndb-url-group input[type="date"], .ndb-url-group input[type="number"] { width: 100%; padding: 9px 12px; font-size: 12px; font-family: inherit; border: 2px solid #E0E0E0; border-radius: 8px; outline: none; color: var(--text-primary); box-sizing: border-box; }
+    .ndb-url-group select { width: 100%; padding: 9px 12px; font-size: 12px; font-family: inherit; font-weight: 600; border: 2px solid #E0E0E0; border-radius: 8px; outline: none; background: #fff; color: var(--text-primary); box-sizing: border-box; appearance: none; -webkit-appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='7'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%237F8C8D' stroke-width='1.5' fill='none'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 12px center; padding-right: 32px; cursor: pointer; }
+    .ndb-url-group select:focus { border-color: var(--color-gold); }
+    .ndb-url-group input:focus { border-color: var(--color-gold); }
+    .ndb-url-group input::placeholder { color: #BDC3C7; }
+    .ndb-build-bar { display: flex; justify-content: center; gap: 12px; margin-top: 24px; }
+    .btn-build { background: linear-gradient(135deg, #1B5E20, #2E7D32); color: #fff; padding: 14px 40px; font-size: 14px; font-weight: 700; border-radius: 10px; cursor: pointer; border: none; font-family: inherit; letter-spacing: 0.5px; box-shadow: 0 4px 12px rgba(27,94,32,0.3); transition: all 0.15s; }
+    .btn-build:hover { transform: translateY(-1px); box-shadow: 0 6px 16px rgba(27,94,32,0.4); }
+    .btn-build:disabled { opacity: 0.5; cursor: not-allowed; transform: none; box-shadow: none; }
+    .ndb-message { padding: 12px 16px; border-radius: 8px; font-size: 13px; margin-top: 16px; display: none; }
+    .ndb-message.success { display: block; background: #EAFAF1; color: #1E8449; border: 1px solid #A9DFBF; }
+    .ndb-message.error { display: block; background: #FDEDEC; color: #C0392B; border: 1px solid #F5B7B1; }
+    .ndb-message.info { display: block; background: #E3F2FD; color: #1565C0; border: 1px solid #90CAF9; }
+
+    /* Deal editor panel */
+    .de-panel { background: #fff; border: 2px solid var(--color-gold); border-radius: 12px; padding: 24px; margin: 16px 0; }
+    .de-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
+    .de-header h3 { margin: 0; font-size: 15px; font-weight: 700; color: var(--header-mid); }
+    .de-section { margin-bottom: 16px; border: 1px solid #E8EAF0; border-radius: 8px; overflow: hidden; }
+    .de-section-head { display: flex; justify-content: space-between; align-items: center; padding: 10px 14px; background: #FAFBFC; cursor: pointer; user-select: none; }
+    .de-section-head:hover { background: #F0F2F5; }
+    .de-section-head h4 { margin: 0; font-size: 12px; font-weight: 700; color: var(--header-mid); text-transform: uppercase; letter-spacing: 0.5px; }
+    .de-section-head .de-chevron { font-size: 10px; color: #999; transition: transform 0.15s; }
+    .de-section-head.collapsed .de-chevron { transform: rotate(-90deg); }
+    .de-section-body { padding: 12px 14px; }
+    .de-section-body.collapsed { display: none; }
+    .de-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 10px; }
+    .de-grid-wide { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .de-field { display: flex; flex-direction: column; gap: 3px; }
+    .de-field label { font-size: 9px; font-weight: 700; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.3px; }
+    .de-field input, .de-field select, .de-field textarea { padding: 7px 10px; font-size: 12px; font-family: inherit; border: 1.5px solid #E0E0E0; border-radius: 6px; outline: none; color: var(--text-primary); box-sizing: border-box; width: 100%; }
+    .de-field input:focus, .de-field select:focus, .de-field textarea:focus { border-color: var(--color-gold); }
+    .de-field textarea { resize: vertical; min-height: 32px; }
+    .de-array-row { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)) 32px; gap: 8px; align-items: end; padding: 6px 0; border-bottom: 1px solid #F5F6FA; }
+    .de-array-row:last-child { border-bottom: none; }
+    .de-btn-rm { width: 28px; height: 28px; border-radius: 6px; border: 1px solid #E74C3C; background: #fff; color: #E74C3C; font-size: 14px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+    .de-btn-rm:hover { background: #E74C3C; color: #fff; }
+    .de-btn-add { padding: 5px 14px; font-size: 11px; font-weight: 600; border-radius: 6px; border: 1.5px dashed #D0D4DE; background: #fff; color: var(--text-secondary); cursor: pointer; margin-top: 6px; }
+    .de-btn-add:hover { border-color: var(--color-gold); color: var(--color-gold); }
+    .de-save-bar { display: flex; justify-content: center; gap: 12px; margin-top: 20px; padding-top: 16px; border-top: 2px solid #E8EAF0; }
+    .de-save-bar .btn-sm { padding: 10px 24px; font-size: 13px; font-weight: 600; }
+    .de-save-bar .btn-gold { padding: 10px 32px; }
+    .de-logo-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+    .de-logo-party { display: flex; flex-direction: column; align-items: center; gap: 6px; }
+    .de-logo-party .ndb-logo { width: 56px; height: 56px; font-size: 16px; }
+
+    /* Custom company form (shown when "Add company" is selected) */
+    .cc-form { margin-top: 10px; padding: 12px; background: #FFFDF5; border: 1.5px solid var(--color-gold); border-radius: 8px; }
+    .cc-form .cc-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+    .cc-form .cc-field { display: flex; flex-direction: column; gap: 3px; }
+    .cc-form .cc-field.full { grid-column: 1 / -1; }
+    .cc-form .cc-field label { font-size: 9px; font-weight: 700; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.5px; }
+    .cc-form .cc-field input { padding: 6px 10px; font-size: 12px; font-family: inherit; font-weight: 600; border: 1.5px solid #D0D4DE; border-radius: 6px; outline: none; background: #fff; }
+    .cc-form .cc-field input:focus { border-color: var(--color-gold); }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      .deal-banner { grid-template-columns: 1fr; text-align: center; gap: 16px; }
+      .deal-center { padding: 8px 0; }
+      .term-grid { grid-template-columns: 1fr; }
+      .sens-controls { grid-template-columns: 1fr; }
+      .quick-stats { grid-template-columns: repeat(2, 1fr); }
+      .voting-grid { grid-template-columns: 1fr; }
+      .company-selector-inner { grid-template-columns: 1fr; }
+      .cs-vs { padding: 4px 0; }
+      .ndb-picker { grid-template-columns: 1fr; }
+      .ndb-vs { padding: 8px 0; text-align: center; }
+      .ndb-urls { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Header -->
+  <div class="page-header dgg-theme">
+    <img class="logo" src="/logos/dgg-logo.png" alt="Denver Gold Group">
+    <div class="header-text">
+      <h1><a href="/">Mining Forum Event Analytics</a></h1>
+      <div class="subtitle">M&amp;A Deal Evaluator</div>
+    </div>
+  </div>
+
+  <!-- Auth gate -->
+  <div id="auth-gate" class="auth-gate" style="display:none">
+    <p>Redirecting to login&hellip;</p>
+  </div>
+
+  <!-- Main app (hidden until auth) -->
+  <div id="deals-app" style="display:none">
+    <div class="da-wrap">
+
+      <!-- Nav -->
+      <div class="da-nav">
+        <h2>M&amp;A Deal Evaluator</h2>
+        <div class="da-nav-links">
+          <a href="/admin" class="btn">&larr; Data Center</a>
+          <a href="/" class="btn">View Site</a>
+          <button class="btn" onclick="doLogout()">Log Out</button>
+        </div>
+      </div>
+
+      <!-- Mode tabs -->
+      <div class="mode-tabs">
+        <button class="mode-tab active" data-tab="evaluate" onclick="switchTab('evaluate')">Evaluate</button>
+        <button class="mode-tab" data-tab="build" onclick="switchTab('build')">New Deal Build</button>
+        <button class="mode-tab" data-tab="current" onclick="switchTab('current')">Current Deals</button>
+      </div>
+
+      <!-- ============================================= -->
+      <!-- TAB: Evaluate (scratchpad mode) -->
+      <!-- ============================================= -->
+      <div id="tab-evaluate">
+        <!-- Company selector -->
+        <div class="company-selector">
+          <div class="company-selector-inner">
+            <div class="cs-group">
+              <label>Acquiring Company</label>
+              <select id="bidder-select"><option value="">Loading companies&hellip;</option></select>
+              <div class="cs-detail" id="bidder-detail"></div>
+            </div>
+            <div class="cs-vs">VS</div>
+            <div class="cs-group">
+              <label>Target Company</label>
+              <select id="target-select"><option value="">Loading companies&hellip;</option></select>
+              <div class="cs-detail" id="target-detail"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Deal banner (populated by JS) -->
+        <div id="deal-banner" class="deal-banner"></div>
+
+        <!-- Source links -->
+        <div id="deal-links" class="deal-links-bar"></div>
+
+        <!-- Quick stats -->
+        <div id="quick-stats" class="quick-stats"></div>
+
+        <!-- Deal Spread -->
+        <div id="deal-spread-section" class="section-card" style="display:none">
+          <div class="section-header"><h3>Deal Spread</h3><span class="badge">Live</span></div>
+          <div class="section-body" id="deal-spread-body"></div>
+        </div>
+
+        <!-- Term Sheet -->
+        <div class="section-card">
+          <div class="section-header"><h3>Term Sheet</h3><span class="badge" id="term-badge">Equinox + Orla</span></div>
+          <div class="section-body" id="term-sheet-body"></div>
+        </div>
+
+        <!-- Pro Forma Comparison -->
+        <div class="section-card">
+          <div class="section-header"><h3>Pro Forma Comparison</h3><span class="badge">Bidder | Target | Combined</span></div>
+          <div class="section-body" id="proforma-body"></div>
+        </div>
+
+        <!-- Sensitivity Analysis -->
+        <div class="section-card">
+          <div class="section-header"><h3>Sensitivity Analysis</h3><span class="badge">Interactive</span></div>
+          <div class="section-body">
+            <div class="sens-controls" id="sens-controls"></div>
+            <div id="sens-output"></div>
+            <div class="chart-wrap"><canvas id="sens-chart"></canvas></div>
+          </div>
+        </div>
+
+        <!-- Operating Assets -->
+        <div class="section-card">
+          <div class="section-header"><h3>Operating Assets</h3><span class="badge" id="asset-count-badge"></span></div>
+          <div class="section-body" id="assets-body"></div>
+        </div>
+
+        <!-- Deal Progress -->
+        <div class="section-card">
+          <div class="section-header"><h3>Deal Progress</h3><span class="badge" id="progress-badge"></span></div>
+          <div class="section-body" id="progress-body"></div>
+        </div>
+      </div>
+
+      <!-- ============================================= -->
+      <!-- TAB: New Deal Build -->
+      <!-- ============================================= -->
+      <div id="tab-build" style="display:none">
+
+        <!-- Company Picker -->
+        <div class="ndb-section">
+          <h3>Select Deal Parties</h3>
+          <div class="ndb-picker">
+            <div class="ndb-party">
+              <div class="ndb-party-label">Acquirer</div>
+              <div class="ndb-logo-wrap" onclick="document.getElementById('ndb-bidder-file').click()">
+                <div class="ndb-logo" id="ndb-bidder-logo">?</div>
+                <div class="ndb-logo-overlay"><svg viewBox="0 0 24 24"><path d="M9 16h6v-6h4l-7-7-7 7h4v6zm-4 2h14v2H5v-2z"/></svg></div>
+                <input type="file" id="ndb-bidder-file" accept="image/*" style="display:none">
+              </div>
+              <div class="ndb-logo-hint">Click to upload logo</div>
+              <select id="ndb-bidder-select"><option value="">Loading companies&hellip;</option></select>
+              <div class="ndb-party-info" id="ndb-bidder-info"></div>
+            </div>
+            <div class="ndb-vs">VS</div>
+            <div class="ndb-party">
+              <div class="ndb-party-label">Target</div>
+              <div class="ndb-logo-wrap" onclick="document.getElementById('ndb-target-file').click()">
+                <div class="ndb-logo" id="ndb-target-logo">?</div>
+                <div class="ndb-logo-overlay"><svg viewBox="0 0 24 24"><path d="M9 16h6v-6h4l-7-7-7 7h4v6zm-4 2h14v2H5v-2z"/></svg></div>
+                <input type="file" id="ndb-target-file" accept="image/*" style="display:none">
+              </div>
+              <div class="ndb-logo-hint">Click to upload logo</div>
+              <select id="ndb-target-select"><option value="">Loading companies&hellip;</option></select>
+              <div class="ndb-party-info" id="ndb-target-info"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Deal Details -->
+        <div class="ndb-section">
+          <h3>Deal Details</h3>
+          <div class="ndb-urls">
+            <div class="ndb-url-group">
+              <label>Announcement Date</label>
+              <input type="date" id="ndb-announcement-date">
+            </div>
+            <div class="ndb-url-group">
+              <label>Expected Close Date</label>
+              <input type="date" id="ndb-expected-close">
+            </div>
+            <div class="ndb-url-group">
+              <label>Exchange Ratio (Acquirer shares per Target share)</label>
+              <input type="number" id="ndb-exchange-ratio" step="0.0001" min="0" placeholder="e.g. 0.6947" value="">
+            </div>
+            <div class="ndb-url-group">
+              <label>Cash Per Target Share</label>
+              <input type="number" id="ndb-cash-per-share" step="0.01" min="0" placeholder="0.00" value="0">
+            </div>
+            <div class="ndb-url-group">
+              <label>Structure</label>
+              <select id="ndb-structure">
+                <option value="All-Stock">All-Stock</option>
+                <option value="Cash and Stock">Cash and Stock</option>
+                <option value="All-Cash">All-Cash</option>
+                <option value="Plan of Arrangement">Plan of Arrangement</option>
+                <option value="Plan of Arrangement (Stock)">Plan of Arrangement (Stock)</option>
+                <option value="Scheme of Arrangement">Scheme of Arrangement</option>
+                <option value="Scheme of Arrangement (All-Stock)">Scheme of Arrangement (All-Stock)</option>
+                <option value="Other">Other</option>
+              </select>
+            </div>
+            <div class="ndb-url-group">
+              <label>Primary Mineral</label>
+              <select id="ndb-mineral">
+                <option value="Gold">Gold</option>
+                <option value="Silver">Silver</option>
+                <option value="Copper">Copper</option>
+                <option value="Platinum Group">Platinum Group</option>
+                <option value="Other">Other</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <!-- Deal Documents -->
+        <div class="ndb-section">
+          <h3>Deal Documents</h3>
+          <div class="ndb-urls">
+            <div class="ndb-url-group">
+              <label>Acquirer Press Release</label>
+              <input type="url" id="ndb-url-acquirer-pr" placeholder="https://...">
+            </div>
+            <div class="ndb-url-group">
+              <label>Joint Press Release (PDF)</label>
+              <input type="url" id="ndb-url-joint-pr" placeholder="https://...">
+            </div>
+            <div class="ndb-url-group">
+              <label>Merger Presentation (PDF)</label>
+              <input type="url" id="ndb-url-presentation" placeholder="https://...">
+            </div>
+            <div class="ndb-url-group">
+              <label>Conference Webcast</label>
+              <input type="url" id="ndb-url-webcast" placeholder="https://...">
+            </div>
+          </div>
+        </div>
+
+        <!-- Build button -->
+        <div class="ndb-build-bar">
+          <button class="btn-build" id="ndb-build-btn" onclick="buildNewDeal()" disabled>Build Deal</button>
+        </div>
+        <div class="ndb-message" id="ndb-message"></div>
+
+      </div>
+
+      <!-- ============================================= -->
+      <!-- TAB: Current Deals (database-backed) -->
+      <!-- ============================================= -->
+      <div id="tab-current" style="display:none">
+        <div class="cd-message" id="cd-message"></div>
+        <div class="cd-toolbar">
+          <h3>Saved Deals</h3>
+          <button class="btn-gold" onclick="seedCurrentDeal()">Save Current Deal to Database</button>
+        </div>
+        <div id="cd-content">
+          <div style="text-align:center;padding:40px;color:var(--text-secondary)">Loading deals&hellip;</div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <div class="disclaimer">
+    <p class="disclaimer-estimates"><strong>Data Note:</strong> Where precise company-reported figures were unavailable, production guidance, reserves, and resources reflect best available estimates derived from public filings, investor presentations, and third-party research. All values should be independently verified before use in any investment analysis.</p>
+    <p><strong>Notice</strong> &mdash; The Denver Gold Group does not make any express or implied condition, representation, warranty or other term as to the accuracy, validity, reliability, timeliness or completeness of any information or materials in general or in connection with any particular use or purpose presented at the Mining Forum. The Denver Gold Group does not represent or endorse the accuracy or reliability of any third party advice, opinion, statement, information or materials received during the Mining Forum.</p>
+    <p><strong>INVESTMENT ADVICE &mdash; NO OFFER OR RECOMMENDATION</strong> &mdash; The Denver Gold Group, Inc, the Mining Forums, and the information and materials presented at the Mining Forum and in all Denver Gold Group publications, including Internet assets are not, and should not be construed as, an offer to buy or sell, or as a solicitation of an offer to buy or sell, any regulated gold related products or any other regulated products, securities or investments. The Denver Gold Group, Inc and the Mining Forums do not, and should not be construed as acting to, sponsor, advocate, endorse or promote any regulated gold related products or any other regulated products, securities or investments. Before making any investment decision, prospective investors should seek advice from their financial, legal, tax and accounting advisers, take into account their individual financial needs and circumstances and carefully consider the risks associated with such investment decision.</p>
+    <p class="disclaimer-copyright">&copy; 2026 by The Denver Gold Group, Inc. All rights reserved. Distribution and republication is encouraged provided that no part of this publication is modified in any form or by any means without the prior written permission of the copyright holder.</p>
+  </div>
+
+  <script src="/js/deal-renderer.js?v=1"></script>
+  <script>
+  (function() {
+    'use strict';
+
+    var R = window.DealRenderer;
+
+    // =========================================================
+    // AUTH
+    // =========================================================
+    var adminToken = sessionStorage.getItem('admin_token') || '';
+    if (!adminToken) {
+      document.getElementById('auth-gate').style.display = 'block';
+      setTimeout(function() { window.location.href = '/admin'; }, 1200);
+      return;
+    }
+    document.getElementById('deals-app').style.display = 'block';
+
+    window.doLogout = function() {
+      sessionStorage.removeItem('admin_token');
+      sessionStorage.removeItem('admin_user');
+      window.location.href = '/admin';
+    };
+
+    // =========================================================
+    // TAB SWITCHING
+    // =========================================================
+    var currentTab = 'evaluate';
+
+    window.switchTab = function(tab) {
+      currentTab = tab;
+      var tabs = document.querySelectorAll('.mode-tab');
+      for (var i = 0; i < tabs.length; i++) {
+        tabs[i].classList.toggle('active', tabs[i].getAttribute('data-tab') === tab);
+      }
+      document.getElementById('tab-evaluate').style.display = tab === 'evaluate' ? '' : 'none';
+      document.getElementById('tab-build').style.display = tab === 'build' ? '' : 'none';
+      document.getElementById('tab-current').style.display = tab === 'current' ? '' : 'none';
+      if (tab === 'current') loadSavedDeals();
+      if (tab === 'build') initBuildTab();
+    };
+
+    // =========================================================
+    // SUPABASE
+    // =========================================================
+    var SUPABASE_URL = 'https://ljyogcspkvqgjbiyzfbn.supabase.co';
+    var SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxqeW9nY3Nwa3ZxZ2piaXl6ZmJuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzMyODE5OTAsImV4cCI6MjA4ODg1Nzk5MH0.oBKfsngoLIUjZl-w-iZm3W8Q4kMuFAAICidEdszNyGE';
+    var sb = window.supabase && window.supabase.createClient
+      ? window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY) : null;
+
+    // =========================================================
+    // DEAL DATA (Evaluate tab — hardcoded scratchpad)
+    // =========================================================
+    var DEAL = {
+      id: 'eqx-ola-2026',
+      title: 'Equinox Gold + Orla Mining',
+      subtitle: 'North America\'s New Senior Gold Producer',
+      status: 'pending-vote',
+      dealCurrency: 'CAD',
+      announcementDate: '2026-05-13',
+      expectedClose: '2026-09-30',
+      mineral: 'Gold',
+
+      bidder: {
+        name: 'Equinox Gold Corp.',
+        shortName: 'Equinox Gold',
+        ticker: 'EQX',
+        exchange: 'TSX',
+        currency: 'CAD',
+        announcementMC: 11700,
+        ebitda2026e: 2200,
+        fcf2026e: 1000,
+        aiscLow: 1775,
+        aiscHigh: 1875,
+        marketCapUsd: null,
+        productionLow: null,
+        productionHigh: null,
+        reserves: null,
+        resources: null,
+        status: null
+      },
+      target: {
+        name: 'Orla Mining Ltd.',
+        shortName: 'Orla Mining',
+        ticker: 'OLA',
+        exchange: 'TSX',
+        currency: 'CAD',
+        announcementMC: 5000,
+        ebitda2026e: 1200,
+        fcf2026e: 400,
+        aiscLow: 1550,
+        aiscHigh: 1750,
+        marketCapUsd: null,
+        productionLow: null,
+        productionHigh: null,
+        reserves: null,
+        resources: null,
+        status: null
+      },
+
+      terms: {
+        exchangeRatio: 1.00,
+        cashPerShare: 0.0001,
+        structure: 'All-Stock (1:1 Exchange)',
+        bidderBreakFee: 475,
+        targetBreakFee: 250,
+        bidderApproval: 'Simple majority of votes cast',
+        targetApproval: '66⅓% of votes cast'
+      },
+
+      proForma: {
+        ownershipBidder: 67,
+        ownershipTarget: 33,
+        boardSize: 11,
+        boardBidder: 6,
+        boardTarget: 4,
+        boardChair: 1,
+        ceo: 'Darren Hall (Equinox)',
+        president: 'Jason Simpson (Orla)',
+        chair: 'Chuck Jeannes'
+      },
+
+      combined: {
+        production: 1100000,
+        productionGrowth: 1900000,
+        ppReserves: 22700000,
+        miResources: 25100000,
+        inferredResources: 13000000,
+        ebitda2026e: 3400,
+        fcf2026e: 1400,
+        aiscLow: 1701,
+        aiscHigh: 1836,
+        liquidity: 1400,
+        marketCapUsd: 18500
+      },
+
+      milestones: [
+        { date: '2026-05-13', label: 'Announcement', detail: 'Press release', status: 'complete' },
+        { date: '2026-06-15', label: 'Proxy Circular', detail: 'Filed with regulators', status: 'upcoming' },
+        { date: '2026-07-15', label: 'Shareholder Votes', detail: 'EQX simple majority; OLA 66⅓%', status: 'upcoming' },
+        { date: '2026-08-15', label: 'Regulatory Approval', detail: 'Competition / investment review', status: 'upcoming' },
+        { date: '2026-09-30', label: 'Expected Close', detail: 'Q3 2026', status: 'upcoming' }
+      ],
+
+      assets: [
+        { name: 'Greenstone + Valentine', region: 'Canada', production: 450000, owner: 'EQX' },
+        { name: 'Musselwhite', region: 'Canada', production: 235000, owner: 'EQX' },
+        { name: 'US Operations', region: 'USA', production: 75000, owner: 'Mixed' },
+        { name: 'Mexico Operations', region: 'Mexico', production: 115000, owner: 'Mixed' },
+        { name: 'Nicaragua', region: 'Nicaragua', production: 225000, owner: 'EQX' }
+      ],
+
+      growthPipeline: [
+        { name: 'South Railroad', region: 'USA', production: 130000 },
+        { name: 'Castle Mountain Ph. 2', region: 'USA', production: 220000 },
+        { name: 'Los Filos Expansion', region: 'Mexico', production: 280000 },
+        { name: 'Camino Rojo Underground', region: 'Mexico', production: null }
+      ],
+
+      votingSupport: {
+        bidder: { pct: 4, desc: 'Officers & directors' },
+        target: { pct: 20, desc: 'Officers, directors + Lassonde + Fairfax affiliates' }
+      },
+
+      dealTimeGoldPrice: 4750,
+      defaultGoldPrice: 4750,
+      defaultAisc: 1750,
+      defaultReserveAdj: 0,
+      marketDataDate: '2026-05-12',
+
+      links: {
+        pressRelease: 'https://www.equinoxgold.com/news/equinox-and-orla-mining-combine-to-create-north-americas-new-senior-gold-producer-built-to-grow-built-to-last/',
+        pressReleasePdf: 'https://wp-orlamining-2024.s3.ca-central-1.amazonaws.com/media/2026/05/Equinox-and-Orla-Joint-News-Release-26-0513.pdf',
+        presentationPdf: 'https://www.equinoxgold.com/wp-content/uploads/2026/05/20260513-Equinox-and-Orla-Announcement-Final.pdf',
+        webcast: 'https://event.choruscall.com/mediaframe/webcast.html?webcastid=KqhsPRKx'
+      }
+    };
+
+    // =========================================================
+    // DATA FETCH & COMPANY SELECTOR
+    // =========================================================
+    var liveGoldData = null;
+    var allCompanies = [];
+
+    async function fetchCompanyData() {
+      if (!sb) return;
+      try {
+        var result = await sb.from('companies').select('*').order('company_name', { ascending: true });
+        if (result.error || !result.data) return;
+        allCompanies = result.data;
+        populateCompanySelects();
+      } catch (e) { console.error('Company fetch error:', e); }
+    }
+
+    function populateCompanySelects() {
+      var bidderSel = document.getElementById('bidder-select');
+      var targetSel = document.getElementById('target-select');
+
+      var optionsHtml = '<option value="">Select a company&hellip;</option>' +
+        '<option value="__custom__">➕ Add company&hellip;</option>';
+      allCompanies.forEach(function(c) {
+        var label = R.escHtml(c.company_name || '');
+        var ticker = c.ticker ? ' (' + R.escHtml(c.ticker) + ')' : '';
+        var mcap = c.market_cap_display ? ' — ' + R.escHtml(c.market_cap_display) : '';
+        optionsHtml += '<option value="' + (c.id || '') + '">' + label + ticker + mcap + '</option>';
+      });
+      bidderSel.innerHTML = optionsHtml;
+      targetSel.innerHTML = optionsHtml;
+
+      allCompanies.forEach(function(c) {
+        var name = (c.company_name || '').toLowerCase();
+        if (name.indexOf('equinox gold') >= 0 || (c.ticker || '').toUpperCase() === 'EQX') {
+          bidderSel.value = c.id;
+        }
+        if (name.indexOf('orla mining') >= 0 || (c.ticker || '').toUpperCase() === 'OLA') {
+          targetSel.value = c.id;
+        }
+      });
+
+      applyCompanySelection('bidder');
+      applyCompanySelection('target');
+
+      bidderSel.addEventListener('change', function() { toggleCustomCompanyForm('bidder', bidderSel.value); applyCompanySelection('bidder'); renderAll(); });
+      targetSel.addEventListener('change', function() { toggleCustomCompanyForm('target', targetSel.value); applyCompanySelection('target'); renderAll(); });
+    }
+
+    // Custom company form HTML
+    function customCompanyFormHtml(prefix) {
+      return '<div class="cc-form" id="' + prefix + '-cc-form">' +
+        '<div class="cc-grid">' +
+          '<div class="cc-field full"><label>Company Name</label><input id="' + prefix + '-cc-name" placeholder="e.g. Northern Star Resources"></div>' +
+          '<div class="cc-field"><label>Stock Exchange</label><input id="' + prefix + '-cc-exchange" placeholder="e.g. ASX"></div>' +
+          '<div class="cc-field"><label>Ticker</label><input id="' + prefix + '-cc-ticker" placeholder="e.g. NST"></div>' +
+          '<div class="cc-field"><label>Last Price (Local Currency)</label><input id="' + prefix + '-cc-price" type="number" step="0.01" placeholder="0.00"></div>' +
+          '<div class="cc-field"><label>Currency</label><input id="' + prefix + '-cc-currency" placeholder="e.g. AUD" value="USD"></div>' +
+          '<div class="cc-field"><label>Market Cap (USD $M)</label><input id="' + prefix + '-cc-mcap" type="number" step="0.1" placeholder="e.g. 5000"></div>' +
+          '<div class="cc-field"><label>Shares Outstanding (M)</label><input id="' + prefix + '-cc-shares" type="number" step="0.1" placeholder="e.g. 757"></div>' +
+          '<div class="cc-field"><label>Production Low (Koz)</label><input id="' + prefix + '-cc-prodlow" type="number" step="1" placeholder="e.g. 350"></div>' +
+          '<div class="cc-field"><label>Production High (Koz)</label><input id="' + prefix + '-cc-prodhigh" type="number" step="1" placeholder="e.g. 380"></div>' +
+          '<div class="cc-field"><label>P&P Reserves (Moz)</label><input id="' + prefix + '-cc-reserves" type="number" step="0.1" placeholder="e.g. 4.0"></div>' +
+          '<div class="cc-field"><label>M&I Resources (Moz)</label><input id="' + prefix + '-cc-resources" type="number" step="0.1" placeholder="e.g. 12.7"></div>' +
+          '<div class="cc-field"><label>Primary Mineral</label><input id="' + prefix + '-cc-mineral" placeholder="e.g. Gold" value="Gold"></div>' +
+        '</div>' +
+      '</div>';
+    }
+
+    function toggleCustomCompanyForm(role, value) {
+      var detailId = role === 'bidder' ? 'bidder-detail' : 'target-detail';
+      var detailEl = document.getElementById(detailId);
+      var prefix = role === 'bidder' ? 'ev-b' : 'ev-t';
+      var existingForm = document.getElementById(prefix + '-cc-form');
+      if (value === '__custom__') {
+        if (!existingForm) {
+          detailEl.innerHTML = customCompanyFormHtml(prefix);
+          // Attach change listeners to update DEAL on input
+          var inputs = detailEl.querySelectorAll('input');
+          for (var i = 0; i < inputs.length; i++) {
+            inputs[i].addEventListener('input', function() { applyCustomCompany(role); renderAll(); });
+          }
+        }
+      } else {
+        if (existingForm) existingForm.remove();
+      }
+    }
+
+    function applyCustomCompany(role) {
+      var prefix = role === 'bidder' ? 'ev-b' : 'ev-t';
+      var party = role === 'bidder' ? DEAL.bidder : DEAL.target;
+      var nameVal = (document.getElementById(prefix + '-cc-name') || {}).value || '';
+      party.name = nameVal;
+      party.shortName = nameVal;
+      party.ticker = (document.getElementById(prefix + '-cc-ticker') || {}).value || '—';
+      party.exchange = (document.getElementById(prefix + '-cc-exchange') || {}).value || '';
+      party.stockPriceLocal = parseFloat((document.getElementById(prefix + '-cc-price') || {}).value) || null;
+      party.currency = (document.getElementById(prefix + '-cc-currency') || {}).value || 'USD';
+      party.sharesOutstanding = parseFloat((document.getElementById(prefix + '-cc-shares') || {}).value) || null;
+      var mcap = parseFloat((document.getElementById(prefix + '-cc-mcap') || {}).value);
+      party.marketCapUsd = !isNaN(mcap) ? mcap : null;
+      party.marketCapDisplay = party.marketCapUsd ? (party.marketCapUsd >= 1000 ? (party.marketCapUsd / 1000).toFixed(1) + 'B' : party.marketCapUsd.toFixed(0) + 'M') : null;
+      party.productionLow = parseFloat((document.getElementById(prefix + '-cc-prodlow') || {}).value) || null;
+      party.productionHigh = parseFloat((document.getElementById(prefix + '-cc-prodhigh') || {}).value) || null;
+      party.reserves = parseFloat((document.getElementById(prefix + '-cc-reserves') || {}).value) || null;
+      party.resources = parseFloat((document.getElementById(prefix + '-cc-resources') || {}).value) || null;
+      party.status = null;
+    }
+
+    function applyCompanySelection(role) {
+      var selId = role === 'bidder' ? 'bidder-select' : 'target-select';
+      var detailId = role === 'bidder' ? 'bidder-detail' : 'target-detail';
+      var selectedId = document.getElementById(selId).value;
+      var party = role === 'bidder' ? DEAL.bidder : DEAL.target;
+      var detailEl = document.getElementById(detailId);
+
+      // Custom company — apply from form fields
+      if (selectedId === '__custom__') {
+        applyCustomCompany(role);
+        return;
+      }
+
+      if (!selectedId) {
+        party.marketCapUsd = null;
+        party.marketCapDisplay = null;
+        party.productionLow = null;
+        party.productionHigh = null;
+        party.reserves = null;
+        party.resources = null;
+        party.status = null;
+        party.shortName = role === 'bidder' ? 'Bidder' : 'Target';
+        party.ticker = '—';
+        party.exchange = '';
+        detailEl.innerHTML = '';
+        return;
+      }
+
+      var co = null;
+      for (var i = 0; i < allCompanies.length; i++) {
+        if (String(allCompanies[i].id) === String(selectedId)) { co = allCompanies[i]; break; }
+      }
+      if (!co) return;
+
+      party.name = co.company_name || '';
+      party.shortName = co.company_name || '';
+      party.ticker = co.ticker || '—';
+      party.exchange = co.primary_stock_exchange || '';
+      party.marketCapUsd = co.market_cap_usd ? co.market_cap_usd / 1e6 : null;
+      party.marketCapDisplay = co.market_cap_display;
+      party.productionLow = co.production_low;
+      party.productionHigh = co.production_high;
+      party.reserves = co.reserves;
+      party.resources = co.resources;
+      party.status = co.company_status;
+      party.oneYearReturn = co.one_year_return;
+
+      var chips = [];
+      if (co.primary_mineral) chips.push('<span class="cs-chip gold">' + R.escHtml(co.primary_mineral) + '</span>');
+      if (co.company_status) chips.push('<span class="cs-chip">' + R.escHtml(co.company_status) + '</span>');
+      if (co.market_cap_display) chips.push('<span class="cs-chip">$' + R.escHtml(co.market_cap_display) + '</span>');
+      if (co.primary_country) chips.push('<span class="cs-chip">' + R.escHtml(co.primary_country) + '</span>');
+      detailEl.innerHTML = chips.join('');
+    }
+
+    async function fetchGoldPrice() {
+      try {
+        var res = await fetch('/api/metals');
+        var data = await res.json();
+        if (data.metals && data.metals.gold) {
+          liveGoldData = { price: data.metals.gold.price, updated_at: data.metals.gold.updated_at };
+        }
+      } catch (e) { console.error('Gold price fetch error:', e); }
+    }
+
+    // =========================================================
+    // RENDER ALL (Evaluate tab)
+    // =========================================================
+    var sensChart = null;
+
+    function renderAll() {
+      document.getElementById('deal-banner').innerHTML = R.renderBanner(DEAL);
+      document.getElementById('deal-links').innerHTML = R.renderLinks(DEAL);
+      document.getElementById('quick-stats').innerHTML = R.renderQuickStats(DEAL);
+      document.getElementById('term-badge').textContent = DEAL.bidder.shortName + ' + ' + DEAL.target.shortName;
+
+      // Deal spread
+      var spreadHtml = R.renderDealSpread(DEAL, liveGoldData);
+      if (spreadHtml) {
+        document.getElementById('deal-spread-section').style.display = '';
+        document.getElementById('deal-spread-body').innerHTML = spreadHtml;
+      }
+
+      document.getElementById('term-sheet-body').innerHTML = R.renderTermSheet(DEAL);
+      document.getElementById('proforma-body').innerHTML = R.renderProForma(DEAL);
+
+      // Sensitivity
+      document.getElementById('sens-controls').innerHTML = R.renderSensitivityControls(DEAL);
+      document.getElementById('sens-gold').addEventListener('input', updateSensitivity);
+      document.getElementById('sens-aisc').addEventListener('input', updateSensitivity);
+      document.getElementById('sens-res').addEventListener('input', updateSensitivity);
+      updateSensitivity();
+
+      // Assets
+      var assets = R.renderAssets(DEAL);
+      document.getElementById('asset-count-badge').textContent = R.fmtOz(assets.totalProd) + '/yr';
+      document.getElementById('assets-body').innerHTML = assets.html;
+
+      // Progress
+      var progress = R.renderProgress(DEAL);
+      document.getElementById('progress-badge').textContent = progress.badge;
+      document.getElementById('progress-body').innerHTML = progress.html;
+    }
+
+    function updateSensitivity() {
+      var result = R.computeSensitivity(DEAL, liveGoldData ? liveGoldData.price : null);
+      document.getElementById('sens-output').innerHTML = result.html;
+      if (sensChart) sensChart.destroy();
+      sensChart = R.createSensChart('sens-chart', result.chartLabels, result.chartEbitda, result.chartFcf, DEAL.dealCurrency || (DEAL.bidder && DEAL.bidder.currency) || 'USD');
+    }
+
+    // =========================================================
+    // CURRENT DEALS TAB — Database operations
+    // =========================================================
+    var savedDeals = [];
+
+    function cdMsg(text, type) {
+      var el = document.getElementById('cd-message');
+      el.className = 'cd-message ' + type;
+      el.textContent = text;
+      if (type === 'success') setTimeout(function() { el.className = 'cd-message'; }, 3000);
+    }
+
+    async function loadSavedDeals() {
+      try {
+        var res = await fetch('/api/deals', {
+          headers: { 'Authorization': 'Bearer ' + adminToken }
+        });
+        var data = await res.json();
+        if (!data.ok) { cdMsg(data.error || 'Failed to load deals', 'error'); return; }
+        savedDeals = data.deals || [];
+        renderDealsTable();
+      } catch (e) {
+        cdMsg('Connection error loading deals', 'error');
+      }
+    }
+
+    function renderDealsTable() {
+      if (savedDeals.length === 0) {
+        document.getElementById('cd-content').innerHTML =
+          '<div class="cd-empty">' +
+            '<p style="font-size:16px;font-weight:700;margin-bottom:8px">No deals saved yet</p>' +
+            '<p>Use the "Save Current Deal to Database" button to save the EQX + OLA deal.</p>' +
+          '</div>';
+        return;
+      }
+
+      var html = '<table class="cd-table"><thead><tr>' +
+        '<th>Title</th><th>Status</th><th>Bidder</th><th>Target</th><th>Mineral</th><th>Published</th><th>Updated</th><th>Actions</th>' +
+      '</tr></thead><tbody>';
+
+      savedDeals.forEach(function(d) {
+        var statusClass = (d.status || 'draft').replace(/\s/g, '-');
+        var pubIcon = d.is_announced ? '<span style="color:#27AE60;font-weight:700">Yes</span>' : '<span style="color:#999">No</span>';
+        var updated = d.updated_at ? new Date(d.updated_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : '—';
+
+        html += '<tr>' +
+          '<td style="font-weight:600">' + R.escHtml(d.title) + '<div style="font-size:10px;color:#999;margin-top:2px">' + R.escHtml(d.slug) + '</div></td>' +
+          '<td><span class="cd-status ' + statusClass + '">' + R.escHtml(d.status || 'draft') + '</span></td>' +
+          '<td>' + R.escHtml(d.bidder_name || '—') + '</td>' +
+          '<td>' + R.escHtml(d.target_name || '—') + '</td>' +
+          '<td>' + R.escHtml(d.mineral || '—') + '</td>' +
+          '<td>' + pubIcon + '</td>' +
+          '<td style="font-size:11px;color:var(--text-secondary)">' + updated + '</td>' +
+          '<td class="cd-actions">' +
+            '<button class="btn-sm" onclick="openDealEditor(\'' + d.id + '\')">Edit</button>' +
+            '<button class="btn-sm" onclick="togglePublish(\'' + d.id + '\',' + !d.is_announced + ')">' + (d.is_announced ? 'Unpublish' : 'Publish') + '</button>' +
+            '<button class="btn-sm danger" onclick="deleteDeal(\'' + d.id + '\')">Delete</button>' +
+          '</td>' +
+        '</tr>';
+      });
+
+      html += '</tbody></table>';
+      document.getElementById('cd-content').innerHTML = html;
+    }
+
+    window.seedCurrentDeal = async function() {
+      // Save the hardcoded DEAL object into the database
+      var slug = 'equinox-gold-orla-mining';
+      try {
+        var res = await fetch('/api/deals', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer ' + adminToken
+          },
+          body: JSON.stringify({
+            slug: slug,
+            title: DEAL.title,
+            status: DEAL.status,
+            bidder_name: DEAL.bidder.name,
+            target_name: DEAL.target.name,
+            mineral: DEAL.mineral,
+            is_announced: true,
+            deal_data: DEAL
+          })
+        });
+        var data = await res.json();
+        if (!data.ok) {
+          cdMsg(data.error || 'Failed to save deal', 'error');
+          return;
+        }
+        cdMsg('Deal saved and published successfully!', 'success');
+        loadSavedDeals();
+      } catch (e) {
+        cdMsg('Connection error saving deal', 'error');
+      }
+    };
+
+    window.togglePublish = async function(id, publish) {
+      try {
+        var res = await fetch('/api/deals', {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer ' + adminToken
+          },
+          body: JSON.stringify({ id: id, is_announced: publish })
+        });
+        var data = await res.json();
+        if (!data.ok) { cdMsg(data.error || 'Failed to update', 'error'); return; }
+        cdMsg(publish ? 'Deal published — now visible on dealbook' : 'Deal unpublished', 'success');
+        loadSavedDeals();
+      } catch (e) {
+        cdMsg('Connection error', 'error');
+      }
+    };
+
+    window.deleteDeal = async function(id) {
+      if (!confirm('Delete this deal? This cannot be undone.')) return;
+      try {
+        var res = await fetch('/api/deals', {
+          method: 'DELETE',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer ' + adminToken
+          },
+          body: JSON.stringify({ id: id })
+        });
+        var data = await res.json();
+        if (!data.ok) { cdMsg(data.error || 'Failed to delete', 'error'); return; }
+        cdMsg('Deal deleted', 'success');
+        loadSavedDeals();
+      } catch (e) {
+        cdMsg('Connection error', 'error');
+      }
+    };
+
+    // =========================================================
+    // DEAL EDITOR (Current Deals tab)
+    // =========================================================
+    var deEditId = null;
+    var deLogos = { bidder: null, target: null };
+
+    // Helper: create a field HTML string
+    function deF(id, label, val, type) {
+      type = type || 'text';
+      var v = val != null ? val : '';
+      if (type === 'textarea') {
+        return '<div class="de-field"><label>' + R.escHtml(label) + '</label><textarea id="de-' + id + '">' + R.escHtml(String(v)) + '</textarea></div>';
+      }
+      if (type === 'select-status') {
+        var opts = ['draft','announced','pending-vote','closed','terminated'];
+        var sel = '<select id="de-' + id + '">';
+        opts.forEach(function(o) { sel += '<option value="' + o + '"' + (o === v ? ' selected' : '') + '>' + o + '</option>'; });
+        return '<div class="de-field"><label>' + R.escHtml(label) + '</label>' + sel + '</select></div>';
+      }
+      if (type === 'select-ccy') {
+        var ccys = ['USD','AUD','CAD','GBP','EUR','ZAR'];
+        var sel = '<select id="de-' + id + '">';
+        ccys.forEach(function(o) { sel += '<option value="' + o + '"' + (o === v ? ' selected' : '') + '>' + o + '</option>'; });
+        return '<div class="de-field"><label>' + R.escHtml(label) + '</label>' + sel + '</select></div>';
+      }
+      return '<div class="de-field"><label>' + R.escHtml(label) + '</label><input type="' + type + '" id="de-' + id + '" value="' + R.escHtml(String(v)) + '"></div>';
+    }
+
+    // Helper: collapsible section
+    function deSection(id, title, bodyHtml, collapsed) {
+      var cc = collapsed ? ' collapsed' : '';
+      return '<div class="de-section">' +
+        '<div class="de-section-head' + cc + '" onclick="toggleDeSection(\'' + id + '\')">' +
+          '<h4>' + R.escHtml(title) + '</h4><span class="de-chevron">&#9660;</span>' +
+        '</div>' +
+        '<div class="de-section-body' + cc + '" id="de-sec-' + id + '">' + bodyHtml + '</div>' +
+      '</div>';
+    }
+
+    window.toggleDeSection = function(id) {
+      var body = document.getElementById('de-sec-' + id);
+      var head = body.previousElementSibling;
+      body.classList.toggle('collapsed');
+      head.classList.toggle('collapsed');
+    };
+
+    // Render milestone rows
+    function deMilestoneRows(milestones) {
+      var html = '';
+      (milestones || []).forEach(function(m, i) {
+        html += '<div class="de-array-row" id="de-ms-row-' + i + '">' +
+          deF('ms-' + i + '-date', 'Date', m.date, 'date') +
+          deF('ms-' + i + '-label', 'Label', m.label) +
+          deF('ms-' + i + '-detail', 'Detail', m.detail) +
+          deF('ms-' + i + '-status', 'Status', m.status) +
+          '<button class="de-btn-rm" onclick="removeDeRow(\'ms\',' + i + ')">&#10005;</button>' +
+        '</div>';
+      });
+      return '<div id="de-ms-list">' + html + '</div>' +
+        '<button class="de-btn-add" onclick="addMilestone()">+ Add Milestone</button>';
+    }
+
+    // Render asset rows
+    function deAssetRows(assets, prefix) {
+      var html = '';
+      (assets || []).forEach(function(a, i) {
+        html += '<div class="de-array-row" id="de-' + prefix + '-row-' + i + '">' +
+          deF(prefix + '-' + i + '-name', 'Name', a.name) +
+          deF(prefix + '-' + i + '-region', 'Region', a.region) +
+          deF(prefix + '-' + i + '-owner', 'Owner', a.owner) +
+          deF(prefix + '-' + i + '-prod', 'Production', a.production, 'number') +
+          '<button class="de-btn-rm" onclick="removeDeRow(\'' + prefix + '\',' + i + ')">&#10005;</button>' +
+        '</div>';
+      });
+      return '<div id="de-' + prefix + '-list">' + html + '</div>' +
+        '<button class="de-btn-add" onclick="addAssetRow(\'' + prefix + '\')">+ Add ' + (prefix === 'gp' ? 'Growth Project' : 'Asset') + '</button>';
+    }
+
+    // Render condition rows
+    function deConditionRows(conditions) {
+      var html = '';
+      (conditions || []).forEach(function(c, i) {
+        html += '<div class="de-array-row" id="de-cond-row-' + i + '">' +
+          '<div class="de-field" style="grid-column:1/-2"><label>Condition ' + (i + 1) + '</label><input type="text" id="de-cond-' + i + '" value="' + R.escHtml(c || '') + '"></div>' +
+          '<button class="de-btn-rm" onclick="removeDeRow(\'cond\',' + i + ')">&#10005;</button>' +
+        '</div>';
+      });
+      return '<div id="de-cond-list">' + html + '</div>' +
+        '<button class="de-btn-add" onclick="addConditionRow()">+ Add Condition</button>';
+    }
+
+    window.openDealEditor = function(dealId) {
+      // Close any existing editor
+      var existing = document.getElementById('de-panel');
+      if (existing) existing.remove();
+
+      var deal = null;
+      for (var i = 0; i < savedDeals.length; i++) {
+        if (savedDeals[i].id === dealId) { deal = savedDeals[i]; break; }
+      }
+      if (!deal) return;
+
+      deEditId = dealId;
+      var dd = deal.deal_data || {};
+      var b = dd.bidder || {};
+      var t = dd.target || {};
+      var tm = dd.terms || {};
+      var pf = dd.proForma || {};
+      var c = dd.combined || {};
+      var vs = dd.votingSupport || {};
+      var lk = dd.links || {};
+      var logos = dd.logos || {};
+      deLogos = { bidder: logos.bidder || null, target: logos.target || null };
+
+      var html = '<div class="de-header"><h3>Edit: ' + R.escHtml(deal.title) + '</h3>' +
+        '<button class="btn-sm" onclick="closeDealEditor()">Close</button></div>';
+
+      // 1. Deal Info
+      html += deSection('info', 'Deal Info', '<div class="de-grid">' +
+        deF('title', 'Title', dd.title || deal.title) +
+        deF('subtitle', 'Subtitle', dd.subtitle) +
+        deF('slug', 'Slug', deal.slug) +
+        deF('status', 'Status', deal.status || dd.status, 'select-status') +
+        deF('dealCurrency', 'Deal Currency', dd.dealCurrency || b.currency || 'USD', 'select-ccy') +
+        deF('mineral', 'Mineral', deal.mineral) +
+        deF('announcementDate', 'Announcement Date', dd.announcementDate, 'date') +
+        deF('expectedClose', 'Expected Close', dd.expectedClose, 'date') +
+        deF('marketDataDate', 'Market Data Date', dd.marketDataDate, 'date') +
+      '</div>');
+
+      // 2. Bidder
+      html += deSection('bidder', 'Acquirer', '<div class="de-grid">' +
+        deF('b-name', 'Company Name', b.name) +
+        deF('b-shortName', 'Short Name', b.shortName) +
+        deF('b-ticker', 'Ticker', b.ticker) +
+        deF('b-exchange', 'Exchange', b.exchange) +
+        deF('b-currency', 'Currency', b.currency, 'select-ccy') +
+        deF('b-announcementMC', 'Announcement MC ($M)', b.announcementMC, 'number') +
+        deF('b-ebitda2026e', 'EBITDA 2026E ($M)', b.ebitda2026e, 'number') +
+        deF('b-fcf2026e', 'FCF 2026E ($M)', b.fcf2026e, 'number') +
+        deF('b-aiscLow', 'AISC Low (USD/oz)', b.aiscLow, 'number') +
+        deF('b-aiscHigh', 'AISC High (USD/oz)', b.aiscHigh, 'number') +
+        deF('b-stockPriceLocal', 'Stock Price (Local)', b.stockPriceLocal, 'number') +
+        deF('b-sharesOutstanding', 'Shares Outstanding', b.sharesOutstanding, 'number') +
+        deF('b-cashEquivalents', 'Cash & Equivalents ($M)', b.cashEquivalents, 'number') +
+      '</div>', true);
+
+      // 3. Target
+      html += deSection('target', 'Target', '<div class="de-grid">' +
+        deF('t-name', 'Company Name', t.name) +
+        deF('t-shortName', 'Short Name', t.shortName) +
+        deF('t-ticker', 'Ticker', t.ticker) +
+        deF('t-exchange', 'Exchange', t.exchange) +
+        deF('t-currency', 'Currency', t.currency, 'select-ccy') +
+        deF('t-announcementMC', 'Announcement MC ($M)', t.announcementMC, 'number') +
+        deF('t-ebitda2026e', 'EBITDA 2026E ($M)', t.ebitda2026e, 'number') +
+        deF('t-fcf2026e', 'FCF 2026E ($M)', t.fcf2026e, 'number') +
+        deF('t-aiscLow', 'AISC Low (USD/oz)', t.aiscLow, 'number') +
+        deF('t-aiscHigh', 'AISC High (USD/oz)', t.aiscHigh, 'number') +
+        deF('t-stockPriceLocal', 'Stock Price (Local)', t.stockPriceLocal, 'number') +
+        deF('t-sharesOutstanding', 'Shares Outstanding', t.sharesOutstanding, 'number') +
+        deF('t-cashEquivalents', 'Cash & Equivalents ($M)', t.cashEquivalents, 'number') +
+      '</div>', true);
+
+      // 4. Terms
+      html += deSection('terms', 'Transaction Terms', '<div class="de-grid">' +
+        deF('tm-exchangeRatio', 'Exchange Ratio', tm.exchangeRatio, 'number') +
+        deF('tm-cashPerShare', 'Cash Per Share', tm.cashPerShare, 'number') +
+        deF('tm-structure', 'Structure', tm.structure) +
+        deF('tm-bidderBreakFee', 'Bidder Break Fee ($M)', tm.bidderBreakFee, 'number') +
+        deF('tm-targetBreakFee', 'Target Break Fee ($M)', tm.targetBreakFee, 'number') +
+        deF('tm-bidderApproval', 'Bidder Approval', tm.bidderApproval) +
+        deF('tm-targetApproval', 'Target Approval', tm.targetApproval) +
+      '</div>', true);
+
+      // 4b. SpinCo / CVR (optional)
+      var sc = dd.spinCo || {};
+      html += deSection('spinco', 'SpinCo / CVR (Optional)', '<div class="de-grid">' +
+        deF('sc-name', 'SpinCo Name', sc.name) +
+        deF('sc-description', 'Description', sc.description) +
+        deF('sc-cashFunding', 'Cash Funding ($M)', sc.cashFunding, 'number') +
+        deF('sc-cashCurrency', 'Cash Currency', sc.cashCurrency || 'CAD') +
+        deF('sc-properties', 'Properties / Assets', sc.properties) +
+        deF('sc-cvrMaxPayout', 'CVR Max Payout ($M)', sc.cvrMaxPayout, 'number') +
+        deF('sc-cvrCurrency', 'CVR Currency', sc.cvrCurrency || 'USD') +
+        deF('sc-cvrTrigger', 'CVR Trigger Condition', sc.cvrTrigger) +
+      '</div>');
+
+      // 5. Pro Forma
+      html += deSection('proforma', 'Pro Forma Governance', '<div class="de-grid">' +
+        deF('pf-ownershipBidder', 'Bidder Ownership %', pf.ownershipBidder, 'number') +
+        deF('pf-ownershipTarget', 'Target Ownership %', pf.ownershipTarget, 'number') +
+        deF('pf-boardSize', 'Board Size', pf.boardSize, 'number') +
+        deF('pf-boardBidder', 'Board - Bidder', pf.boardBidder, 'number') +
+        deF('pf-boardTarget', 'Board - Target', pf.boardTarget, 'number') +
+        deF('pf-ceo', 'CEO', pf.ceo) +
+        deF('pf-president', 'President', pf.president) +
+        deF('pf-chair', 'Chair', pf.chair) +
+      '</div>', true);
+
+      // 6. Combined
+      html += deSection('combined', 'Combined Metrics', '<div class="de-grid">' +
+        deF('c-production', 'Production (oz)', c.production, 'number') +
+        deF('c-productionGrowth', 'Production Growth Target (oz)', c.productionGrowth, 'number') +
+        deF('c-ppReserves', 'P&P Reserves (oz)', c.ppReserves, 'number') +
+        deF('c-miResources', 'M&I Resources (oz)', c.miResources, 'number') +
+        deF('c-inferredResources', 'Inferred Resources (oz)', c.inferredResources, 'number') +
+        deF('c-ebitda2026e', 'EBITDA 2026E ($M)', c.ebitda2026e, 'number') +
+        deF('c-fcf2026e', 'FCF 2026E ($M)', c.fcf2026e, 'number') +
+        deF('c-aiscLow', 'AISC Low (USD/oz)', c.aiscLow, 'number') +
+        deF('c-aiscHigh', 'AISC High (USD/oz)', c.aiscHigh, 'number') +
+        deF('c-liquidity', 'Liquidity ($M)', c.liquidity, 'number') +
+      '</div>', true);
+
+      // 7. Sensitivity Defaults
+      html += deSection('sens', 'Sensitivity Defaults', '<div class="de-grid">' +
+        deF('dealTimeGoldPrice', 'Announcement Gold Price (USD)', dd.dealTimeGoldPrice, 'number') +
+        deF('defaultGoldPrice', 'Default Gold Price (USD)', dd.defaultGoldPrice, 'number') +
+        deF('defaultAisc', 'Default AISC (USD/oz)', dd.defaultAisc, 'number') +
+      '</div>', true);
+
+      // 8. Voting Support
+      html += deSection('voting', 'Voting Support', '<div class="de-grid-wide">' +
+        '<div>' +
+          '<div style="font-size:10px;font-weight:700;color:var(--text-secondary);margin-bottom:6px">ACQUIRER</div>' +
+          deF('vs-b-pct', 'Support %', vs.bidder ? vs.bidder.pct : 0, 'number') +
+          deF('vs-b-desc', 'Description', vs.bidder ? vs.bidder.desc : '') +
+        '</div><div>' +
+          '<div style="font-size:10px;font-weight:700;color:var(--text-secondary);margin-bottom:6px">TARGET</div>' +
+          deF('vs-t-pct', 'Support %', vs.target ? vs.target.pct : 0, 'number') +
+          deF('vs-t-desc', 'Description', vs.target ? vs.target.desc : '') +
+        '</div>' +
+      '</div>', true);
+
+      // 9. Links
+      html += deSection('links', 'Reference Links', '<div class="de-grid">' +
+        deF('lk-pressRelease', 'Press Release URL', lk.pressRelease, 'url') +
+        deF('lk-presentationPdf', 'Presentation PDF URL', lk.presentationPdf, 'url') +
+        deF('lk-pressReleasePdf', 'Joint NR PDF URL', lk.pressReleasePdf, 'url') +
+        deF('lk-webcast', 'Webcast URL', lk.webcast, 'url') +
+      '</div>', true);
+
+      // 10. Logos
+      var bidderLogoPreview = deLogos.bidder ? '<img src="' + deLogos.bidder + '" alt="Logo">' : getInitials(b.name || deal.bidder_name || '?');
+      var targetLogoPreview = deLogos.target ? '<img src="' + deLogos.target + '" alt="Logo">' : getInitials(t.name || deal.target_name || '?');
+      html += deSection('logos', 'Logos', '<div class="de-logo-grid">' +
+        '<div class="de-logo-party">' +
+          '<div class="ndb-party-label">Acquirer</div>' +
+          '<div class="ndb-logo-wrap" onclick="document.getElementById(\'de-logo-b-file\').click()">' +
+            '<div class="ndb-logo' + (deLogos.bidder ? ' selected' : '') + '" id="de-logo-b">' + bidderLogoPreview + '</div>' +
+            '<div class="ndb-logo-overlay"><svg viewBox="0 0 24 24"><path d="M9 16h6v-6h4l-7-7-7 7h4v6zm-4 2h14v2H5v-2z"/></svg></div>' +
+          '</div>' +
+          '<div class="ndb-logo-hint">Click to upload</div>' +
+          '<input type="file" id="de-logo-b-file" accept="image/*" style="display:none" onchange="handleDeLogoUpload(\'bidder\', event)">' +
+        '</div>' +
+        '<div class="de-logo-party">' +
+          '<div class="ndb-party-label">Target</div>' +
+          '<div class="ndb-logo-wrap" onclick="document.getElementById(\'de-logo-t-file\').click()">' +
+            '<div class="ndb-logo' + (deLogos.target ? ' selected' : '') + '" id="de-logo-t">' + targetLogoPreview + '</div>' +
+            '<div class="ndb-logo-overlay"><svg viewBox="0 0 24 24"><path d="M9 16h6v-6h4l-7-7-7 7h4v6zm-4 2h14v2H5v-2z"/></svg></div>' +
+          '</div>' +
+          '<div class="ndb-logo-hint">Click to upload</div>' +
+          '<input type="file" id="de-logo-t-file" accept="image/*" style="display:none" onchange="handleDeLogoUpload(\'target\', event)">' +
+        '</div>' +
+      '</div>', true);
+
+      // 11. Milestones
+      html += deSection('milestones', 'Milestones', deMilestoneRows(dd.milestones), true);
+
+      // 12. Assets
+      html += deSection('assets', 'Operating Assets', deAssetRows(dd.assets, 'asset'), true);
+
+      // 13. Growth Pipeline
+      html += deSection('growth', 'Growth Pipeline', deAssetRows(dd.growthPipeline, 'gp'), true);
+
+      // 14. Conditions
+      html += deSection('conditions', 'Conditions', deConditionRows(dd.conditions), true);
+
+      // Save bar
+      html += '<div class="de-save-bar">' +
+        '<button class="btn-sm" onclick="closeDealEditor()">Cancel</button>' +
+        '<button class="btn-gold" id="de-save-btn" onclick="saveDealEdits()">Save All Changes</button>' +
+      '</div>' +
+      '<div id="de-message" style="font-size:12px;margin-top:8px;text-align:center"></div>';
+
+      var panel = document.createElement('div');
+      panel.id = 'de-panel';
+      panel.className = 'de-panel';
+      panel.innerHTML = html;
+
+      var cdContent = document.getElementById('cd-content');
+      cdContent.parentNode.insertBefore(panel, cdContent.nextSibling);
+      panel.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    };
+
+    window.closeDealEditor = function() {
+      var panel = document.getElementById('de-panel');
+      if (panel) panel.remove();
+      deEditId = null;
+    };
+
+    window.handleDeLogoUpload = function(role, e) {
+      var file = e.target.files && e.target.files[0];
+      if (!file) return;
+      if (file.size > 500 * 1024) { alert('Logo too large (max 500 KB)'); return; }
+      var reader = new FileReader();
+      reader.onload = function(ev) {
+        deLogos[role] = ev.target.result;
+        var el = document.getElementById(role === 'bidder' ? 'de-logo-b' : 'de-logo-t');
+        el.innerHTML = '<img src="' + ev.target.result + '" alt="Logo">';
+        el.classList.add('selected');
+      };
+      reader.readAsDataURL(file);
+    };
+
+    // Dynamic row management
+    var deRowCounts = {};
+
+    window.removeDeRow = function(prefix, idx) {
+      var el = document.getElementById('de-' + prefix + '-row-' + idx);
+      if (el) el.remove();
+    };
+
+    window.addMilestone = function() {
+      var list = document.getElementById('de-ms-list');
+      var idx = list.children.length + 100; // offset to avoid id collisions
+      var row = document.createElement('div');
+      row.className = 'de-array-row';
+      row.id = 'de-ms-row-' + idx;
+      row.innerHTML =
+        deF('ms-' + idx + '-date', 'Date', '', 'date') +
+        deF('ms-' + idx + '-label', 'Label', '') +
+        deF('ms-' + idx + '-detail', 'Detail', '') +
+        deF('ms-' + idx + '-status', 'Status', 'upcoming') +
+        '<button class="de-btn-rm" onclick="removeDeRow(\'ms\',' + idx + ')">&#10005;</button>';
+      list.appendChild(row);
+    };
+
+    window.addAssetRow = function(prefix) {
+      var list = document.getElementById('de-' + prefix + '-list');
+      var idx = list.children.length + 100;
+      var row = document.createElement('div');
+      row.className = 'de-array-row';
+      row.id = 'de-' + prefix + '-row-' + idx;
+      row.innerHTML =
+        deF(prefix + '-' + idx + '-name', 'Name', '') +
+        deF(prefix + '-' + idx + '-region', 'Region', '') +
+        deF(prefix + '-' + idx + '-owner', 'Owner', '') +
+        deF(prefix + '-' + idx + '-prod', 'Production', '', 'number') +
+        '<button class="de-btn-rm" onclick="removeDeRow(\'' + prefix + '\',' + idx + ')">&#10005;</button>';
+      list.appendChild(row);
+    };
+
+    window.addConditionRow = function() {
+      var list = document.getElementById('de-cond-list');
+      var idx = list.children.length + 100;
+      var row = document.createElement('div');
+      row.className = 'de-array-row';
+      row.id = 'de-cond-row-' + idx;
+      row.innerHTML =
+        '<div class="de-field" style="grid-column:1/-2"><label>Condition ' + (idx + 1) + '</label><input type="text" id="de-cond-' + idx + '" value=""></div>' +
+        '<button class="de-btn-rm" onclick="removeDeRow(\'cond\',' + idx + ')">&#10005;</button>';
+      list.appendChild(row);
+    };
+
+    // Read form value helper
+    function deVal(id) {
+      var el = document.getElementById('de-' + id);
+      return el ? el.value : '';
+    }
+    function deNum(id) {
+      var v = deVal(id);
+      if (v === '' || v == null) return null;
+      var n = parseFloat(v);
+      return isNaN(n) ? null : n;
+    }
+
+    // Collect array rows
+    function collectMilestones() {
+      var list = document.getElementById('de-ms-list');
+      if (!list) return [];
+      var rows = list.querySelectorAll('.de-array-row');
+      var arr = [];
+      for (var i = 0; i < rows.length; i++) {
+        var idx = rows[i].id.replace('de-ms-row-', '');
+        var date = deVal('ms-' + idx + '-date');
+        var label = deVal('ms-' + idx + '-label');
+        if (date || label) {
+          arr.push({ date: date, label: label, detail: deVal('ms-' + idx + '-detail'), status: deVal('ms-' + idx + '-status') || 'upcoming' });
+        }
+      }
+      return arr;
+    }
+
+    function collectAssets(prefix) {
+      var list = document.getElementById('de-' + prefix + '-list');
+      if (!list) return [];
+      var rows = list.querySelectorAll('.de-array-row');
+      var arr = [];
+      for (var i = 0; i < rows.length; i++) {
+        var idx = rows[i].id.replace('de-' + prefix + '-row-', '');
+        var name = deVal(prefix + '-' + idx + '-name');
+        if (name) {
+          var item = { name: name, region: deVal(prefix + '-' + idx + '-region'), production: deNum(prefix + '-' + idx + '-prod') };
+          var owner = deVal(prefix + '-' + idx + '-owner');
+          if (owner) item.owner = owner;
+          arr.push(item);
+        }
+      }
+      return arr;
+    }
+
+    function collectConditions() {
+      var list = document.getElementById('de-cond-list');
+      if (!list) return [];
+      var rows = list.querySelectorAll('.de-array-row');
+      var arr = [];
+      for (var i = 0; i < rows.length; i++) {
+        var idx = rows[i].id.replace('de-cond-row-', '');
+        var v = deVal('cond-' + idx);
+        if (v) arr.push(v);
+      }
+      return arr;
+    }
+
+    window.saveDealEdits = async function() {
+      if (!deEditId) return;
+
+      // Find original deal for fields we don't edit
+      var origDeal = null;
+      for (var i = 0; i < savedDeals.length; i++) {
+        if (savedDeals[i].id === deEditId) { origDeal = savedDeals[i]; break; }
+      }
+      if (!origDeal) return;
+      var origData = origDeal.deal_data || {};
+
+      var btn = document.getElementById('de-save-btn');
+      btn.disabled = true;
+      btn.textContent = 'Saving...';
+
+      // Build updated deal_data
+      var updatedData = {
+        title: deVal('title'),
+        subtitle: deVal('subtitle') || null,
+        status: deVal('status'),
+        dealCurrency: deVal('dealCurrency'),
+        mineral: deVal('mineral') || null,
+        announcementDate: deVal('announcementDate') || null,
+        expectedClose: deVal('expectedClose') || null,
+        marketDataDate: deVal('marketDataDate') || null,
+        currencyNote: origData.currencyNote || null,
+
+        bidder: {
+          name: deVal('b-name'),
+          shortName: deVal('b-shortName'),
+          ticker: deVal('b-ticker'),
+          exchange: deVal('b-exchange'),
+          currency: deVal('b-currency'),
+          announcementMC: deNum('b-announcementMC'),
+          ebitda2026e: deNum('b-ebitda2026e'),
+          fcf2026e: deNum('b-fcf2026e'),
+          aiscLow: deNum('b-aiscLow'),
+          aiscHigh: deNum('b-aiscHigh'),
+          stockPriceLocal: deNum('b-stockPriceLocal'),
+          sharesOutstanding: deNum('b-sharesOutstanding'),
+          cashEquivalents: deNum('b-cashEquivalents'),
+          // Preserve live-enriched fields (set to null; API will re-enrich)
+          marketCapUsd: null,
+          productionLow: null,
+          productionHigh: null,
+          reserves: null,
+          resources: null
+        },
+
+        target: {
+          name: deVal('t-name'),
+          shortName: deVal('t-shortName'),
+          ticker: deVal('t-ticker'),
+          exchange: deVal('t-exchange'),
+          currency: deVal('t-currency'),
+          announcementMC: deNum('t-announcementMC'),
+          ebitda2026e: deNum('t-ebitda2026e'),
+          fcf2026e: deNum('t-fcf2026e'),
+          aiscLow: deNum('t-aiscLow'),
+          aiscHigh: deNum('t-aiscHigh'),
+          stockPriceLocal: deNum('t-stockPriceLocal'),
+          sharesOutstanding: deNum('t-sharesOutstanding'),
+          cashEquivalents: deNum('t-cashEquivalents'),
+          marketCapUsd: null,
+          productionLow: null,
+          productionHigh: null,
+          reserves: null,
+          resources: null
+        },
+
+        terms: {
+          exchangeRatio: deNum('tm-exchangeRatio') || 1,
+          cashPerShare: deNum('tm-cashPerShare') || 0,
+          structure: deVal('tm-structure'),
+          bidderBreakFee: deNum('tm-bidderBreakFee'),
+          targetBreakFee: deNum('tm-targetBreakFee'),
+          bidderApproval: deVal('tm-bidderApproval'),
+          targetApproval: deVal('tm-targetApproval')
+        },
+
+        proForma: {
+          ownershipBidder: deNum('pf-ownershipBidder') || 50,
+          ownershipTarget: deNum('pf-ownershipTarget') || 50,
+          boardSize: deNum('pf-boardSize'),
+          boardBidder: deNum('pf-boardBidder'),
+          boardTarget: deNum('pf-boardTarget'),
+          ceo: deVal('pf-ceo'),
+          president: deVal('pf-president'),
+          chair: deVal('pf-chair')
+        },
+
+        combined: {
+          production: deNum('c-production') || 0,
+          productionGrowth: deNum('c-productionGrowth') || 0,
+          ppReserves: deNum('c-ppReserves') || 0,
+          miResources: deNum('c-miResources') || 0,
+          inferredResources: deNum('c-inferredResources') || 0,
+          ebitda2026e: deNum('c-ebitda2026e') || 0,
+          fcf2026e: deNum('c-fcf2026e') || 0,
+          aiscLow: deNum('c-aiscLow'),
+          aiscHigh: deNum('c-aiscHigh'),
+          liquidity: deNum('c-liquidity'),
+          marketCapUsd: origData.combined ? origData.combined.marketCapUsd : null
+        },
+
+        spinCo: (function() {
+          var n = deVal('sc-name');
+          if (!n) return null;
+          return {
+            name: n,
+            description: deVal('sc-description') || '',
+            cashFunding: deNum('sc-cashFunding'),
+            cashCurrency: deVal('sc-cashCurrency') || 'CAD',
+            properties: deVal('sc-properties') || '',
+            cvrMaxPayout: deNum('sc-cvrMaxPayout'),
+            cvrCurrency: deVal('sc-cvrCurrency') || 'USD',
+            cvrTrigger: deVal('sc-cvrTrigger') || ''
+          };
+        })(),
+
+        dealTimeGoldPrice: deNum('dealTimeGoldPrice') || 4500,
+        defaultGoldPrice: deNum('defaultGoldPrice') || 4500,
+        defaultAisc: deNum('defaultAisc') || 1500,
+        defaultReserveAdj: origData.defaultReserveAdj || 0,
+
+        votingSupport: {
+          bidder: { pct: deNum('vs-b-pct') || 0, desc: deVal('vs-b-desc') || '' },
+          target: { pct: deNum('vs-t-pct') || 0, desc: deVal('vs-t-desc') || '' }
+        },
+
+        links: {
+          pressRelease: deVal('lk-pressRelease') || '',
+          presentationPdf: deVal('lk-presentationPdf') || '',
+          pressReleasePdf: deVal('lk-pressReleasePdf') || '',
+          webcast: deVal('lk-webcast') || ''
+        },
+
+        logos: {
+          bidder: deLogos.bidder || null,
+          target: deLogos.target || null
+        },
+
+        milestones: collectMilestones(),
+        assets: collectAssets('asset'),
+        growthPipeline: collectAssets('gp'),
+        conditions: collectConditions()
+      };
+
+      // Preserve any extra fields from original data not covered by the editor
+      var extraKeys = ['advisers', 'synergies', 'currencyNote'];
+      extraKeys.forEach(function(k) {
+        if (origData[k] != null && updatedData[k] == null) updatedData[k] = origData[k];
+      });
+
+      try {
+        var res = await fetch('/api/deals', {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer ' + adminToken
+          },
+          body: JSON.stringify({
+            id: deEditId,
+            title: updatedData.title,
+            slug: deVal('slug'),
+            status: updatedData.status,
+            bidder_name: updatedData.bidder.name,
+            target_name: updatedData.target.name,
+            mineral: updatedData.mineral,
+            deal_data: updatedData
+          })
+        });
+        var data = await res.json();
+        if (!data.ok) {
+          document.getElementById('de-message').innerHTML = '<span style="color:#E74C3C">' + R.escHtml(data.error || 'Failed to save') + '</span>';
+          btn.disabled = false;
+          btn.textContent = 'Save All Changes';
+          return;
+        }
+        document.getElementById('de-message').innerHTML = '<span style="color:#27AE60">All changes saved successfully!</span>';
+        btn.textContent = 'Saved ✓';
+        await loadSavedDeals();
+        setTimeout(function() { btn.disabled = false; btn.textContent = 'Save All Changes'; }, 2000);
+      } catch (e) {
+        document.getElementById('de-message').innerHTML = '<span style="color:#E74C3C">Connection error: ' + R.escHtml(e.message) + '</span>';
+        btn.disabled = false;
+        btn.textContent = 'Save All Changes';
+      }
+    };
+
+    // =========================================================
+    // NEW DEAL BUILD TAB
+    // =========================================================
+    var buildTabInited = false;
+
+    function initBuildTab() {
+      if (buildTabInited) return;
+      buildTabInited = true;
+
+      var bidderSel = document.getElementById('ndb-bidder-select');
+      var targetSel = document.getElementById('ndb-target-select');
+
+      var optionsHtml = '<option value="">Select a company...</option>' +
+        '<option value="__custom__">➕ Add company…</option>';
+      allCompanies.forEach(function(c) {
+        var label = R.escHtml(c.company_name || '');
+        var ticker = c.ticker ? ' (' + R.escHtml(c.ticker) + ')' : '';
+        optionsHtml += '<option value="' + (c.id || '') + '">' + label + ticker + '</option>';
+      });
+      bidderSel.innerHTML = optionsHtml;
+      targetSel.innerHTML = optionsHtml;
+
+      bidderSel.addEventListener('change', function() { toggleBuildCustomForm('bidder', bidderSel.value); updateBuildParty('bidder'); updateBuildBtn(); });
+      targetSel.addEventListener('change', function() { toggleBuildCustomForm('target', targetSel.value); updateBuildParty('target'); updateBuildBtn(); });
+
+      document.getElementById('ndb-bidder-file').addEventListener('change', function(e) { handleLogoUpload('bidder', e); });
+      document.getElementById('ndb-target-file').addEventListener('change', function(e) { handleLogoUpload('target', e); });
+    }
+
+    var buildLogos = { bidder: null, target: null };
+
+    function handleLogoUpload(role, e) {
+      var file = e.target.files && e.target.files[0];
+      if (!file) return;
+      if (file.size > 500 * 1024) {
+        ndbMsg('Logo file too large (max 500 KB). Please use a smaller image.', 'error');
+        return;
+      }
+      var reader = new FileReader();
+      reader.onload = function(ev) {
+        var dataUrl = ev.target.result;
+        buildLogos[role] = dataUrl;
+        var logoEl = document.getElementById(role === 'bidder' ? 'ndb-bidder-logo' : 'ndb-target-logo');
+        logoEl.innerHTML = '<img src="' + dataUrl + '" alt="Logo">';
+        logoEl.classList.add('selected');
+      };
+      reader.readAsDataURL(file);
+    }
+
+    function getInitials(name) {
+      if (!name) return '?';
+      var words = name.replace(/\b(Corp|Inc|Ltd|Limited|Plc|Mining|Resources|Metals|Gold|Silver)\b\.?/gi, '').trim().split(/\s+/);
+      if (words.length === 0) return '?';
+      if (words.length === 1) return words[0].substring(0, 2).toUpperCase();
+      return (words[0][0] + words[1][0]).toUpperCase();
+    }
+
+    var LOGO_COLORS = [
+      '#2C3E50', '#8B6914', '#1B5E20', '#1A237E', '#6A1B9A',
+      '#B71C1C', '#004D40', '#E65100', '#283593', '#4E342E'
+    ];
+
+    function logoColor(name) {
+      var hash = 0;
+      for (var i = 0; i < (name || '').length; i++) {
+        hash = ((hash << 5) - hash) + name.charCodeAt(i);
+        hash |= 0;
+      }
+      return LOGO_COLORS[Math.abs(hash) % LOGO_COLORS.length];
+    }
+
+    function toggleBuildCustomForm(role, value) {
+      var infoId = role === 'bidder' ? 'ndb-bidder-info' : 'ndb-target-info';
+      var infoEl = document.getElementById(infoId);
+      var prefix = role === 'bidder' ? 'ndb-b' : 'ndb-t';
+      var existingForm = document.getElementById(prefix + '-cc-form');
+      if (value === '__custom__') {
+        if (!existingForm) {
+          infoEl.innerHTML = customCompanyFormHtml(prefix);
+          // Listen for changes to enable the build button
+          var inputs = infoEl.querySelectorAll('input');
+          for (var i = 0; i < inputs.length; i++) {
+            inputs[i].addEventListener('input', function() { updateBuildBtn(); });
+          }
+        }
+      } else {
+        if (existingForm) existingForm.remove();
+      }
+    }
+
+    function getBuildCustomCompany(prefix) {
+      var name = (document.getElementById(prefix + '-cc-name') || {}).value || '';
+      var mcap = parseFloat((document.getElementById(prefix + '-cc-mcap') || {}).value) || null;
+      return {
+        company_name: name,
+        ticker: (document.getElementById(prefix + '-cc-ticker') || {}).value || '',
+        primary_stock_exchange: (document.getElementById(prefix + '-cc-exchange') || {}).value || '',
+        market_cap_usd: mcap ? mcap * 1e6 : null,
+        market_cap_display: mcap ? (mcap >= 1000 ? (mcap / 1000).toFixed(1) + 'B' : mcap.toFixed(0) + 'M') : null,
+        production_low: parseFloat((document.getElementById(prefix + '-cc-prodlow') || {}).value) || null,
+        production_high: parseFloat((document.getElementById(prefix + '-cc-prodhigh') || {}).value) || null,
+        reserves: parseFloat((document.getElementById(prefix + '-cc-reserves') || {}).value) || null,
+        resources: parseFloat((document.getElementById(prefix + '-cc-resources') || {}).value) || null,
+        company_status: null,
+        primary_mineral: (document.getElementById(prefix + '-cc-mineral') || {}).value || 'Gold',
+        primary_country: '',
+        _custom: true,
+        _currency: (document.getElementById(prefix + '-cc-currency') || {}).value || 'USD',
+        _stockPrice: parseFloat((document.getElementById(prefix + '-cc-price') || {}).value) || null,
+        _sharesOutstanding: parseFloat((document.getElementById(prefix + '-cc-shares') || {}).value) || null
+      };
+    }
+
+    function updateBuildParty(role) {
+      var selId = role === 'bidder' ? 'ndb-bidder-select' : 'ndb-target-select';
+      var logoId = role === 'bidder' ? 'ndb-bidder-logo' : 'ndb-target-logo';
+      var infoId = role === 'bidder' ? 'ndb-bidder-info' : 'ndb-target-info';
+
+      var selectedId = document.getElementById(selId).value;
+      var logoEl = document.getElementById(logoId);
+      var infoEl = document.getElementById(infoId);
+
+      if (selectedId === '__custom__') {
+        // Update logo with initials from custom name field
+        var prefix = role === 'bidder' ? 'ndb-b' : 'ndb-t';
+        var nameField = document.getElementById(prefix + '-cc-name');
+        var customName = nameField ? nameField.value : '';
+        if (!buildLogos[role]) {
+          logoEl.innerHTML = getInitials(customName || '?');
+          logoEl.style.background = logoColor(customName || 'Custom');
+          logoEl.classList.add('selected');
+        }
+        return;
+      }
+
+      if (!selectedId) {
+        if (!buildLogos[role]) {
+          logoEl.textContent = '?';
+          logoEl.innerHTML = '?';
+          logoEl.style.background = 'linear-gradient(135deg, #2C3E50, #1B2631)';
+          logoEl.classList.remove('selected');
+        }
+        infoEl.innerHTML = '';
+        return;
+      }
+
+      var co = null;
+      for (var i = 0; i < allCompanies.length; i++) {
+        if (String(allCompanies[i].id) === String(selectedId)) { co = allCompanies[i]; break; }
+      }
+      if (!co) return;
+
+      // Only update logo initials if no custom logo was uploaded
+      if (!buildLogos[role]) {
+        logoEl.innerHTML = getInitials(co.company_name);
+        logoEl.style.background = logoColor(co.company_name);
+      }
+      logoEl.classList.add('selected');
+
+      var chips = [];
+      if (co.ticker) chips.push('<span class="cs-chip gold">' + R.escHtml(co.ticker) + '</span>');
+      if (co.primary_mineral) chips.push('<span class="cs-chip">' + R.escHtml(co.primary_mineral) + '</span>');
+      if (co.market_cap_display) chips.push('<span class="cs-chip">$' + R.escHtml(co.market_cap_display) + '</span>');
+      if (co.primary_country) chips.push('<span class="cs-chip">' + R.escHtml(co.primary_country) + '</span>');
+      if (co.company_status) chips.push('<span class="cs-chip">' + R.escHtml(co.company_status) + '</span>');
+      infoEl.innerHTML = chips.join('');
+    }
+
+    function updateBuildBtn() {
+      var bidder = document.getElementById('ndb-bidder-select').value;
+      var target = document.getElementById('ndb-target-select').value;
+      // For custom companies, require at least a name
+      var bOk = bidder && bidder !== '';
+      var tOk = target && target !== '';
+      if (bidder === '__custom__') {
+        var bName = (document.getElementById('ndb-b-cc-name') || {}).value || '';
+        bOk = bName.trim().length > 0;
+      }
+      if (target === '__custom__') {
+        var tName = (document.getElementById('ndb-t-cc-name') || {}).value || '';
+        tOk = tName.trim().length > 0;
+      }
+      var notSame = bidder !== target || bidder === '__custom__';
+      document.getElementById('ndb-build-btn').disabled = !bOk || !tOk || !notSame;
+    }
+
+    function ndbMsg(text, type) {
+      var el = document.getElementById('ndb-message');
+      el.className = 'ndb-message ' + type;
+      el.textContent = text;
+      if (type === 'success') setTimeout(function() { el.className = 'ndb-message'; }, 5000);
+    }
+
+    function findCompanyById(id) {
+      for (var i = 0; i < allCompanies.length; i++) {
+        if (String(allCompanies[i].id) === String(id)) return allCompanies[i];
+      }
+      return null;
+    }
+
+    function slugify(text) {
+      return text.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
+    }
+
+    window.buildNewDeal = async function() {
+      var bidderId = document.getElementById('ndb-bidder-select').value;
+      var targetId = document.getElementById('ndb-target-select').value;
+      if (!bidderId || !targetId) return;
+
+      var bidder = bidderId === '__custom__' ? getBuildCustomCompany('ndb-b') : findCompanyById(bidderId);
+      var target = targetId === '__custom__' ? getBuildCustomCompany('ndb-t') : findCompanyById(targetId);
+      if (!bidder || !target) { ndbMsg('Could not find selected companies', 'error'); return; }
+      if (bidderId === '__custom__' && !bidder.company_name) { ndbMsg('Please enter the acquirer company name', 'error'); return; }
+      if (targetId === '__custom__' && !target.company_name) { ndbMsg('Please enter the target company name', 'error'); return; }
+
+      // Gather URLs
+      var urlAcquirerPR = document.getElementById('ndb-url-acquirer-pr').value.trim();
+      var urlJointPR = document.getElementById('ndb-url-joint-pr').value.trim();
+      var urlPresentation = document.getElementById('ndb-url-presentation').value.trim();
+      var urlWebcast = document.getElementById('ndb-url-webcast').value.trim();
+
+      // Build company data helpers
+      var bMC = bidder.market_cap_usd ? bidder.market_cap_usd / 1e6 : null;
+      var tMC = target.market_cap_usd ? target.market_cap_usd / 1e6 : null;
+      var bProdLow = parseFloat(bidder.production_low) || 0;
+      var bProdHigh = parseFloat(bidder.production_high) || 0;
+      var tProdLow = parseFloat(target.production_low) || 0;
+      var tProdHigh = parseFloat(target.production_high) || 0;
+      var bProd = bProdHigh || bProdLow || 0;
+      var tProd = tProdHigh || tProdLow || 0;
+      var bReserves = parseFloat(bidder.reserves) || 0;
+      var tReserves = parseFloat(target.reserves) || 0;
+      var bResources = parseFloat(bidder.resources) || 0;
+      var tResources = parseFloat(target.resources) || 0;
+      var cProd = bProd + tProd;
+      var cReserves = bReserves + tReserves;
+      var cResources = bResources + tResources;
+
+      var announcementDate = document.getElementById('ndb-announcement-date').value || '';
+      var expectedClose = document.getElementById('ndb-expected-close').value || '';
+      var exchangeRatio = parseFloat(document.getElementById('ndb-exchange-ratio').value);
+      var cashPerShare = parseFloat(document.getElementById('ndb-cash-per-share').value) || 0;
+      var structure = document.getElementById('ndb-structure').value;
+      var mineral = document.getElementById('ndb-mineral').value;
+
+      if (!announcementDate) {
+        ndbMsg('Please enter the announcement date.', 'error');
+        return;
+      }
+      if (isNaN(exchangeRatio) || exchangeRatio <= 0) {
+        ndbMsg('Please enter the exchange ratio.', 'error');
+        return;
+      }
+      var goldPrice = liveGoldData ? Math.round(liveGoldData.price) : 4500;
+
+      // Build DEAL object from EQX/OLA template structure
+      var dealData = {
+        id: slugify(bidder.company_name + '-' + target.company_name),
+        title: (bidder.company_name || '') + ' + ' + (target.company_name || ''),
+        subtitle: 'Deal Evaluation',
+        status: 'draft',
+        announcementDate: announcementDate,
+        expectedClose: expectedClose,
+        mineral: mineral,
+
+        bidder: {
+          name: bidder.company_name || '',
+          shortName: bidder.company_name || '',
+          ticker: bidder.ticker || '',
+          exchange: bidder.primary_stock_exchange || '',
+          currency: bidder._currency || 'USD',
+          stockPriceLocal: bidder._stockPrice || null,
+          sharesOutstanding: bidder._sharesOutstanding || null,
+          announcementMC: bMC,
+          ebitda2026e: 0,
+          fcf2026e: 0,
+          aiscLow: 0,
+          aiscHigh: 0,
+          marketCapUsd: bMC,
+          productionLow: bProdLow || null,
+          productionHigh: bProdHigh || null,
+          reserves: bReserves || null,
+          resources: bResources || null,
+          status: bidder.company_status || null
+        },
+        target: {
+          name: target.company_name || '',
+          shortName: target.company_name || '',
+          ticker: target.ticker || '',
+          exchange: target.primary_stock_exchange || '',
+          currency: target._currency || 'USD',
+          stockPriceLocal: target._stockPrice || null,
+          sharesOutstanding: target._sharesOutstanding || null,
+          announcementMC: tMC,
+          ebitda2026e: 0,
+          fcf2026e: 0,
+          aiscLow: 0,
+          aiscHigh: 0,
+          marketCapUsd: tMC,
+          productionLow: tProdLow || null,
+          productionHigh: tProdHigh || null,
+          reserves: tReserves || null,
+          resources: tResources || null,
+          status: target.company_status || null
+        },
+
+        terms: {
+          exchangeRatio: exchangeRatio,
+          cashPerShare: cashPerShare,
+          structure: structure,
+          bidderBreakFee: 0,
+          targetBreakFee: 0,
+          bidderApproval: 'TBD',
+          targetApproval: 'TBD'
+        },
+
+        proForma: {
+          ownershipBidder: bMC && tMC ? Math.round(bMC / (bMC + tMC) * 100) : 50,
+          ownershipTarget: bMC && tMC ? Math.round(tMC / (bMC + tMC) * 100) : 50,
+          boardSize: 0,
+          boardBidder: 0,
+          boardTarget: 0,
+          boardChair: 0,
+          ceo: 'TBD',
+          president: 'TBD',
+          chair: 'TBD'
+        },
+
+        combined: {
+          production: cProd,
+          productionGrowth: 0,
+          ppReserves: cReserves,
+          miResources: cResources,
+          inferredResources: 0,
+          ebitda2026e: 0,
+          fcf2026e: 0,
+          aiscLow: 0,
+          aiscHigh: 0,
+          liquidity: 0,
+          marketCapUsd: (bMC || 0) + (tMC || 0)
+        },
+
+        milestones: [
+          { date: announcementDate, label: 'Announcement', detail: 'Deal announced', status: 'complete' },
+          { date: '', label: 'Proxy Circular', detail: 'Filed with regulators', status: 'upcoming' },
+          { date: '', label: 'Shareholder Votes', detail: 'TBD', status: 'upcoming' },
+          { date: '', label: 'Regulatory Approval', detail: 'TBD', status: 'upcoming' },
+          { date: '', label: 'Expected Close', detail: 'TBD', status: 'upcoming' }
+        ],
+
+        assets: [],
+        growthPipeline: [],
+
+        votingSupport: {
+          bidder: { pct: 0, desc: 'TBD' },
+          target: { pct: 0, desc: 'TBD' }
+        },
+
+        dealTimeGoldPrice: goldPrice,
+        defaultGoldPrice: goldPrice,
+        defaultAisc: 1500,
+        defaultReserveAdj: 0,
+        marketDataDate: announcementDate,
+
+        links: {
+          pressRelease: urlAcquirerPR || '',
+          pressReleasePdf: urlJointPR || '',
+          presentationPdf: urlPresentation || '',
+          webcast: urlWebcast || ''
+        },
+
+        logos: {
+          bidder: buildLogos.bidder || null,
+          target: buildLogos.target || null
+        }
+      };
+
+      var dealSlug = slugify(bidder.company_name + '-' + target.company_name);
+      var dealTitle = (bidder.company_name || '') + ' + ' + (target.company_name || '');
+
+      // Save to database
+      document.getElementById('ndb-build-btn').disabled = true;
+      document.getElementById('ndb-build-btn').textContent = 'Building...';
+
+      try {
+        var res = await fetch('/api/deals', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer ' + adminToken
+          },
+          body: JSON.stringify({
+            slug: dealSlug,
+            title: dealTitle,
+            status: 'draft',
+            bidder_name: bidder.company_name,
+            target_name: target.company_name,
+            mineral: dealData.mineral,
+            is_announced: false,
+            deal_data: dealData
+          })
+        });
+        var data = await res.json();
+        if (!data.ok) {
+          ndbMsg(data.error || 'Failed to create deal', 'error');
+          document.getElementById('ndb-build-btn').disabled = false;
+          document.getElementById('ndb-build-btn').textContent = 'Build Deal';
+          return;
+        }
+        ndbMsg('Deal "' + dealTitle + '" created successfully! Switch to Current Deals to manage it.', 'success');
+        document.getElementById('ndb-build-btn').textContent = 'Build Deal';
+        updateBuildBtn();
+      } catch (e) {
+        ndbMsg('Connection error creating deal: ' + e.message, 'error');
+        document.getElementById('ndb-build-btn').disabled = false;
+        document.getElementById('ndb-build-btn').textContent = 'Build Deal';
+      }
+    };
+
+    // =========================================================
+    // INIT
+    // =========================================================
+    async function initDeals() {
+      await Promise.all([fetchCompanyData(), fetchGoldPrice()]);
+      renderAll();
+    }
+
+    initDeals();
+  })();
+  </script>
+</body>
+</html>

@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="icon" type="image/png" href="/favicon/favicon-96x96.png" sizes="96x96">
+  <link rel="icon" type="image/svg+xml" href="/favicon/favicon.svg">
+  <link rel="shortcut icon" href="/favicon/favicon.ico">
+  <link rel="apple-touch-icon" sizes="180x180" href="/favicon/apple-touch-icon.png">
+  <link rel="manifest" href="/favicon/site.webmanifest">
+  <title>M&amp;A Deal Book &mdash; Denver Gold Group</title>
+  <link rel="stylesheet" href="/css/styles.css">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.106.1/dist/umd/supabase.min.js" integrity="sha384-dzQgxMPp/h+N0t5qDf6Bp516wKZr3pXgGMpA7/ZM6tiWkqYo90N060L03dxnZ8Tf" crossorigin="anonymous"></script>
+  <style>
+    .db-wrap { max-width: 1100px; margin: 0 auto; padding: 20px 24px; }
+
+    /* Header area */
+    .db-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; flex-wrap: wrap; gap: 12px; }
+    .db-header h2 { font-size: 22px; font-weight: 800; color: var(--header-mid); margin: 0; }
+    .db-header-actions { display: flex; gap: 8px; align-items: center; }
+    .db-header-actions .btn { padding: 8px 16px; font-size: 12px; font-weight: 600; border-radius: 8px; cursor: pointer; text-decoration: none; display: inline-block; border: 2px solid #E0E0E0; background: transparent; color: var(--text-primary); font-family: inherit; }
+    .db-header-actions .btn:hover { border-color: var(--color-gold); }
+
+    /* Deals table */
+    .deals-table-wrap { background: #fff; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); overflow: hidden; }
+    .deals-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    .deals-table thead th {
+      text-align: left; padding: 14px 16px; font-size: 10px; font-weight: 700;
+      text-transform: uppercase; letter-spacing: 0.5px; color: var(--text-secondary);
+      background: #FAFBFC; border-bottom: 2px solid #E8ECF0;
+    }
+    .deals-table thead th:nth-child(n+4) { text-align: right; }
+    .deals-table tbody tr { cursor: pointer; transition: background 0.15s; }
+    .deals-table tbody tr:hover { background: #FFFDF5; }
+    .deals-table tbody tr:not(:last-child) td { border-bottom: 1px solid #F2F4F6; }
+    .deals-table td { padding: 14px 16px; vertical-align: middle; }
+    .deals-table td:nth-child(n+4) { text-align: right; }
+    .deals-table .td-date { font-size: 12px; color: var(--text-secondary); white-space: nowrap; }
+    .deals-table .td-company { font-weight: 600; color: var(--header-mid); }
+    .deals-table .td-ticker { font-size: 11px; color: var(--text-secondary); margin-top: 1px; }
+    .deals-table .td-value { font-weight: 700; color: var(--header-mid); }
+    .deals-table .td-spread { font-weight: 700; font-size: 13px; }
+    .td-spread.positive { color: #27AE60; }
+    .td-spread.negative { color: #E74C3C; }
+    .td-spread.neutral { color: var(--text-secondary); }
+
+    /* Status & commodity badges */
+    .db-status { display: inline-block; font-size: 10px; font-weight: 700; padding: 3px 10px; border-radius: 20px; text-transform: uppercase; letter-spacing: 0.5px; white-space: nowrap; }
+    .db-status.pending-vote { background: rgba(230,126,34,0.15); color: #E65100; }
+    .db-status.announced { background: rgba(39,174,96,0.15); color: #1B5E20; }
+    .db-status.closed { background: rgba(39,174,96,0.15); color: #1B5E20; }
+    .db-status.terminated { background: rgba(231,76,60,0.15); color: #B71C1C; }
+    .db-status.draft { background: rgba(149,165,166,0.15); color: #607D8B; }
+    .db-mineral { display: inline-block; font-size: 10px; font-weight: 600; padding: 3px 10px; border-radius: 20px; white-space: nowrap; }
+    .db-mineral.gold { background: rgba(212,160,23,0.12); color: #B8860B; }
+    .db-mineral.silver { background: rgba(127,140,141,0.15); color: #5D6D7E; }
+    .db-mineral.copper { background: rgba(202,111,30,0.12); color: #A04000; }
+    .db-mineral.pgms { background: rgba(142,68,173,0.12); color: #6C3483; }
+    .db-mineral.other { background: rgba(39,174,96,0.12); color: #1E8449; }
+
+    /* Summary chips */
+    .db-summary { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; margin-bottom: 24px; }
+    .db-chip { background: #fff; border-radius: 10px; padding: 16px 14px; text-align: center; box-shadow: 0 2px 8px rgba(0,0,0,0.06); border-top: 3px solid var(--color-gold); }
+    .db-chip-label { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; color: var(--text-secondary); margin-bottom: 6px; }
+    .db-chip-value { font-size: 20px; font-weight: 800; color: var(--header-mid); }
+    .db-chip.accent-green { border-top-color: #27AE60; }
+    .db-chip.accent-blue { border-top-color: #2980B9; }
+    .db-chip.accent-purple { border-top-color: #8E44AD; }
+    .db-chip.accent-orange { border-top-color: #E67E22; }
+    .db-chip.accent-teal { border-top-color: #1ABC9C; }
+
+    /* Empty state */
+    .db-empty { text-align: center; padding: 80px 24px; color: var(--text-secondary); }
+    .db-empty h3 { font-size: 18px; font-weight: 700; color: var(--header-mid); margin-bottom: 8px; }
+
+    /* Loading */
+    .db-loading { text-align: center; padding: 80px 20px; color: var(--text-secondary); font-size: 14px; }
+    .db-loading .spinner { width: 28px; height: 28px; border: 3px solid #E0E0E0; border-top-color: var(--color-gold); border-radius: 50%; animation: spin 0.8s linear infinite; display: inline-block; margin-bottom: 12px; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      .deals-table-wrap { border-radius: 0; margin: 0 -24px; }
+      .deals-table { font-size: 12px; }
+      .deals-table thead th, .deals-table td { padding: 10px 12px; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Header -->
+  <div class="page-header dgg-theme">
+    <img class="logo" src="/logos/dgg-logo.png" alt="Denver Gold Group">
+    <div class="header-text">
+      <h1>M&amp;A Deal Book &mdash; Denver Gold Group</h1>
+      <div class="subtitle">Mining Sector Deal Analytics</div>
+    </div>
+  </div>
+
+  <div class="db-wrap">
+    <div class="db-header">
+      <h2>Announced Deals</h2>
+      <div class="db-header-actions">
+        <button class="btn" onclick="sessionStorage.removeItem('dealbook_token'); window.location.href='/dealbook-login'">Log Out</button>
+      </div>
+    </div>
+
+    <div id="db-content">
+      <div class="db-loading">
+        <div class="spinner"></div><br>
+        Loading deals&hellip;
+      </div>
+    </div>
+  </div>
+
+  <div class="disclaimer">
+    <p class="disclaimer-estimates"><strong>Data Note:</strong> Where precise company-reported figures were unavailable, production guidance, reserves, and resources reflect best available estimates derived from public filings, investor presentations, and third-party research. All values should be independently verified before use in any investment analysis.</p>
+    <p><strong>Notice</strong> &mdash; The Denver Gold Group does not make any express or implied condition, representation, warranty or other term as to the accuracy, validity, reliability, timeliness or completeness of any information or materials in general or in connection with any particular use or purpose presented at the Mining Forum. The Denver Gold Group does not represent or endorse the accuracy or reliability of any third party advice, opinion, statement, information or materials received during the Mining Forum.</p>
+    <p><strong>INVESTMENT ADVICE &mdash; NO OFFER OR RECOMMENDATION</strong> &mdash; The Denver Gold Group, Inc, the Mining Forums, and the information and materials presented at the Mining Forum and in all Denver Gold Group publications, including Internet assets are not, and should not be construed as, an offer to buy or sell, or as a solicitation of an offer to buy or sell, any regulated gold related products or any other regulated products, securities or investments. The Denver Gold Group, Inc and the Mining Forums do not, and should not be construed as acting to, sponsor, advocate, endorse or promote any regulated gold related products or any other regulated products, securities or investments. Before making any investment decision, prospective investors should seek advice from their financial, legal, tax and accounting advisers, take into account their individual financial needs and circumstances and carefully consider the risks associated with such investment decision.</p>
+    <p class="disclaimer-copyright">&copy; 2026 by The Denver Gold Group, Inc. All rights reserved. Distribution and republication is encouraged provided that no part of this publication is modified in any form or by any means without the prior written permission of the copyright holder.</p>
+  </div>
+
+  <script>
+  (function() {
+    'use strict';
+
+    // Supabase client for live company data
+    var SB_URL = 'https://ljyogcspkvqgjbiyzfbn.supabase.co';
+    var SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxqeW9nY3Nwa3ZxZ2piaXl6ZmJuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzMyODE5OTAsImV4cCI6MjA4ODg1Nzk5MH0.oBKfsngoLIUjZl-w-iZm3W8Q4kMuFAAICidEdszNyGE';
+    var sbClient = window.supabase && window.supabase.createClient
+      ? window.supabase.createClient(SB_URL, SB_KEY)
+      : null;
+
+    // Auth gate
+    var token = sessionStorage.getItem('dealbook_token') || sessionStorage.getItem('admin_token');
+    if (!token) {
+      window.location.href = '/dealbook-login?redirect=' + encodeURIComponent(window.location.pathname);
+      return;
+    }
+
+    function escHtml(s) { var d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
+
+    function fmtDate(iso) {
+      if (!iso) return '—';
+      var parts = iso.split('-');
+      var months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+      return months[parseInt(parts[1], 10) - 1] + ' ' + parseInt(parts[2], 10) + ', ' + parts[0];
+    }
+
+    function fmtM(n, prefix) {
+      if (n == null || isNaN(n)) return '—';
+      var p = prefix || '$';
+      if (Math.abs(n) >= 1000) return p + (n / 1000).toFixed(1) + 'B';
+      return p + Number(n).toFixed(0) + 'M';
+    }
+
+    function fmtOz(n) {
+      if (n == null || isNaN(n) || n === 0) return '—';
+      if (n >= 1000000) return (n / 1000000).toFixed(1) + 'M oz';
+      if (n >= 1000) return Math.round(n / 1000) + 'K oz';
+      return Number(n).toLocaleString() + ' oz';
+    }
+
+    function fmtNum(n) {
+      if (n == null || isNaN(n)) return '—';
+      return Number(n).toLocaleString('en-US');
+    }
+
+    function dbReservesToOz(val) {
+      if (!val) return null;
+      return val < 200 ? val * 1e6 : val * 1e3;
+    }
+
+    function dbProdToOz(val) {
+      if (!val) return null;
+      return val < 5000 ? val * 1e3 : val;
+    }
+
+    function mineralClass(m) {
+      if (!m) return 'other';
+      var lower = m.toLowerCase();
+      if (lower === 'gold') return 'gold';
+      if (lower === 'silver') return 'silver';
+      if (lower === 'copper') return 'copper';
+      if (lower === 'pgms' || lower === 'platinum' || lower === 'palladium') return 'pgms';
+      return 'other';
+    }
+
+    function calcSpread(dd) {
+      if (!dd || !dd.bidder || !dd.target || !dd.proForma) return null;
+      var bMC = dd.bidder.marketCapUsd;
+      var tMC = dd.target.marketCapUsd;
+      var owB = dd.proForma.ownershipBidder;
+      var owT = dd.proForma.ownershipTarget;
+      if (!bMC || !tMC || !owB || !owT) return null;
+      return ((bMC / tMC) / (owB / owT) - 1) * 100;
+    }
+
+    function getDealValue(dd) {
+      if (!dd) return null;
+      if (dd.combined && dd.combined.marketCapUsd) return dd.combined.marketCapUsd;
+      if (dd.bidder && dd.target && dd.bidder.marketCapUsd && dd.target.marketCapUsd) {
+        return dd.bidder.marketCapUsd + dd.target.marketCapUsd;
+      }
+      return null;
+    }
+
+    // Overlay live market cap data from companies table onto all deals.
+    // Note: companies table tickers have trailing colons (e.g. "AEM:")
+    async function applyLiveCompanyData(deals) {
+      if (!sbClient || deals.length === 0) return;
+      // Collect all unique tickers across all deals (normalized without colon)
+      var tickerMap = {}; // cleanTicker -> [{deal_data, role}]
+      deals.forEach(function(d) {
+        var dd = d.deal_data || {};
+        if (dd.bidder && dd.bidder.ticker && dd.bidder.ticker !== '—') {
+          var bt = dd.bidder.ticker.replace(/:$/, '');
+          if (!tickerMap[bt]) tickerMap[bt] = [];
+          tickerMap[bt].push({ dd: dd, role: 'bidder' });
+        }
+        if (dd.target && dd.target.ticker && dd.target.ticker !== '—') {
+          var tt = dd.target.ticker.replace(/:$/, '');
+          if (!tickerMap[tt]) tickerMap[tt] = [];
+          tickerMap[tt].push({ dd: dd, role: 'target' });
+        }
+      });
+      var cleanTickers = Object.keys(tickerMap);
+      if (cleanTickers.length === 0) return;
+      // Append colon for companies table query
+      var queryTickers = cleanTickers.map(function(t) { return t + ':'; });
+
+      try {
+        var result = await sbClient
+          .from('companies')
+          .select('ticker, market_cap_usd, market_cap_display')
+          .in('ticker', queryTickers);
+        if (result.error || !result.data) return;
+
+        result.data.forEach(function(co) {
+          if (!co.market_cap_usd) return;
+          var mcM = co.market_cap_usd / 1e6;
+          var cleanTicker = co.ticker.replace(/:$/, '');
+          var refs = tickerMap[cleanTicker] || [];
+          refs.forEach(function(ref) {
+            ref.dd[ref.role].marketCapUsd = mcM;
+            ref.dd[ref.role].marketCapDisplay = co.market_cap_display;
+            // Recalculate combined
+            if (ref.dd.combined && ref.dd.bidder.marketCapUsd && ref.dd.target.marketCapUsd) {
+              ref.dd.combined.marketCapUsd = ref.dd.bidder.marketCapUsd + ref.dd.target.marketCapUsd;
+            }
+          });
+        });
+      } catch (e) { /* fall back to static data */ }
+    }
+
+    async function loadDeals() {
+      try {
+        var res = await fetch('/api/deals?announced=true', {
+          headers: { 'Authorization': 'Bearer ' + token }
+        });
+        var data = await res.json();
+        if (!data.ok) {
+          document.getElementById('db-content').innerHTML = '<div class="db-empty"><h3>Error</h3><p>' + escHtml(data.error || 'Failed to load deals') + '</p></div>';
+          return;
+        }
+        var deals = data.deals || [];
+        await applyLiveCompanyData(deals);
+        renderDeals(deals);
+      } catch (e) {
+        document.getElementById('db-content').innerHTML = '<div class="db-empty"><h3>Connection Error</h3><p>Could not load deals. Please try again.</p></div>';
+      }
+    }
+
+    function renderDeals(deals) {
+      if (deals.length === 0) {
+        document.getElementById('db-content').innerHTML =
+          '<div class="db-empty"><h3>No Deals Yet</h3><p>Announced deals will appear here.</p></div>';
+        return;
+      }
+
+      // Sort newest first by announcement date, then created_at
+      deals.sort(function(a, b) {
+        var dateA = (a.deal_data && a.deal_data.announcementDate) || a.created_at || '';
+        var dateB = (b.deal_data && b.deal_data.announcementDate) || b.created_at || '';
+        return dateB.localeCompare(dateA);
+      });
+
+      // Aggregate summary stats across all deals
+      var totalValue = 0;
+      var totalProduction = 0;
+      var totalReserves = 0;
+      var totalResources = 0;
+      var dealCount = deals.length;
+
+      deals.forEach(function(d) {
+        var dd = d.deal_data || {};
+        var c = dd.combined;
+        if (c) {
+          if (c.marketCapUsd) totalValue += c.marketCapUsd;
+          if (c.production) totalProduction += c.production;
+          if (c.ppReserves) totalReserves += c.ppReserves;
+          if (c.miResources) totalResources += c.miResources;
+        }
+      });
+
+      var mcProdRatio = totalProduction > 0 ? totalValue * 1e6 / totalProduction : null;
+      var mcReserveRatio = totalReserves > 0 ? totalValue * 1e6 / totalReserves : null;
+
+      var html = '<div class="db-summary">' +
+        '<div class="db-chip">' +
+          '<div class="db-chip-label">Total Transaction Value</div>' +
+          '<div class="db-chip-value">' + fmtM(totalValue, 'US$') + '</div>' +
+        '</div>' +
+        '<div class="db-chip accent-green">' +
+          '<div class="db-chip-label">Combined<br>Production</div>' +
+          '<div class="db-chip-value">' + fmtOz(totalProduction) + '</div>' +
+        '</div>' +
+        '<div class="db-chip accent-blue">' +
+          '<div class="db-chip-label">Combined P&P Reserves</div>' +
+          '<div class="db-chip-value">' + fmtOz(totalReserves) + '</div>' +
+        '</div>' +
+        '<div class="db-chip accent-purple">' +
+          '<div class="db-chip-label">Combined M&I Resources</div>' +
+          '<div class="db-chip-value">' + fmtOz(totalResources) + '</div>' +
+        '</div>' +
+        '<div class="db-chip accent-orange">' +
+          '<div class="db-chip-label">Wtd MC / Production (USD/oz)</div>' +
+          '<div class="db-chip-value">' + (mcProdRatio != null ? 'US$' + fmtNum(Math.round(mcProdRatio)) : '—') + '</div>' +
+        '</div>' +
+        '<div class="db-chip accent-teal">' +
+          '<div class="db-chip-label">Wtd MC / Reserve (USD/oz)</div>' +
+          '<div class="db-chip-value">' + (mcReserveRatio != null ? 'US$' + fmtNum(Math.round(mcReserveRatio)) : '—') + '</div>' +
+        '</div>' +
+      '</div>';
+
+      html += '<div class="deals-table-wrap"><table class="deals-table">' +
+        '<thead><tr>' +
+          '<th>Announced</th>' +
+          '<th>Acquirer</th>' +
+          '<th>Target</th>' +
+          '<th>Deal Value</th>' +
+          '<th>Spread</th>' +
+          '<th>Status</th>' +
+          '<th>Commodity</th>' +
+        '</tr></thead><tbody>';
+
+      deals.forEach(function(d) {
+        var dd = d.deal_data || {};
+        var statusClass = (d.status || 'draft').replace(/\s/g, '-');
+        var statusLabel = d.status ? d.status.replace(/-/g, ' ') : 'draft';
+        var dealVal = getDealValue(dd);
+        var spread = calcSpread(dd);
+        var spreadClass = spread == null ? 'neutral' : spread >= 0 ? 'positive' : 'negative';
+        var spreadText = spread != null ? (spread >= 0 ? '+' : '') + spread.toFixed(1) + '%' : '—';
+        var minClass = mineralClass(d.mineral);
+
+        var bidderTicker = dd.bidder && dd.bidder.ticker ? dd.bidder.ticker : '';
+        var targetTicker = dd.target && dd.target.ticker ? dd.target.ticker : '';
+
+        var annDate = dd.announcementDate ? fmtDate(dd.announcementDate) : '—';
+
+        html += '<tr onclick="window.location.href=\'/deals/' + escHtml(d.slug) + '\'">' +
+          '<td class="td-date">' + annDate + '</td>' +
+          '<td><div class="td-company">' + escHtml(d.bidder_name || '—') + '</div>' +
+            (bidderTicker ? '<div class="td-ticker">' + escHtml(bidderTicker) + '</div>' : '') +
+          '</td>' +
+          '<td><div class="td-company">' + escHtml(d.target_name || '—') + '</div>' +
+            (targetTicker ? '<div class="td-ticker">' + escHtml(targetTicker) + '</div>' : '') +
+          '</td>' +
+          '<td class="td-value">' + (dealVal != null ? fmtM(dealVal) : '—') + '</td>' +
+          '<td class="td-spread ' + spreadClass + '">' + spreadText + '</td>' +
+          '<td><span class="db-status ' + statusClass + '">' + escHtml(statusLabel) + '</span></td>' +
+          '<td>' + (d.mineral ? '<span class="db-mineral ' + minClass + '">' + escHtml(d.mineral) + '</span>' : '—') + '</td>' +
+        '</tr>';
+      });
+
+      html += '</tbody></table></div>';
+      document.getElementById('db-content').innerHTML = html;
+    }
+
+    loadDeals();
+  })();
+  </script>
+
+</body>
+</html>

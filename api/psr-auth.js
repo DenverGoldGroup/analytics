@@ -19,22 +19,35 @@ function getSecret() {
   return process.env.ADMIN_PASSWORD + process.env.SUPABASE_SERVICE_ROLE_KEY;
 }
 
-// Verify admin token (shared pattern with psr.js / auth.js)
+// Verify admin token — supports 4-part (new: JSON payload) and 3-part (legacy)
 function verifyAdminToken(authHeader) {
   if (!authHeader || !authHeader.startsWith('Bearer ')) return false;
   var secret = getSecret();
   if (!secret) return false;
   var token = authHeader.replace('Bearer ', '');
   var parts = token.split('.');
-  if (parts.length !== 3) return false;
-  var tokenBytes = parts[0], timestamp = parts[1], providedSig = parts[2];
-  var expectedSig = crypto.createHmac('sha256', secret).update(tokenBytes + '.' + timestamp).digest('hex');
+  var payloadB64, providedSig, payload;
+  if (parts.length === 4) {
+    payloadB64 = parts[2]; providedSig = parts[3];
+    payload = parts[0] + '.' + parts[1] + '.' + payloadB64;
+  } else if (parts.length === 3) {
+    payloadB64 = ''; providedSig = parts[2];
+    payload = parts[0] + '.' + parts[1];
+  } else { return false; }
+  var expectedSig = crypto.createHmac('sha256', secret).update(payload).digest('hex');
   var sigBuf = Buffer.from(providedSig);
   var expBuf = Buffer.from(expectedSig);
   if (sigBuf.length !== expBuf.length || !crypto.timingSafeEqual(sigBuf, expBuf)) return false;
-  var age = Date.now() - parseInt(timestamp, 10);
+  var age = Date.now() - parseInt(parts[1], 10);
   if (isNaN(age) || age < 0 || age > 24 * 60 * 60 * 1000) return false;
-  return true;
+  if (!payloadB64) return { email: 'admin', role: 'super_admin' };
+  try {
+    var info = JSON.parse(Buffer.from(payloadB64, 'base64').toString('utf8'));
+    return { email: info.email || 'admin', role: info.role || 'admin' };
+  } catch (e) {
+    // Old 4-part token with plain email (pre-JSON era) — shared-password users are super_admin
+    return { email: Buffer.from(payloadB64, 'base64').toString('utf8'), role: 'super_admin' };
+  }
 }
 
 // Generate PSR session token: psr.<base64url_email>.<role>.<timestamp>.<signature>

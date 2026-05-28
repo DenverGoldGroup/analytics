@@ -7,7 +7,7 @@ var _acSort = { col: 'market_cap_usd', dir: 'desc' };
 var _acProgFilter = null; // null | 'yes' | 'no'
 var _acPayFilter = null;  // null | 'paid' | 'unpaid'
 var _acOctileMap = {};    // company_name -> octile number (1-8)
-var _acFilters = { mineral: null, status: null, country: null, exchange: null, octile: null };
+var _acFilters = { mineral: [], status: [], country: null, exchange: [], octile: null };
 
 // ---- Helpers (not in supabase-client.js) ----
 function escHtml(str) {
@@ -48,7 +48,7 @@ function acSwitchEvent(code) {
   _acEvent = code;
   _acProgFilter = null;
   _acPayFilter = null;
-  _acFilters = { mineral: null, status: null, country: null, exchange: null, octile: null };
+  _acFilters = { mineral: [], status: [], country: null, exchange: [], octile: null };
   _acSort = { col: 'market_cap_usd', dir: 'desc' };
   document.querySelectorAll('.event-tab').forEach(function(el) {
     el.classList.toggle('active', el.getAttribute('data-event') === code);
@@ -535,8 +535,8 @@ function acUpdateFilteredCount() {
   var el = document.getElementById('ac-filter-summary');
   if (!el) return;
 
-  var anyFilter = _acFilters.mineral || _acFilters.status || _acFilters.country ||
-    _acFilters.exchange || _acFilters.octile || _acProgFilter || _acPayFilter;
+  var anyFilter = _acFilters.mineral.length || _acFilters.status.length || _acFilters.country ||
+    _acFilters.exchange.length || _acFilters.octile || _acProgFilter || _acPayFilter;
   if (!anyFilter) {
     el.style.display = 'none';
     return;
@@ -556,10 +556,10 @@ function acUpdateFilteredCount() {
 
   // Build active filter tags
   var tags = [];
-  if (_acFilters.mineral) tags.push(_acFilters.mineral);
-  if (_acFilters.status) tags.push(acShortStatus(_acFilters.status));
+  _acFilters.mineral.forEach(function(m) { tags.push(m); });
+  _acFilters.status.forEach(function(s) { tags.push(acShortStatus(s)); });
   if (_acFilters.country) tags.push(_acFilters.country);
-  if (_acFilters.exchange) tags.push(_acFilters.exchange);
+  _acFilters.exchange.forEach(function(e) { tags.push(e); });
   if (_acFilters.octile) tags.push('O' + _acFilters.octile);
   if (_acProgFilter === 'yes') tags.push('Programmed');
   if (_acProgFilter === 'no') tags.push('Not Programmed');
@@ -577,7 +577,7 @@ function acUpdateFilteredCount() {
 }
 
 function acClearAllFilters() {
-  _acFilters = { mineral: null, status: null, country: null, exchange: null, octile: null };
+  _acFilters = { mineral: [], status: [], country: null, exchange: [], octile: null };
   _acProgFilter = null;
   _acPayFilter = null;
   acUpdateProgUI();
@@ -590,7 +590,8 @@ function acAttachFilterListeners() {
   document.querySelectorAll('[data-mineral-filter]').forEach(function(pill) {
     pill.addEventListener('click', function() {
       var mineral = pill.getAttribute('data-mineral-filter');
-      _acFilters.mineral = _acFilters.mineral === mineral ? null : mineral;
+      var idx = _acFilters.mineral.indexOf(mineral);
+      if (idx === -1) { _acFilters.mineral.push(mineral); } else { _acFilters.mineral.splice(idx, 1); }
       acApplyAllFilters();
     });
   });
@@ -598,7 +599,8 @@ function acAttachFilterListeners() {
   document.querySelectorAll('[data-status-filter]').forEach(function(chip) {
     chip.addEventListener('click', function() {
       var status = chip.getAttribute('data-status-filter');
-      _acFilters.status = _acFilters.status === status ? null : status;
+      var idx = _acFilters.status.indexOf(status);
+      if (idx === -1) { _acFilters.status.push(status); } else { _acFilters.status.splice(idx, 1); }
       acApplyAllFilters();
     });
   });
@@ -614,7 +616,8 @@ function acAttachFilterListeners() {
   document.querySelectorAll('[data-exchange-filter]').forEach(function(pill) {
     pill.addEventListener('click', function() {
       var exchange = pill.getAttribute('data-exchange-filter');
-      _acFilters.exchange = _acFilters.exchange === exchange ? null : exchange;
+      var idx = _acFilters.exchange.indexOf(exchange);
+      if (idx === -1) { _acFilters.exchange.push(exchange); } else { _acFilters.exchange.splice(idx, 1); }
       acApplyAllFilters();
     });
   });
@@ -632,15 +635,15 @@ function acApplyAllFilters() {
   // Update pill/chip visuals
   document.querySelectorAll('[data-mineral-filter]').forEach(function(pill) {
     var m = pill.getAttribute('data-mineral-filter');
-    if (!_acFilters.mineral) { pill.classList.remove('active', 'dimmed'); }
-    else if (_acFilters.mineral === m) { pill.classList.add('active'); pill.classList.remove('dimmed'); }
+    if (!_acFilters.mineral.length) { pill.classList.remove('active', 'dimmed'); }
+    else if (_acFilters.mineral.indexOf(m) !== -1) { pill.classList.add('active'); pill.classList.remove('dimmed'); }
     else { pill.classList.remove('active'); pill.classList.add('dimmed'); }
   });
 
   document.querySelectorAll('[data-status-filter]').forEach(function(chip) {
     var s = chip.getAttribute('data-status-filter');
-    if (!_acFilters.status) { chip.classList.remove('active', 'dimmed'); }
-    else if (_acFilters.status === s) { chip.classList.add('active'); chip.classList.remove('dimmed'); }
+    if (!_acFilters.status.length) { chip.classList.remove('active', 'dimmed'); }
+    else if (_acFilters.status.indexOf(s) !== -1) { chip.classList.add('active'); chip.classList.remove('dimmed'); }
     else { chip.classList.remove('active'); chip.classList.add('dimmed'); }
   });
 
@@ -653,8 +656,8 @@ function acApplyAllFilters() {
 
   document.querySelectorAll('[data-exchange-filter]').forEach(function(pill) {
     var e = pill.getAttribute('data-exchange-filter');
-    if (!_acFilters.exchange) { pill.classList.remove('active'); }
-    else if (_acFilters.exchange === e) { pill.classList.add('active'); }
+    if (!_acFilters.exchange.length) { pill.classList.remove('active'); }
+    else if (_acFilters.exchange.indexOf(e) !== -1) { pill.classList.add('active'); }
     else { pill.classList.remove('active'); }
   });
 
@@ -667,23 +670,23 @@ function acApplyAllFilters() {
 
   // Show/hide reset buttons
   var mineralReset = document.getElementById('ac-mineral-reset');
-  if (mineralReset) mineralReset.classList.toggle('visible', !!_acFilters.mineral);
+  if (mineralReset) mineralReset.classList.toggle('visible', _acFilters.mineral.length > 0);
   var statusReset = document.getElementById('ac-status-reset');
-  if (statusReset) statusReset.classList.toggle('visible', !!_acFilters.status);
+  if (statusReset) statusReset.classList.toggle('visible', _acFilters.status.length > 0);
   var countryReset = document.getElementById('ac-country-reset');
   if (countryReset) countryReset.classList.toggle('visible', !!_acFilters.country);
   var exchangeReset = document.getElementById('ac-exchange-reset');
-  if (exchangeReset) exchangeReset.classList.toggle('visible', !!_acFilters.exchange);
+  if (exchangeReset) exchangeReset.classList.toggle('visible', _acFilters.exchange.length > 0);
   var octileReset = document.getElementById('ac-octile-reset');
   if (octileReset) octileReset.classList.toggle('visible', !!_acFilters.octile);
 
   // Filter table rows (mineral/status/country/exchange via display, prog via dimming)
   document.querySelectorAll('#ac-table tbody tr[data-mineral]').forEach(function(row) {
     var show = true;
-    if (_acFilters.mineral && row.getAttribute('data-mineral') !== _acFilters.mineral) show = false;
-    if (_acFilters.status && row.getAttribute('data-status') !== _acFilters.status) show = false;
+    if (_acFilters.mineral.length && _acFilters.mineral.indexOf(row.getAttribute('data-mineral')) === -1) show = false;
+    if (_acFilters.status.length && _acFilters.status.indexOf(row.getAttribute('data-status')) === -1) show = false;
     if (_acFilters.country && row.getAttribute('data-country') !== _acFilters.country) show = false;
-    if (_acFilters.exchange && row.getAttribute('data-exchange') !== _acFilters.exchange) show = false;
+    if (_acFilters.exchange.length && _acFilters.exchange.indexOf(row.getAttribute('data-exchange')) === -1) show = false;
     if (_acFilters.octile && row.getAttribute('data-octile') !== _acFilters.octile) show = false;
     row.style.display = show ? '' : 'none';
   });
@@ -696,10 +699,10 @@ function acApplyAllFilters() {
   acUpdateFilteredCount();
 }
 
-function acResetMineral() { _acFilters.mineral = null; acApplyAllFilters(); }
-function acResetStatus() { _acFilters.status = null; acApplyAllFilters(); }
+function acResetMineral() { _acFilters.mineral = []; acApplyAllFilters(); }
+function acResetStatus() { _acFilters.status = []; acApplyAllFilters(); }
 function acResetCountry() { _acFilters.country = null; acApplyAllFilters(); }
-function acResetExchange() { _acFilters.exchange = null; acApplyAllFilters(); }
+function acResetExchange() { _acFilters.exchange = []; acApplyAllFilters(); }
 function acResetOctile() { _acFilters.octile = null; acApplyAllFilters(); }
 
 // ---- Helpers (mirror public site) ----

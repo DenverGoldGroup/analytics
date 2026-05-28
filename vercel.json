@@ -6,16 +6,59 @@
       "maxDuration": 30
     }
   },
+  "crons": [
+    { "path": "/api/metals-cron", "schedule": "* * * * *" }
+  ],
+  "redirects": [
+    { "source": "/", "destination": "/dealbook", "has": [{ "type": "host", "value": "dealbook.miningforum.com" }], "permanent": false },
+    { "source": "/admin", "destination": "/dealbook", "has": [{ "type": "host", "value": "dealbook.miningforum.com" }], "permanent": false },
+    { "source": "/admin-deals", "destination": "/dealbook", "has": [{ "type": "host", "value": "dealbook.miningforum.com" }], "permanent": false },
+    { "source": "/admin-companies", "destination": "/dealbook", "has": [{ "type": "host", "value": "dealbook.miningforum.com" }], "permanent": false },
+    { "source": "/admin-psr", "destination": "/dealbook", "has": [{ "type": "host", "value": "dealbook.miningforum.com" }], "permanent": false },
+    { "source": "/admin-sessions", "destination": "/dealbook", "has": [{ "type": "host", "value": "dealbook.miningforum.com" }], "permanent": false },
+    { "source": "/admin-users", "destination": "/dealbook", "has": [{ "type": "host", "value": "dealbook.miningforum.com" }], "permanent": false },
+    { "source": "/activity-log", "destination": "/dealbook", "has": [{ "type": "host", "value": "dealbook.miningforum.com" }], "permanent": false },
+    { "source": "/agenda", "destination": "/dealbook", "has": [{ "type": "host", "value": "dealbook.miningforum.com" }], "permanent": false },
+    { "source": "/psr", "destination": "/dealbook", "has": [{ "type": "host", "value": "dealbook.miningforum.com" }], "permanent": false },
+    { "source": "/psr/:slug", "destination": "/dealbook", "has": [{ "type": "host", "value": "dealbook.miningforum.com" }], "permanent": false },
+    { "source": "/psr-login", "destination": "/dealbook", "has": [{ "type": "host", "value": "dealbook.miningforum.com" }], "permanent": false },
+    { "source": "/x-card", "destination": "/dealbook", "has": [{ "type": "host", "value": "dealbook.miningforum.com" }], "permanent": false },
+    { "source": "/index", "destination": "/dealbook", "has": [{ "type": "host", "value": "dealbook.miningforum.com" }], "permanent": false },
+    { "source": "/api/auth", "destination": "/dealbook", "has": [{ "type": "host", "value": "dealbook.miningforum.com" }], "permanent": false },
+    { "source": "/api/upload", "destination": "/dealbook", "has": [{ "type": "host", "value": "dealbook.miningforum.com" }], "permanent": false },
+    { "source": "/api/sessions", "destination": "/dealbook", "has": [{ "type": "host", "value": "dealbook.miningforum.com" }], "permanent": false },
+    { "source": "/api/psr", "destination": "/dealbook", "has": [{ "type": "host", "value": "dealbook.miningforum.com" }], "permanent": false },
+    { "source": "/api/psr-auth", "destination": "/dealbook", "has": [{ "type": "host", "value": "dealbook.miningforum.com" }], "permanent": false },
+    { "source": "/api/admin-users", "destination": "/dealbook", "has": [{ "type": "host", "value": "dealbook.miningforum.com" }], "permanent": false }
+  ],
   "rewrites": [
+    { "source": "/robots.txt", "destination": "/api/dealbook-robots", "has": [{ "type": "host", "value": "dealbook.miningforum.com" }] },
+    { "source": "/api/dealbook-auth", "destination": "/api/dealbook-auth", "has": [{ "type": "host", "value": "dealbook.miningforum.com" }] },
+    { "source": "/llms.txt", "destination": "/api/dealbook-llms", "has": [{ "type": "host", "value": "dealbook.miningforum.com" }] },
+    { "source": "/deals/:slug", "destination": "/dealbook-deal", "has": [{ "type": "host", "value": "dealbook.miningforum.com" }] },
+    { "source": "/dealbook-login", "destination": "/dealbook-login", "has": [{ "type": "host", "value": "dealbook.miningforum.com" }] },
     { "source": "/api/auth", "destination": "/api/auth" },
     { "source": "/api/upload", "destination": "/api/upload" },
     { "source": "/api/metals", "destination": "/api/metals" },
+    { "source": "/api/metals-cron", "destination": "/api/metals-cron" },
     { "source": "/api/sessions", "destination": "/api/sessions" },
     { "source": "/api/psr", "destination": "/api/psr" },
     { "source": "/api/psr-auth", "destination": "/api/psr-auth" },
+    { "source": "/api/admin-users", "destination": "/api/admin-users" },
+    { "source": "/api/deals", "destination": "/api/deals" },
+    { "source": "/api/dealbook-auth", "destination": "/api/dealbook-auth" },
+    { "source": "/api/dealbook-llms", "destination": "/api/dealbook-llms" },
+    { "source": "/api/dealbook-robots", "destination": "/api/dealbook-robots" },
     { "source": "/psr/:slug", "destination": "/psr" }
   ],
   "headers": [
+    {
+      "source": "/(.*)",
+      "has": [{ "type": "host", "value": "dealbook.miningforum.com" }],
+      "headers": [
+        { "key": "X-Robots-Tag", "value": "noindex, nofollow" }
+      ]
+    },
     {
       "source": "/(.*)",
       "headers": [
@@ -25,7 +68,7 @@
         { "key": "Permissions-Policy", "value": "camera=(), microphone=(), geolocation=(), payment=()" },
         { "key": "Cross-Origin-Opener-Policy", "value": "same-origin" },
         { "key": "Cross-Origin-Resource-Policy", "value": "same-origin" },
-        { "key": "Content-Security-Policy", "value": "default-src 'self'; script-src 'self' cdn.jsdelivr.net cdnjs.cloudflare.com cdn.sheetjs.com 'unsafe-inline'; style-src 'self' fonts.googleapis.com 'unsafe-inline'; font-src fonts.gstatic.com; img-src 'self' data: blob: https://analytics.miningforum.com; connect-src 'self' https://ljyogcspkvqgjbiyzfbn.supabase.co https://inhmwnaqgfjatrvfkkcu.supabase.co; frame-ancestors 'none'; base-uri 'self'; form-action 'self'" }
+        { "key": "Content-Security-Policy", "value": "default-src 'self'; script-src 'self' cdn.jsdelivr.net cdnjs.cloudflare.com cdn.sheetjs.com 'unsafe-inline'; style-src 'self' fonts.googleapis.com 'unsafe-inline'; font-src fonts.gstatic.com; img-src 'self' data: blob: https://analytics.miningforum.com https://dealbook.miningforum.com; connect-src 'self' https://ljyogcspkvqgjbiyzfbn.supabase.co https://inhmwnaqgfjatrvfkkcu.supabase.co; frame-ancestors 'none'; base-uri 'self'; form-action 'self'" }
       ]
     },
     {
