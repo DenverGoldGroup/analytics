@@ -589,7 +589,10 @@ module.exports = async function handler(req, res) {
           // Registration reconciliation
           sb.from('psr_reg_recon').select('*').eq('event_code', eventCode).order('sort_order'),
           // Member cancellations
-          sb.from('psr_cancellations').select('*').eq('event_code', eventCode).order('sort_order')
+          sb.from('psr_cancellations').select('*').eq('event_code', eventCode).order('sort_order'),
+          // Cached spot prices — provisional valuation for the current year until its
+          // event-day price is recorded in psr_market_data
+          sb.from('metal_prices').select('metal, price, updated_at').in('metal', ['gold', 'silver'])
         ]);
 
         // Build composition breakdown
@@ -633,7 +636,8 @@ module.exports = async function handler(req, res) {
           member_history: results[14].data || [],
           historical_actuals: histActuals,
           reg_recon: results[15].data || [],
-          cancellations: results[16].data || []
+          cancellations: results[16].data || [],
+          spot_prices: results[17].data || []
         });
       }
 

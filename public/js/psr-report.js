@@ -1320,6 +1320,28 @@
             });
           }
 
+          // Before the event-day price is recorded in market data, value the current year
+          // provisionally at the cached spot price (refreshed monthly). A recorded price wins.
+          var provisionalSpot = null;
+          if (reportData && reportData.spot_prices) {
+            reportData.spot_prices.forEach(function(s) {
+              var px = Number(s.price);
+              if (!(px > 0)) return;
+              if (s.metal === 'gold' && goldOzPer1m == null && goldMcapBn) {
+                goldOzPer1m = Math.round(goldMcapBn * 1000 / px * 100) / 100;
+                provisionalSpot = provisionalSpot || {};
+                provisionalSpot.gold = px;
+                provisionalSpot.asOf = s.updated_at;
+              }
+              if (s.metal === 'silver' && silverOzPer1m == null && silverMcapBn) {
+                silverOzPer1m = Math.round(silverMcapBn * 1000 / px * 100) / 100;
+                provisionalSpot = provisionalSpot || {};
+                provisionalSpot.silver = px;
+                provisionalSpot.asOf = provisionalSpot.asOf || s.updated_at;
+              }
+            });
+          }
+
           history = history.concat([{
             year: currentYear,
             pct_gold: mineralCounts.Gold / total,
@@ -1339,7 +1361,8 @@
             total_au_ag_mcap_bn: (goldMcapBn || 0) + (silverMcapBn || 0) || null,
             weighted_oz_per_1m_mcap: (goldMcapBn && silverMcapBn && goldOzPer1m != null && silverOzPer1m != null)
               ? Math.round((goldMcapBn * goldOzPer1m + silverMcapBn * silverOzPer1m) / ((goldMcapBn || 0) + (silverMcapBn || 0)) * 100) / 100
-              : null
+              : null,
+            provisional_spot: provisionalSpot
           }]);
           // Update reportData so initCharts uses the augmented array
           if (reportData) reportData.member_history = history;
@@ -1389,6 +1412,20 @@
     });
     html += '</tbody></table></details>';
 
+    // Note under the valuation charts when the current year was valued at provisional spot prices
+    var provRow = history.filter(function(r) { return r.provisional_spot; })[0];
+    function provisionalNote(metals) {
+      if (!provRow) return '';
+      var p = provRow.provisional_spot;
+      var parts = [];
+      if (metals.indexOf('gold') >= 0 && p.gold) parts.push('gold $' + Number(p.gold).toLocaleString('en-US', { maximumFractionDigits: 0 }));
+      if (metals.indexOf('silver') >= 0 && p.silver) parts.push('silver $' + Number(p.silver).toFixed(2));
+      if (!parts.length) return '';
+      return '<div style="font-size:10px;color:#999;margin-top:4px;font-style:italic">' + provRow.year +
+        ' is provisional: valued at spot ' + parts.join(' / ') + ' (as of ' + formatCxlDate(p.asOf) +
+        ') until the event-day price is recorded in Market Data.</div>';
+    }
+
     // --- Chart 3: Gold Issuer Valuations (dual-axis) ---
     // Filter to rows that have valuation data (2008+)
     var valRows = history.filter(function(r) { return r.gold_oz_per_1m_mcap != null; });
@@ -1396,6 +1433,7 @@
       html += '<h4 style="margin:24px 0 8px">Issuer Valuations — Primary Metal: Gold</h4>';
       html += '<div class="chart-row"><div class="chart-box chart-full">';
       html += '<canvas id="chart-gold-valuation"></canvas></div></div>';
+      html += provisionalNote(['gold']);
 
       // Collapsible table
       html += '<details style="margin:8px 0 0"><summary style="cursor:pointer;font-size:12px;color:#5D6D7E;user-select:none">Show data table</summary>';
@@ -1414,6 +1452,7 @@
       html += '<h4 style="margin:24px 0 8px">Issuer Valuations — Primary Metal: Silver</h4>';
       html += '<div class="chart-row"><div class="chart-box chart-full">';
       html += '<canvas id="chart-silver-valuation"></canvas></div></div>';
+      html += provisionalNote(['silver']);
 
       // Collapsible table
       html += '<details style="margin:8px 0 0"><summary style="cursor:pointer;font-size:12px;color:#5D6D7E;user-select:none">Show data table</summary>';
@@ -1432,6 +1471,7 @@
       html += '<h4 style="margin:24px 0 8px">Issuer Valuations — Au &amp; Ag Weighted Avg</h4>';
       html += '<div class="chart-row"><div class="chart-box chart-full">';
       html += '<canvas id="chart-weighted-valuation"></canvas></div></div>';
+      html += provisionalNote(['gold', 'silver']);
 
       // Collapsible table
       html += '<details style="margin:8px 0 0"><summary style="cursor:pointer;font-size:12px;color:#5D6D7E;user-select:none">Show data table</summary>';
@@ -3952,7 +3992,7 @@
               },
               {
                 label: 'Gold oz / $1M MCap',
-                data: valRows.map(function(r) { return Number(r.gold_oz_per_1m_mcap) || 0; }),
+                data: valRows.map(function(r) { return r.gold_oz_per_1m_mcap != null ? Number(r.gold_oz_per_1m_mcap) : null; }),
                 type: 'line',
                 borderColor: redColor,
                 backgroundColor: redColor + '20',
@@ -4011,7 +4051,7 @@
               },
               {
                 label: 'Silver oz / $1M MCap',
-                data: silValRows.map(function(r) { return Number(r.silver_oz_per_1m_mcap) || 0; }),
+                data: silValRows.map(function(r) { return r.silver_oz_per_1m_mcap != null ? Number(r.silver_oz_per_1m_mcap) : null; }),
                 type: 'line',
                 borderColor: redColor,
                 backgroundColor: redColor + '20',
@@ -4070,7 +4110,7 @@
               },
               {
                 label: 'Weighted Avg oz / $1M MCap',
-                data: wgtRows.map(function(r) { return Number(r.weighted_oz_per_1m_mcap) || 0; }),
+                data: wgtRows.map(function(r) { return r.weighted_oz_per_1m_mcap != null ? Number(r.weighted_oz_per_1m_mcap) : null; }),
                 type: 'line',
                 borderColor: '#2C3E50',
                 backgroundColor: '#2C3E50' + '20',
