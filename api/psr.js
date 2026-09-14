@@ -615,6 +615,23 @@ module.exports = async function handler(req, res) {
         // Fetch historical actuals from budget Supabase for recent years (per-event)
         var histActuals = await fetchHistoricalActuals(evType, [2022, 2023, 2024, 2025]);
 
+        // No reconciliation yet (e.g. before the event): send registrants so the client can
+        // build a provisional current-year bar for Registration Historical Data.
+        // Paged because Supabase caps each response at 1,000 rows.
+        var attendeesProvisional = [];
+        if (!(results[15].data || []).length) {
+          for (var attFrom = 0; ; attFrom += 1000) {
+            var { data: attPage, error: attErr } = await sb.from('attendees')
+              .select('type, category, invitation_status, attendance, created_at')
+              .eq('event_code', eventCode)
+              .order('id')
+              .range(attFrom, attFrom + 999);
+            if (attErr || !attPage || !attPage.length) break;
+            attendeesProvisional = attendeesProvisional.concat(attPage);
+            if (attPage.length < 1000) break;
+          }
+        }
+
         return res.status(200).json({
           ok: true,
           event: evt,
@@ -637,7 +654,8 @@ module.exports = async function handler(req, res) {
           historical_actuals: histActuals,
           reg_recon: results[15].data || [],
           cancellations: results[16].data || [],
-          spot_prices: results[17].data || []
+          spot_prices: results[17].data || [],
+          attendees_provisional: attendeesProvisional
         });
       }
 

@@ -2174,9 +2174,62 @@
         rows = rows.filter(function(r) { return r[0] !== yr; });
         rows.push([yr, buckets[0], buckets[1], buckets[2], buckets[3], buckets[4]]);
         rows.sort(function(a, b) { return a[0] - b[0]; });
+      } else {
+        var prov = buildProvisionalAttendance(reportData.attendees_provisional, reportData.event);
+        if (prov) {
+          rows = rows.filter(function(r) { return r[0] !== yr; });
+          rows.push([yr].concat(prov.buckets));
+          rows.sort(function(a, b) { return a[0] - b[0]; });
+        }
       }
     }
     return rows;
+  }
+
+  // Provisional current-year attendance from registrants, used until the reconciliation is loaded.
+  // Before the event starts: all registrants, projected to the start date with the standing
+  // attendees-view rule (Buy/Sell-Side x1.11 until the Friday before the start, then x1.035;
+  // Delegates x0.98; everyone else x1.0). Once the event has started and check-ins exist: only those
+  // marked Attended, unprojected.
+  var attProvisionalInfo = null;
+  function buildProvisionalAttendance(attendees, evt) {
+    attProvisionalInfo = null;
+    if (!attendees || !attendees.length || !evt || !evt.start_date) return null;
+    var start = new Date(evt.start_date + 'T00:00:00');
+    var today = new Date();
+    today.setHours(0, 0, 0, 0);
+    // Either field can carry the check-in, so test both (not `invitation_status || attendance`)
+    var isAttended = function(a) {
+      return String(a.invitation_status || '').toLowerCase() === 'attended' ||
+             String(a.attendance || '').toLowerCase() === 'attended';
+    };
+    // Keep projecting registrations until check-ins start arriving, even once the event has begun
+    var preEvent = today < start || !attendees.some(isAttended);
+
+    var friday = new Date(start.getTime());
+    do { friday.setDate(friday.getDate() - 1); } while (friday.getDay() !== 5);
+    var buySellMult = today < friday ? 1.11 : 1.035;
+
+    var buckets = [0, 0, 0, 0, 0];
+    var asOf = null;
+    attendees.forEach(function(a) {
+      if (!preEvent && !isAttended(a)) return;
+      var cat = a.category || '';
+      var recon = RECON_CAT_MAP[cat] || cat || 'Other';
+      var idx = RECON_TO_HIST[recon];
+      if (idx == null) idx = 4;
+      var factor = 1;
+      if (preEvent) {
+        if (a.type === 'Delegate') factor = 0.98;
+        else if (cat === 'Buy-Side' || cat === 'Sell-Side') factor = buySellMult;
+      }
+      buckets[idx] += factor;
+      if (a.created_at && (!asOf || a.created_at > asOf)) asOf = a.created_at;
+    });
+    buckets = buckets.map(function(v) { return Math.round(v); });
+    if (!(buckets[0] + buckets[1] + buckets[2] + buckets[3] + buckets[4])) return null;
+    attProvisionalInfo = { year: evt.year, projected: preEvent, buySellMult: buySellMult, asOf: asOf };
+    return { buckets: buckets };
   }
 
   var histAttChart = null;
@@ -2258,7 +2311,8 @@
                 var total = 0;
                 barItems.forEach(function(i) { total += i.raw; });
                 var yr = labels[items[0].dataIndex];
-                return 'Total: ' + fmt(total) + (VIRTUAL_YEARS[yr] ? '  (Virtual Only)' : '');
+                return 'Total: ' + fmt(total) + (VIRTUAL_YEARS[yr] ? '  (Virtual Only)' : '') +
+                  (attProvisionalInfo && attProvisionalInfo.year === Number(yr) ? '  (Provisional)' : '');
               }
             }
           }
@@ -2271,6 +2325,7 @@
               font: { size: 10 },
               callback: function(val, idx) {
                 var yr = labels[idx];
+                if (attProvisionalInfo && attProvisionalInfo.year === Number(yr)) return yr + ' †';
                 return VIRTUAL_YEARS[yr] ? yr + ' *' : yr;
               }
             }
@@ -2295,12 +2350,25 @@
     });
   }
 
+  function provisionalAttendanceNote() {
+    var p = attProvisionalInfo;
+    if (!p) return '';
+    var basis = p.projected
+      ? 'registrations as of ' + formatCxlDate(p.asOf) + ', projected to the event start (Buy-Side and Sell-Side &times;' + p.buySellMult +
+        ', Member Delegates &times;0.98)'
+      : 'attendees checked in so far';
+    return '<p style="font-size:11px;color:#888;margin:0 0 12px;font-style:italic">&dagger; ' + p.year +
+      ' is provisional: ' + basis + '. It will be replaced by the registration reconciliation once loaded.</p>';
+  }
+
   function renderRegHistory(evt) {
     var html = '';
+    var histAttData = buildAttendanceHistory();
 
     // Chart
     html += '<div style="height:360px;margin-bottom:4px"><canvas id="chart-hist-attendance"></canvas></div>';
-    html += '<p style="font-size:11px;color:#888;margin:0 0 12px;font-style:italic">* Virtual-only event (striped bars)</p>';
+    html += '<p style="font-size:11px;color:#888;margin:0 0 ' + (attProvisionalInfo ? '2px' : '12px') + ';font-style:italic">* Virtual-only event (striped bars)</p>';
+    html += provisionalAttendanceNote();
 
     // Collapsible data table
     html += '<div style="margin-top:12px">';
@@ -2314,13 +2382,13 @@
     html += '<th class="num" style="font-weight:700">Total</th>';
     html += '</tr></thead><tbody>';
 
-    var histAttData = buildAttendanceHistory();
     histAttData.forEach(function(r) {
       var total = r[1] + r[2] + r[3] + r[4] + r[5];
       var isVirtual = VIRTUAL_YEARS[r[0]];
-      var rowStyle = isVirtual ? ' style="background:#FFF8E1;font-style:italic"' : '';
+      var isProvisional = attProvisionalInfo && attProvisionalInfo.year === r[0];
+      var rowStyle = (isVirtual || isProvisional) ? ' style="background:#FFF8E1;font-style:italic"' : '';
       html += '<tr' + rowStyle + '>';
-      html += '<td>' + r[0] + (isVirtual ? ' *' : '') + '</td>';
+      html += '<td>' + r[0] + (isVirtual ? ' *' : '') + (isProvisional ? ' &dagger;' : '') + '</td>';
       for (var i = 1; i <= 5; i++) html += '<td class="num">' + fmt(r[i]) + '</td>';
       html += '<td class="num" style="font-weight:700">' + fmt(total) + '</td>';
       html += '</tr>';
