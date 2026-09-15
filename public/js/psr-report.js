@@ -5013,6 +5013,7 @@
     toggleHistTable: toggleHistTable,
     refreshRegRecon: refreshRegRecon,
     toggleRegHistTable: PSR.toggleRegHistTable,
+    setHistAttAxis: PSR.setHistAttAxis,
     toggleMtgHistTable: PSR.toggleMtgHistTable,
     sortTable: sortTable,
     setCoverPage: setCoverPage
