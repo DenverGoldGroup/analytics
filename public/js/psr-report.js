@@ -84,7 +84,29 @@
       return encodeURIComponent(k) + '=' + encodeURIComponent(params[k]);
     }).join('&');
     return fetch(API + '?' + qs, { headers: authHeaders() })
-      .then(function(r) { return r.json(); });
+      .then(function(r) {
+        // Expired session (admin tokens last 24h, PSR tokens 30 days): send the user back to sign in
+        // instead of leaving the page stuck on "Loading" / "No events found"
+        if (r.status === 401) {
+          redirectToLogin();
+          return { ok: false, error: 'Session expired — redirecting to sign in' };
+        }
+        return r.json();
+      });
+  }
+
+  function redirectToLogin() {
+    var slug = getSlugFromUrl();
+    var isAdminSession = !!sessionStorage.getItem('admin_token');
+    sessionStorage.removeItem('admin_token');
+    sessionStorage.removeItem('psr_token');
+    sessionStorage.removeItem('psr_user');
+    if (isAdminSession && window.location.pathname.indexOf('/psr') !== 0) {
+      window.location.href = '/admin';
+      return;
+    }
+    var redirect = slug ? '/psr/' + slug : '/psr/MFE26';
+    window.location.href = '/psr-login?redirect=' + encodeURIComponent(redirect);
   }
 
   // ── Number formatting ────────────────────────────────
