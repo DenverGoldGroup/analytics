@@ -10,6 +10,17 @@
 
   // Virtual-only event years (used across all historical charts/tables)
   var VIRTUAL_YEARS = { 2020: true, 2021: true, 2022: true };
+  // Hybrid years: hatched/dashed like the virtual years, but labelled "Hybrid" (‡) rather than
+  // "Virtual Only" (*). Both sets are swapped per event series in renderReport.
+  var HYBRID_YEARS = {};
+  function virtualMark(yr) { return HYBRID_YEARS[yr] ? ' ‡' : (VIRTUAL_YEARS[yr] ? ' *' : ''); }
+  function virtualTag(yr) { return HYBRID_YEARS[yr] ? '(Hybrid)' : (VIRTUAL_YEARS[yr] ? '(Virtual Only)' : ''); }
+  function virtualLegend(style) {
+    var s = style ? ' (' + style + ')' : '';
+    var out = '* Virtual-only event' + s;
+    if (Object.keys(HYBRID_YEARS).length) out += ' &nbsp;&middot;&nbsp; ‡ Hybrid event' + s;
+    return out;
+  }
 
   // ── CPI-U April values (BLS, 1982-84=100) ───────────
   var CPI = {
@@ -256,6 +267,7 @@
     // Virtual-only years (striped/dashed) differ by series: MFA (Americas) was virtual in 2020 and mostly
     // virtual in 2021 (a hybrid year), then in-person from 2022. MFE (Europe) ran virtual/hybrid 2020–2022.
     VIRTUAL_YEARS = (evt && evt.event_type === 'MFA') ? { 2020: true, 2021: true } : { 2020: true, 2021: true, 2022: true };
+    HYBRID_YEARS = (evt && evt.event_type === 'MFA') ? { 2021: true } : {};
     var html = '';
 
     // Report header
@@ -1796,7 +1808,7 @@
     html += '<div class="chart-box chart-full">';
     html += '<h4 style="font-size:14px;font-weight:700;text-transform:uppercase">Direct Operating Revenue &amp; Expenses' + (isReal ? ' <span style="font-size:11px;font-weight:400;text-transform:none;color:#999">' + baseYear + ' USD</span>' : '') + '</h4>';
     html += '<canvas id="chart-hist-financials"></canvas>';
-    html += '<p style="font-size:11px;color:#888;margin:4px 0 0;font-style:italic">* Virtual-only event (dashed lines)</p>';
+    html += '<p style="font-size:11px;color:#888;margin:4px 0 0;font-style:italic">' + virtualLegend('dashed lines') + '</p>';
     html += '</div></div>';
 
     // Collapsible data table
@@ -1822,7 +1834,7 @@
       html += '<tr' + rowStyle + '>';
       var yearLabel = String(year);
       if (isCurrent) yearLabel += ' **';
-      else if (isVirtual) yearLabel += ' *';
+      else if (isVirtual) yearLabel += virtualMark(year);
       html += '<td>' + yearLabel + '</td>';
       html += '<td class="num">' + fmtDollar(rev) + '</td>';
       html += '<td class="num">' + fmtDollar(exp) + '</td>';
@@ -1832,7 +1844,7 @@
 
     html += '</tbody></table>';
     html += '<div style="font-size:10px;color:#9E9E9E;margin-top:4px">';
-    html += '* Virtual-only event';
+    html += virtualLegend('');
     if (evt) html += ' &nbsp;&middot;&nbsp; ** ' + evt.year + ' computed from current financials';
     html += '</div>';
     html += '</div></div>';
@@ -2316,7 +2328,7 @@
                 var total = 0;
                 barItems.forEach(function(i) { total += i.raw; });
                 var yr = labels[items[0].dataIndex];
-                return 'Total: ' + fmt(total) + (VIRTUAL_YEARS[yr] ? '  (Virtual Only)' : '') +
+                return 'Total: ' + fmt(total) + (VIRTUAL_YEARS[yr] ? '  ' + virtualTag(yr) : '') +
                   (attProvisionalInfo && attProvisionalInfo.year === Number(yr) ? '  (Provisional)' : '');
               }
             }
@@ -2331,7 +2343,7 @@
               callback: function(val, idx) {
                 var yr = labels[idx];
                 if (attProvisionalInfo && attProvisionalInfo.year === Number(yr)) return yr + ' †';
-                return VIRTUAL_YEARS[yr] ? yr + ' *' : yr;
+                return yr + virtualMark(yr);
               }
             }
           },
@@ -2372,7 +2384,7 @@
 
     // Chart
     html += '<div style="height:360px;margin-bottom:4px"><canvas id="chart-hist-attendance"></canvas></div>';
-    html += '<p style="font-size:11px;color:#888;margin:0 0 ' + (attProvisionalInfo ? '2px' : '12px') + ';font-style:italic">* Virtual-only event (striped bars)</p>';
+    html += '<p style="font-size:11px;color:#888;margin:0 0 ' + (attProvisionalInfo ? '2px' : '12px') + ';font-style:italic">' + virtualLegend('striped bars') + '</p>';
     html += provisionalAttendanceNote();
 
     // Collapsible data table
@@ -2393,14 +2405,14 @@
       var isProvisional = attProvisionalInfo && attProvisionalInfo.year === r[0];
       var rowStyle = (isVirtual || isProvisional) ? ' style="background:#FFF8E1;font-style:italic"' : '';
       html += '<tr' + rowStyle + '>';
-      html += '<td>' + r[0] + (isVirtual ? ' *' : '') + (isProvisional ? ' &dagger;' : '') + '</td>';
+      html += '<td>' + r[0] + virtualMark(r[0]) + (isProvisional ? ' &dagger;' : '') + '</td>';
       for (var i = 1; i <= 5; i++) html += '<td class="num">' + fmt(r[i]) + '</td>';
       html += '<td class="num" style="font-weight:700">' + fmt(total) + '</td>';
       html += '</tr>';
     });
 
     html += '</tbody></table>';
-    html += '<p style="font-size:11px;color:#888;margin:6px 0 0;font-style:italic">* Virtual-only event</p>';
+    html += '<p style="font-size:11px;color:#888;margin:6px 0 0;font-style:italic">' + virtualLegend('') + '</p>';
     html += '</div></div>';
     return html;
   }
@@ -3545,7 +3557,7 @@
 
     // Chart
     html += '<div style="height:360px;margin-bottom:4px"><canvas id="chart-hist-meetings"></canvas></div>';
-    html += '<p style="font-size:11px;color:#888;margin:0 0 12px;font-style:italic">* Virtual-only event (striped bars)</p>';
+    html += '<p style="font-size:11px;color:#888;margin:0 0 12px;font-style:italic">' + virtualLegend('striped bars') + '</p>';
 
     // Collapsible data table (year descending)
     var tableRows = histData.slice().sort(function(a, b) { return b[0] - a[0]; });
@@ -3565,14 +3577,14 @@
       var isVirtual = VIRTUAL_YEARS[r[0]];
       var rowStyle = isVirtual ? ' style="background:#FFF8E1;font-style:italic"' : '';
       html += '<tr' + rowStyle + '>';
-      html += '<td>' + r[0] + (isVirtual ? ' *' : '') + '</td>';
+      html += '<td>' + r[0] + virtualMark(r[0]) + '</td>';
       for (var i = 1; i <= 4; i++) html += '<td class="num">' + fmt(r[i]) + '</td>';
       html += '<td class="num" style="font-weight:700">' + fmt(r[5]) + '</td>';
       html += '</tr>';
     });
 
     html += '</tbody></table>';
-    html += '<p style="font-size:11px;color:#888;margin:6px 0 0;font-style:italic">* Virtual-only event</p>';
+    html += '<p style="font-size:11px;color:#888;margin:6px 0 0;font-style:italic">' + virtualLegend('') + '</p>';
     html += '</div></div>';
     return html;
   }
@@ -4565,7 +4577,7 @@
               },
               footer: function(items) {
                 var yr = labels[items[0].dataIndex];
-                return VIRTUAL_YEARS[Number(yr)] ? '(Virtual Only)' : '';
+                return virtualTag(Number(yr));
               }
             }
           }
@@ -4578,7 +4590,7 @@
               minRotation: 0,
               callback: function(val, idx) {
                 var yr = Number(labels[idx]);
-                return VIRTUAL_YEARS[yr] ? labels[idx] + ' *' : labels[idx];
+                return labels[idx] + virtualMark(yr);
               }
             }
           },
