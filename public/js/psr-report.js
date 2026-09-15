@@ -285,10 +285,11 @@
       html += renderSection(sectionNum, 'Venue History', renderVenueHistory(d.venues, evt));
     }
 
-    // 3. SWOT
-    if (d.swot && d.swot.length) {
+    // 3. SWOT — admins always get the section so a new event's SWOT can be started;
+    // viewers only see it once it has items
+    if ((d.swot && d.swot.length) || isAdmin()) {
       sectionNum++;
-      html += renderSection(sectionNum, 'SWOT Analysis', renderSWOT(d.swot));
+      html += renderSection(sectionNum, 'SWOT Analysis', renderSWOT(d.swot || []));
     }
 
     // 4. Market Context
@@ -526,7 +527,11 @@
       { key: 'threat', label: 'Threats', cls: 'swot-threats' }
     ];
 
-    var html = '<div class="swot-grid">';
+    var html = '';
+    if (!items.length && isAdmin()) {
+      html += '<p style="font-size:12px;color:#888;font-style:italic;margin:0 0 10px">No SWOT items yet. Use <strong>+ Add</strong> in each quadrant; items save as you edit them.</p>';
+    }
+    html += '<div class="swot-grid">';
     cards.forEach(function(card) {
       html += '<div class="swot-card ' + card.cls + '">';
       html += '<h4>' + card.label + '</h4>';
