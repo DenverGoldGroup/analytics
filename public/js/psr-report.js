@@ -15,6 +15,16 @@
   var HYBRID_YEARS = {};
   function virtualMark(yr) { return HYBRID_YEARS[yr] ? ' ‡' : (VIRTUAL_YEARS[yr] ? ' *' : ''); }
   function virtualTag(yr) { return HYBRID_YEARS[yr] ? '(Hybrid)' : (VIRTUAL_YEARS[yr] ? '(Virtual Only)' : ''); }
+  // Issuer valuation ratio. Stored (psr_member_history *_oz_per_1m_mcap and the live current-year
+  // calc) as member mcap ($bn) x 1000 / metal price; displayed x100 as troy oz per $100M market cap.
+  var VAL_RATIO_SCALE = 100;
+  var VAL_RATIO_UNIT = 'troy oz / $100M MCap';
+  function valRatio(v) { return v != null ? Number(v) * VAL_RATIO_SCALE : null; }
+  function fmtValRatio(v) {
+    var x = valRatio(v);
+    return x == null ? '—' : Math.round(x).toLocaleString('en-US');
+  }
+
   function virtualLegend(style) {
     var s = style ? ' (' + style + ')' : '';
     var out = '* Virtual-only event' + s;
@@ -1322,7 +1332,7 @@
           var goldMcapBn = goldMcapSum > 0 ? Math.round(goldMcapSum / 1e9 * 10) / 10 : null;
           var silverMcapBn = silverMcapSum > 0 ? Math.round(silverMcapSum / 1e9 * 10) / 10 : null;
 
-          // Compute oz per $1M mcap = member_mcap_bn * 1000 / metal_price
+          // Valuation ratio in stored units = member_mcap_bn * 1000 / metal_price (displayed via valRatio)
           var goldOzPer1m = null, silverOzPer1m = null;
           if (reportData && reportData.market_data) {
             reportData.market_data.forEach(function(r) {
@@ -1454,10 +1464,10 @@
 
       // Collapsible table
       html += '<details style="margin:8px 0 0"><summary style="cursor:pointer;font-size:12px;color:#5D6D7E;user-select:none">Show data table</summary>';
-      html += '<table class="psr-table" style="margin-top:8px"><thead><tr><th>Year</th><th class="num">Gold oz / $1M MCap</th><th class="num">Gold Member MCap ($B)</th></tr></thead><tbody>';
+      html += '<table class="psr-table" style="margin-top:8px"><thead><tr><th>Year</th><th class="num">Gold ' + VAL_RATIO_UNIT + '</th><th class="num">Gold Member MCap ($B)</th></tr></thead><tbody>';
       valRows.forEach(function(r) {
         html += '<tr><td>' + r.year + '</td>';
-        html += '<td class="num">' + fmtNum(r.gold_oz_per_1m_mcap, 1) + '</td>';
+        html += '<td class="num">' + fmtValRatio(r.gold_oz_per_1m_mcap) + '</td>';
         html += '<td class="num">' + fmtNum(r.gold_member_mcap_bn, 1) + '</td></tr>';
       });
       html += '</tbody></table></details>';
@@ -1473,10 +1483,10 @@
 
       // Collapsible table
       html += '<details style="margin:8px 0 0"><summary style="cursor:pointer;font-size:12px;color:#5D6D7E;user-select:none">Show data table</summary>';
-      html += '<table class="psr-table" style="margin-top:8px"><thead><tr><th>Year</th><th class="num">Silver oz / $1M MCap</th><th class="num">Silver Member MCap ($B)</th></tr></thead><tbody>';
+      html += '<table class="psr-table" style="margin-top:8px"><thead><tr><th>Year</th><th class="num">Silver ' + VAL_RATIO_UNIT + '</th><th class="num">Silver Member MCap ($B)</th></tr></thead><tbody>';
       silValRows.forEach(function(r) {
         html += '<tr><td>' + r.year + '</td>';
-        html += '<td class="num">' + fmtNum(r.silver_oz_per_1m_mcap, 1) + '</td>';
+        html += '<td class="num">' + fmtValRatio(r.silver_oz_per_1m_mcap) + '</td>';
         html += '<td class="num">' + fmtNum(r.silver_member_mcap_bn, 1) + '</td></tr>';
       });
       html += '</tbody></table></details>';
@@ -1492,10 +1502,10 @@
 
       // Collapsible table
       html += '<details style="margin:8px 0 0"><summary style="cursor:pointer;font-size:12px;color:#5D6D7E;user-select:none">Show data table</summary>';
-      html += '<table class="psr-table" style="margin-top:8px"><thead><tr><th>Year</th><th class="num">Weighted Avg oz / $1M MCap</th><th class="num">Total Au + Ag MCap ($B)</th></tr></thead><tbody>';
+      html += '<table class="psr-table" style="margin-top:8px"><thead><tr><th>Year</th><th class="num">Weighted Avg ' + VAL_RATIO_UNIT + '</th><th class="num">Total Au + Ag MCap ($B)</th></tr></thead><tbody>';
       wgtRows.forEach(function(r) {
         html += '<tr><td>' + r.year + '</td>';
-        html += '<td class="num">' + fmtNum(r.weighted_oz_per_1m_mcap, 1) + '</td>';
+        html += '<td class="num">' + fmtValRatio(r.weighted_oz_per_1m_mcap) + '</td>';
         html += '<td class="num">' + fmtNum(r.total_au_ag_mcap_bn, 1) + '</td></tr>';
       });
       html += '</tbody></table></details>';
@@ -2277,11 +2287,11 @@
       };
     });
 
-    // Overlay: Au & Ag Weighted Avg oz / $1M MCap from member_history
+    // Overlay: Au & Ag weighted average valuation ratio from member_history
     var wgtMap = {};
     if (reportData && reportData.member_history) {
       reportData.member_history.forEach(function(r) {
-        if (r.weighted_oz_per_1m_mcap != null) wgtMap[r.year] = Number(r.weighted_oz_per_1m_mcap);
+        if (r.weighted_oz_per_1m_mcap != null) wgtMap[r.year] = valRatio(r.weighted_oz_per_1m_mcap);
       });
     }
     var wgtData = labels.map(function(yr) { return wgtMap[yr] != null ? wgtMap[yr] : null; });
@@ -2289,7 +2299,7 @@
 
     if (hasWgt) {
       datasets.push({
-        label: 'Au & Ag Wtd Avg oz / $1M MCap',
+        label: 'Au & Ag Wtd Avg ' + VAL_RATIO_UNIT,
         data: wgtData,
         type: 'line',
         borderColor: '#2C3E50',
@@ -2319,7 +2329,7 @@
             callbacks: {
               label: function(ctx) {
                 if (ctx.dataset.yAxisID === 'y1') {
-                  return ctx.dataset.label + ': ' + (ctx.raw != null ? ctx.raw.toFixed(0) + ' oz' : '—');
+                  return ctx.dataset.label + ': ' + (ctx.raw != null ? Math.round(ctx.raw).toLocaleString('en-US') + ' troy oz' : '—');
                 }
                 return ctx.dataset.label + ': ' + fmt(ctx.raw);
               },
@@ -2357,7 +2367,7 @@
           y1: hasWgt ? {
             type: 'linear',
             position: 'right',
-            title: { display: true, text: 'oz / $1M MCap', font: { size: 10 } },
+            title: { display: true, text: VAL_RATIO_UNIT, font: { size: 10 } },
             ticks: { font: { size: 10 } },
             grid: { drawOnChartArea: false },
             beginAtZero: true
@@ -4076,8 +4086,8 @@
                 order: 2
               },
               {
-                label: 'Gold oz / $1M MCap',
-                data: valRows.map(function(r) { return r.gold_oz_per_1m_mcap != null ? Number(r.gold_oz_per_1m_mcap) : null; }),
+                label: 'Gold ' + VAL_RATIO_UNIT,
+                data: valRows.map(function(r) { return valRatio(r.gold_oz_per_1m_mcap); }),
                 type: 'line',
                 borderColor: redColor,
                 backgroundColor: redColor + '20',
@@ -4105,7 +4115,7 @@
               y1: {
                 type: 'linear',
                 position: 'right',
-                title: { display: true, text: 'Gold oz / $1M MCap', font: { family: 'Inter', size: 10 } },
+                title: { display: true, text: 'Gold ' + VAL_RATIO_UNIT, font: { family: 'Inter', size: 10 } },
                 ticks: { font: { family: 'Inter', size: 10 } },
                 grid: { drawOnChartArea: false },
                 beginAtZero: true
@@ -4135,8 +4145,8 @@
                 order: 2
               },
               {
-                label: 'Silver oz / $1M MCap',
-                data: silValRows.map(function(r) { return r.silver_oz_per_1m_mcap != null ? Number(r.silver_oz_per_1m_mcap) : null; }),
+                label: 'Silver ' + VAL_RATIO_UNIT,
+                data: silValRows.map(function(r) { return valRatio(r.silver_oz_per_1m_mcap); }),
                 type: 'line',
                 borderColor: redColor,
                 backgroundColor: redColor + '20',
@@ -4164,7 +4174,7 @@
               y1: {
                 type: 'linear',
                 position: 'right',
-                title: { display: true, text: 'Silver oz / $1M MCap', font: { family: 'Inter', size: 10 } },
+                title: { display: true, text: 'Silver ' + VAL_RATIO_UNIT, font: { family: 'Inter', size: 10 } },
                 ticks: { font: { family: 'Inter', size: 10 } },
                 grid: { drawOnChartArea: false },
                 beginAtZero: true
@@ -4194,8 +4204,8 @@
                 order: 2
               },
               {
-                label: 'Weighted Avg oz / $1M MCap',
-                data: wgtRows.map(function(r) { return r.weighted_oz_per_1m_mcap != null ? Number(r.weighted_oz_per_1m_mcap) : null; }),
+                label: 'Weighted Avg ' + VAL_RATIO_UNIT,
+                data: wgtRows.map(function(r) { return valRatio(r.weighted_oz_per_1m_mcap); }),
                 type: 'line',
                 borderColor: '#2C3E50',
                 backgroundColor: '#2C3E50' + '20',
@@ -4225,7 +4235,7 @@
               y1: {
                 type: 'linear',
                 position: 'right',
-                title: { display: true, text: 'oz / $1M MCap', font: { family: 'Inter', size: 10 } },
+                title: { display: true, text: VAL_RATIO_UNIT, font: { family: 'Inter', size: 10 } },
                 ticks: { font: { family: 'Inter', size: 10 } },
                 grid: { drawOnChartArea: false },
                 beginAtZero: true
