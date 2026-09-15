@@ -253,9 +253,9 @@
   // ── Main render ──────────────────────────────────────
   function renderReport(d) {
     var evt = d.event;
-    // Virtual-only years (striped bars) differ by series: MFA (Americas) was in-person from 2022 on —
-    // only 2020 was virtual-only (2021 was hybrid). MFE (Europe) ran virtual/hybrid 2020–2022.
-    VIRTUAL_YEARS = (evt && evt.event_type === 'MFA') ? { 2020: true } : { 2020: true, 2021: true, 2022: true };
+    // Virtual-only years (striped/dashed) differ by series: MFA (Americas) was virtual in 2020 and mostly
+    // virtual in 2021 (a hybrid year), then in-person from 2022. MFE (Europe) ran virtual/hybrid 2020–2022.
+    VIRTUAL_YEARS = (evt && evt.event_type === 'MFA') ? { 2020: true, 2021: true } : { 2020: true, 2021: true, 2022: true };
     var html = '';
 
     // Report header
