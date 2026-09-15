@@ -16,13 +16,14 @@
   function virtualMark(yr) { return HYBRID_YEARS[yr] ? ' ‡' : (VIRTUAL_YEARS[yr] ? ' *' : ''); }
   function virtualTag(yr) { return HYBRID_YEARS[yr] ? '(Hybrid)' : (VIRTUAL_YEARS[yr] ? '(Virtual Only)' : ''); }
   // Issuer valuation ratio. Stored (psr_member_history *_oz_per_1m_mcap and the live current-year
-  // calc) as member mcap ($bn) x 1000 / metal price; displayed x100 as troy oz per $100M market cap.
-  var VAL_RATIO_SCALE = 100;
-  var VAL_RATIO_UNIT = 'troy oz / $100M MCap';
+  // calc) as member mcap ($bn) x 1000 / metal price and shown as troy oz per $1M market cap.
+  // The scale lives here so every chart and table stays consistent.
+  var VAL_RATIO_SCALE = 1;
+  var VAL_RATIO_UNIT = 'troy oz / $1M MCap';
   function valRatio(v) { return v != null ? Number(v) * VAL_RATIO_SCALE : null; }
   function fmtValRatio(v) {
     var x = valRatio(v);
-    return x == null ? '—' : Math.round(x).toLocaleString('en-US');
+    return x == null ? '—' : x.toLocaleString('en-US', { minimumFractionDigits: 1, maximumFractionDigits: 1 });
   }
 
   function virtualLegend(style) {
