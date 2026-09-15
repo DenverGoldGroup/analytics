@@ -42,6 +42,31 @@ var EVENT_EXPENSE_CODES = [
 ];
 var OTHER_EVENT_EXPENSE_CODES = ['5910', '5040'];
 
+// Expense GL codes → labels (budget app chart of accounts)
+var EXPENSE_ACCOUNTS = {
+  '4004130': 'Event Transaction Fees',
+  '4006000': 'Registration & Reservation Mgmt',
+  '4006001': 'Advertising & Promotion',
+  '4006002': 'Materials & Signage',
+  '4006003': 'Contingency',
+  '4006004': 'Temporary Staffing',
+  '4006005': 'Independent Contractors',
+  '4006006': 'Speaker & Moderator Expenses',
+  '4006008': 'Site Services',
+  '4006009': 'Event Materials',
+  '4006010': 'Design, Production & Printing',
+  '4006011': 'Venue & Facility Rentals',
+  '4006012': 'Staff Event T&E',
+  '4006013': 'Sub-Events',
+  '4006014': 'Event Food & Beverage',
+  '4006016': 'Audio Visual & Webcasting',
+  '4006017': 'Meeting Rooms & Structures',
+  '4006020': 'Event Travel & Lodging',
+  '4006022': 'Event Insurance',
+  '5040': 'Postage & Delivery',
+  '5910': 'Board T&E'
+};
+
 /**
  * Compute budget revenue from assumptions (replicates budget app logic).
  * Returns map of GL code → budget dollar amount.
@@ -99,7 +124,7 @@ function computeBudgetRevenue(event, assumptions) {
  * Revenue budget is computed from assumptions (matches budget dashboard).
  * Expense budget is summed from budget_detail aggregation (budget_lines).
  */
-function buildFinancialsFromBudget(cc, assumptions, budgetLines, actuals, priorActuals) {
+function buildFinancialsFromBudget(cc, assumptions, budgetLines, actuals, priorActuals, prepaidLines) {
   function glVal(lines, gl) {
     var row = lines.find(function(r) { return r.gl_code === gl; });
     return row ? Number(row[cc]) || 0 : 0;
@@ -129,25 +154,32 @@ function buildFinancialsFromBudget(cc, assumptions, budgetLines, actuals, priorA
     }
   });
 
-  // Expense total — event-direct GL codes from budget_lines + actuals
-  var expBudget = 0, expActual = 0, expPrior = 0;
+  // Expense items, one per event-direct GL (matches the budget app's Budget vs Actual):
+  // actual = recognized P&L actuals + committed prepaid spend (QBO 1800 Prepaid Expenses),
+  // unless the manual entry is flagged prepaid_mode 'replace' (it already covers the prepaid).
+  var expSort = 1;
   EVENT_EXPENSE_CODES.concat(OTHER_EVENT_EXPENSE_CODES).forEach(function(gl) {
-    expBudget += glVal(budgetLines, gl);
-    expActual += glVal(actuals, gl);
-    expPrior += glVal(priorActuals, gl);
+    var budget = glVal(budgetLines, gl);
+    var recognized = glVal(actuals, gl);
+    var prior = glVal(priorActuals, gl);
+    var prepaid = Math.round(glVal(prepaidLines || [], gl));
+    var actualRow = actuals.find(function(r) { return r.gl_code === gl; });
+    var replace = actualRow && actualRow.prepaid_mode === 'replace' && recognized !== 0;
+    var prepaidCounted = replace ? 0 : prepaid;
+    var actual = recognized + prepaidCounted;
+    if (budget !== 0 || actual !== 0 || prior !== 0 || prepaid !== 0) {
+      items.push({
+        category: 'expense',
+        line_item: EXPENSE_ACCOUNTS[gl] || gl,
+        gl_code: gl,
+        actual_amount: String(-Math.round(Math.abs(actual))),
+        budget_amount: String(-Math.round(Math.abs(budget))),
+        prior_year_amount: String(-Math.round(Math.abs(prior))),
+        prepaid_amount: String(Math.round(Math.abs(prepaidCounted))),
+        sort_order: expSort++
+      });
+    }
   });
-
-  if (expBudget !== 0 || expActual !== 0 || expPrior !== 0) {
-    items.push({
-      category: 'expense',
-      line_item: 'Event direct expenses',
-      gl_code: null,
-      actual_amount: String(-Math.round(Math.abs(expActual))),
-      budget_amount: String(-Math.round(Math.abs(expBudget))),
-      prior_year_amount: String(-Math.round(Math.abs(expPrior))),
-      sort_order: 1
-    });
-  }
 
   return items;
 }
@@ -218,20 +250,29 @@ async function fetchBudgetFinancials(eventType, year) {
     var results = await Promise.all([
       bsb.from('budget_assumptions').select('data').eq('year', year).single(),
       bsb.from('budget_lines').select('gl_code, mfe, mfa, ga').eq('year', year),
-      bsb.from('actuals_lines').select('gl_code, mfe, mfa, ga').eq('year', year),
-      bsb.from('actuals_lines').select('gl_code, mfe, mfa, ga').eq('year', year - 1)
+      bsb.from('actuals_lines').select('gl_code, mfe, mfa, ga, prepaid_mode').eq('year', year),
+      bsb.from('actuals_lines').select('gl_code, mfe, mfa, ga').eq('year', year - 1),
+      // Committed prepaid spend, uploaded at the budget app's Data Hub
+      bsb.from('qbo_uploads').select('metadata').eq('year', year).eq('file_type', 'prepaid_expenses')
+        .eq('status', 'active').order('uploaded_at', { ascending: false }).limit(1)
     ]);
 
     var assumptions = results[0].data ? results[0].data.data : null;
     var budgetLines = results[1].data || [];
     var actuals = results[2].data || [];
     var priorActuals = results[3].data || [];
+    var prepaidMeta = results[4].data && results[4].data[0] ? results[4].data[0].metadata : null;
+    // Prepaid lines use camelCase glCode; normalise to the gl_code shape glVal expects
+    var prepaidLines = prepaidMeta && Array.isArray(prepaidMeta.lines)
+      ? prepaidMeta.lines.map(function(l) { return { gl_code: l.glCode, mfe: l.mfe, mfa: l.mfa, ga: l.ga }; })
+      : [];
 
     // Need assumptions to compute revenue budget
     if (!assumptions) return null;
 
     return {
-      financials: buildFinancialsFromBudget(cc, assumptions, budgetLines, actuals, priorActuals),
+      financials: buildFinancialsFromBudget(cc, assumptions, budgetLines, actuals, priorActuals, prepaidLines),
+      prepaid_as_of: prepaidMeta ? prepaidMeta.asOf || null : null,
       source: 'budget',
       budget_year: year,
       actuals_count: actuals.length,
@@ -606,10 +647,12 @@ module.exports = async function handler(req, res) {
         // Fetch live financials from budget system (non-blocking fallback to psr_financials)
         var financials = results[4].data || [];
         var financialsSource = 'manual';
+        var prepaidAsOf = null;
         var budgetResult = await fetchBudgetFinancials(evType, evt.year);
         if (budgetResult && budgetResult.financials && budgetResult.financials.length > 0) {
           financials = budgetResult.financials;
           financialsSource = 'budget';
+          prepaidAsOf = budgetResult.prepaid_as_of;
         }
 
         // Fetch historical actuals from budget Supabase for recent years (per-event)
@@ -641,6 +684,7 @@ module.exports = async function handler(req, res) {
           market_data: results[3].data || [],
           financials: financials,
           financials_source: financialsSource,
+          prepaid_as_of: prepaidAsOf,
           attendance: results[5].data || [],
           members: results[6].data || [],
           sponsors: results[7].data || [],

@@ -372,7 +372,7 @@
     // 8. Financials
     if (d.financials && d.financials.length) {
       sectionNum++;
-      html += renderSection(sectionNum, 'Financial Summary', renderFinancials(d.financials, evt, d.financials_source));
+      html += renderSection(sectionNum, 'Financial Summary', renderFinancials(d.financials, evt, d.financials_source, d.prepaid_as_of));
     }
 
     // 9. Historical Financials
@@ -1548,7 +1548,7 @@
   }
 
   // ── 8. Financials ────────────────────────────────────
-  function renderFinancials(rows, evt, source) {
+  function renderFinancials(rows, evt, source, prepaidAsOf) {
     var revenue = rows.filter(function(r) { return r.category === 'revenue'; });
     var expenses = rows.filter(function(r) { return r.category === 'expense'; });
     var isBudget = source === 'budget';
@@ -1578,6 +1578,7 @@
       html += '<div style="margin-bottom:10px;font-size:11px;color:#6B7280">';
       html += '<span style="display:inline-block;background:#E8F5E9;color:#2E7D32;padding:2px 8px;border-radius:10px;font-weight:600;font-size:10px;vertical-align:middle">LIVE</span> ';
       html += 'Synced from <a href="https://budget.denvergold.org" target="_blank" style="color:#1A73E8;text-decoration:none">budget.denvergold.org</a>';
+      if (prepaidAsOf) html += ' &middot; Expense actuals include committed prepaid spend as of ' + esc(prepaidAsOf);
       html += '</div>';
     }
 
@@ -1629,26 +1630,42 @@
       // Expenses section
       if (expenses.length) {
         html += '<tr style="background:#F5F5F5;font-weight:700"><td colspan="9">Expenses</td></tr>';
-        var totExpPrior = 0, totExpBudget = 0, totExpActual = 0;
+        var totExpPrior = 0, totExpBudget = 0, totExpActual = 0, totExpPrepaid = 0;
         expenses.forEach(function(r) {
           var prior = Math.abs(Number(r.prior_year_amount)) || 0;
           var budget = Math.abs(Number(r.budget_amount)) || 0;
           var actual = Math.abs(Number(r.actual_amount)) || 0;
+          var prepaid = Math.abs(Number(r.prepaid_amount)) || 0;
           totExpPrior += prior;
           totExpBudget += budget;
           totExpActual += actual;
+          totExpPrepaid += prepaid;
+          // Spending over budget is unfavourable, so the variance colours are flipped for expenses
           html += '<tr>';
           html += '<td style="color:#9E9E9E;font-size:11px">' + esc(r.gl_code || '') + '</td>';
           html += '<td>' + esc(r.line_item) + '</td>';
           html += '<td class="num">' + (prior ? fmtDollar(prior) : '&mdash;') + '</td>';
           html += '<td class="num">' + (budget ? fmtDollar(budget) : '&mdash;') + '</td>';
-          html += '<td class="num" style="background:#FFFDE7;font-weight:600">' + (actual ? fmtDollar(actual) : '&mdash;') + '</td>';
-          html += '<td class="num" style="font-size:11px">' + varDollar(actual, prior) + '</td>';
-          html += '<td class="num" style="font-size:11px">' + varRatio(actual, prior) + '</td>';
-          html += '<td class="num" style="font-size:11px">' + varDollar(actual, budget) + '</td>';
-          html += '<td class="num" style="font-size:11px">' + varRatio(actual, budget) + '</td>';
+          html += '<td class="num" style="background:#FFFDE7;font-weight:600">' + (actual ? fmtDollar(actual) : '&mdash;') +
+            (prepaid ? '<div style="font-size:9px;font-weight:400;color:#8D6E63" title="Committed prepaid spend (QBO 1800 Prepaid Expenses), not yet recognized in the P&amp;L">incl. ' + fmtDollar(prepaid) + ' prepaid</div>' : '') + '</td>';
+          html += '<td class="num" style="font-size:11px">' + varDollar(-actual, -prior) + '</td>';
+          html += '<td class="num" style="font-size:11px">' + varRatio(-actual, -prior) + '</td>';
+          html += '<td class="num" style="font-size:11px">' + varDollar(-actual, -budget) + '</td>';
+          html += '<td class="num" style="font-size:11px">' + varRatio(-actual, -budget) + '</td>';
           html += '</tr>';
         });
+        // Total Expenses
+        html += '<tr style="font-weight:700;background:#F8F9FB;border-top:2px solid #E0E0E0">';
+        html += '<td></td><td>Total Expenses</td>';
+        html += '<td class="num">' + fmtDollar(totExpPrior) + '</td>';
+        html += '<td class="num">' + fmtDollar(totExpBudget) + '</td>';
+        html += '<td class="num" style="background:#FFFDE7">' + fmtDollar(totExpActual) +
+          (totExpPrepaid ? '<div style="font-size:9px;font-weight:400;color:#8D6E63">incl. ' + fmtDollar(totExpPrepaid) + ' prepaid</div>' : '') + '</td>';
+        html += '<td class="num" style="font-size:11px">' + varDollar(-totExpActual, -totExpPrior) + '</td>';
+        html += '<td class="num" style="font-size:11px">' + varRatio(-totExpActual, -totExpPrior) + '</td>';
+        html += '<td class="num" style="font-size:11px">' + varDollar(-totExpActual, -totExpBudget) + '</td>';
+        html += '<td class="num" style="font-size:11px">' + varRatio(-totExpActual, -totExpBudget) + '</td>';
+        html += '</tr>';
       }
 
       // Net result
@@ -1787,11 +1804,19 @@
     // Override with live actuals from budget Supabase
     if (histActuals && histActuals.length) {
       histActuals.forEach(function(ha) {
+        var existing = rows.filter(function(r) { return r[0] === ha.year; })[0];
         rows = rows.filter(function(r) { return r[0] !== ha.year; });
         // expenses come as negative in our convention
         var exp = Number(ha.expenses) || 0;
         if (exp > 0) exp = -exp; // ensure negative
-        rows.push([ha.year, Number(ha.revenue) || 0, exp]);
+        var rev = Number(ha.revenue) || 0;
+        // A year the budget system only partly covers (e.g. expenses but no revenue) keeps the
+        // stored figure for the missing side rather than dropping to zero
+        if (existing) {
+          if (!rev) rev = existing[1];
+          if (!exp) exp = existing[2];
+        }
+        rows.push([ha.year, rev, exp]);
       });
     }
 
