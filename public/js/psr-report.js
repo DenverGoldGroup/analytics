@@ -41,7 +41,7 @@
     2011: 224.906, 2012: 230.085, 2013: 232.531, 2014: 237.072,
     2015: 236.599, 2016: 239.261, 2017: 244.524, 2018: 250.546,
     2019: 255.548, 2020: 256.389, 2021: 267.054, 2022: 289.109,
-    2023: 303.363, 2024: 313.548, 2025: 320.795
+    2023: 303.363, 2024: 313.548, 2025: 320.795, 2026: 333.020
   };
   var inflationMode = 'nominal'; // 'nominal' or 'real'
   var baseYear = 2025;
@@ -2259,6 +2259,68 @@
     return { buckets: buckets };
   }
 
+  // Precious metals prices behind the member-weighted price index on the Registration Historical Data
+  // chart: September average LBMA afternoon (PM) gold fix and silver fix, USD/oz, per MFA year.
+  // Source: 321gold London Fix archive (matches LBMA's published monthly averages, e.g. Sep 2011 PM
+  // gold 1,771.85). 2026 is month-to-date (Sep 1-14, 2026). Series without prices get no toggle.
+  var HIST_PRECIOUS_PRICES = {
+    MFA: {
+      2008: [829.93, 12.373],
+      2009: [996.59, 16.390],
+      2010: [1270.98, 20.550],
+      2011: [1771.85, 38.155],
+      2012: [1744.45, 33.608],
+      2013: [1348.80, 22.564],
+      2014: [1238.82, 18.491],
+      2015: [1124.53, 14.702],
+      2016: [1326.03, 19.285],
+      2017: [1314.98, 17.449],
+      2018: [1198.47, 14.263],
+      2019: [1511.31, 18.170],
+      2020: [1922.21, 25.886],
+      2021: [1777.25, 23.307],
+      2022: [1682.97, 18.836],
+      2023: [1916.96, 23.239],
+      2024: [2567.12, 30.009],
+      2025: [3665.20, 42.540],
+      2026: [4385.33, 65.104]
+    }
+  };
+  var PRICE_INDEX_BASE_YEAR = 2020;
+
+  // Right-axis mode for Registration Historical Data: 'ratio' | 'index-nominal' | 'index-real'
+  var histAttRightAxis = 'ratio';
+
+  function histPricesForEvent() {
+    var t = (reportData && reportData.event && reportData.event.event_type) || '';
+    return HIST_PRECIOUS_PRICES[t] || null;
+  }
+
+  // Member primary mineral weighted precious metals price index (base year = 100).
+  // Each year: 100 x (wGold x Pgold/Pgold_base + wSilver x Psilver/Psilver_base), weights = that year's
+  // gold vs silver member market cap share. Real mode first deflates each price to base-year dollars
+  // with the CPI table. Returns { year: index } for years with both prices and weights.
+  function buildPreciousPriceIndex(real) {
+    var prices = histPricesForEvent();
+    var out = {};
+    if (!prices || !prices[PRICE_INDEX_BASE_YEAR] || !reportData || !reportData.member_history) return out;
+    var base = prices[PRICE_INDEX_BASE_YEAR];
+    reportData.member_history.forEach(function(r) {
+      var p = prices[r.year];
+      var g = Number(r.gold_member_mcap_bn) || 0;
+      var s = Number(r.silver_member_mcap_bn) || 0;
+      if (!p || !(g + s > 0)) return;
+      var deflate = 1;
+      if (real) {
+        if (!CPI[r.year] || !CPI[PRICE_INDEX_BASE_YEAR]) return;
+        deflate = CPI[PRICE_INDEX_BASE_YEAR] / CPI[r.year];
+      }
+      var wg = g / (g + s), ws = s / (g + s);
+      out[r.year] = Math.round(100 * (wg * p[0] * deflate / base[0] + ws * p[1] * deflate / base[1]) * 10) / 10;
+    });
+    return out;
+  }
+
   var histAttChart = null;
   function initHistAttChart() {
     var canvas = document.getElementById('chart-hist-attendance');
@@ -2287,19 +2349,29 @@
       };
     });
 
-    // Overlay: Au & Ag weighted average valuation ratio from member_history
+    // Right-axis overlay: the Au & Ag weighted valuation ratio, or (toggle) the member-weighted
+    // precious metals price index, nominal or real
+    var isIndex = histAttRightAxis !== 'ratio' && !!histPricesForEvent();
+    var isRealIndex = histAttRightAxis === 'index-real';
     var wgtMap = {};
-    if (reportData && reportData.member_history) {
+    if (isIndex) {
+      wgtMap = buildPreciousPriceIndex(isRealIndex);
+    } else if (reportData && reportData.member_history) {
       reportData.member_history.forEach(function(r) {
         if (r.weighted_oz_per_1m_mcap != null) wgtMap[r.year] = valRatio(r.weighted_oz_per_1m_mcap);
       });
     }
     var wgtData = labels.map(function(yr) { return wgtMap[yr] != null ? wgtMap[yr] : null; });
     var hasWgt = wgtData.some(function(v) { return v != null; });
+    var rightAxisTitle = isIndex
+      ? 'Au & Ag price index, ' + (isRealIndex ? 'real' : 'nominal') + ' (' + PRICE_INDEX_BASE_YEAR + ' = 100)'
+      : VAL_RATIO_UNIT;
 
     if (hasWgt) {
       datasets.push({
-        label: 'Au & Ag Wtd Avg ' + VAL_RATIO_UNIT,
+        label: isIndex
+          ? 'Member-weighted Au & Ag price index, ' + (isRealIndex ? 'real' : 'nominal') + ' (' + PRICE_INDEX_BASE_YEAR + ' = 100)'
+          : 'Au & Ag Wtd Avg ' + VAL_RATIO_UNIT,
         data: wgtData,
         type: 'line',
         borderColor: '#2C3E50',
@@ -2329,7 +2401,8 @@
             callbacks: {
               label: function(ctx) {
                 if (ctx.dataset.yAxisID === 'y1') {
-                  return ctx.dataset.label + ': ' + (ctx.raw != null ? Math.round(ctx.raw).toLocaleString('en-US') + ' troy oz' : '—');
+                  if (ctx.raw == null) return ctx.dataset.label + ': —';
+                  return ctx.dataset.label + ': ' + (isIndex ? ctx.raw.toFixed(1) : Math.round(ctx.raw).toLocaleString('en-US') + ' troy oz');
                 }
                 return ctx.dataset.label + ': ' + fmt(ctx.raw);
               },
@@ -2367,7 +2440,7 @@
           y1: hasWgt ? {
             type: 'linear',
             position: 'right',
-            title: { display: true, text: VAL_RATIO_UNIT, font: { size: 10 } },
+            title: { display: true, text: rightAxisTitle, font: { size: 10 } },
             ticks: { font: { size: 10 } },
             grid: { drawOnChartArea: false },
             beginAtZero: true
@@ -2388,12 +2461,31 @@
       ' is provisional: ' + basis + '. It will be replaced by the registration reconciliation once loaded.</p>';
   }
 
+  // Right-axis toggle (only for series with a precious metals price history)
+  function histAttAxisControls() {
+    if (!histPricesForEvent()) return '';
+    var opts = [['ratio', 'Valuation ratio'], ['index-nominal', 'Price index: nominal'], ['index-real', 'Price index: real']];
+    var html = '<div class="inflation-controls"><span style="font-size:11px;font-weight:600;color:#666">Right axis</span>';
+    html += '<div class="inflation-toggle" id="hist-att-axis-toggle">';
+    opts.forEach(function(o) {
+      html += '<button data-mode="' + o[0] + '"' + (histAttRightAxis === o[0] ? ' class="active"' : '') +
+        ' onclick="PSR.setHistAttAxis(\'' + o[0] + '\')">' + o[1] + '</button>';
+    });
+    html += '</div></div>';
+    return html;
+  }
+
   function renderRegHistory(evt) {
     var html = '';
     var histAttData = buildAttendanceHistory();
 
     // Chart
+    html += histAttAxisControls();
     html += '<div style="height:360px;margin-bottom:4px"><canvas id="chart-hist-attendance"></canvas></div>';
+    if (histPricesForEvent()) {
+      html += '<p style="font-size:11px;color:#888;margin:0 0 2px;font-style:italic">Price index: September average LBMA PM gold and silver fix, weighted by members’ gold vs silver market cap each year; real deflated with CPI-U; ' +
+        PRICE_INDEX_BASE_YEAR + ' = 100. 2026 is September month-to-date.</p>';
+    }
     html += '<p style="font-size:11px;color:#888;margin:0 0 ' + (attProvisionalInfo ? '2px' : '12px') + ';font-style:italic">' + virtualLegend('striped bars') + '</p>';
     html += provisionalAttendanceNote();
 
@@ -2428,6 +2520,16 @@
   }
 
   window.PSR = window.PSR || {};
+  PSR.setHistAttAxis = function(mode) {
+    histAttRightAxis = mode;
+    var toggle = document.getElementById('hist-att-axis-toggle');
+    if (toggle) {
+      toggle.querySelectorAll('button').forEach(function(b) {
+        b.classList.toggle('active', b.getAttribute('data-mode') === mode);
+      });
+    }
+    initHistAttChart();
+  };
   PSR.toggleRegHistTable = function(el) {
     var wrap = el.nextElementSibling;
     var arrow = el.querySelector('.reg-hist-arrow');
