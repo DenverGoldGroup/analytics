@@ -962,18 +962,26 @@
     return years;
   }
 
-  function renderMetalPerformance(evt) {
+  // forPrint: drop the interactive toggle and use the print stylesheet's table class
+  function renderMetalPerformance(evt, forPrint) {
     var years = metalHeatYears(evt);
     if (years.length < 2) return '';
     var isReal = metalHeatMode === 'real';
+    var tableClass = forPrint ? 'data-table metal-heat' : 'psr-table';
 
-    var html = '<div class="inflation-controls" style="margin-bottom:10px">';
-    html += '<div class="inflation-toggle">';
-    html += '<button ' + (!isReal ? 'class="active"' : '') + ' onclick="PSR.setMetalHeat(\'nominal\')">Nominal</button>';
-    html += '<button ' + (isReal ? 'class="active"' : '') + ' onclick="PSR.setMetalHeat(\'real\')">Real (CPI-adjusted)</button>';
-    html += '</div>';
-    html += '<span class="inflation-note">' + (isReal ? 'Change in constant dollars (CPI-U, BLS)' : 'Change in current dollars') + '</span>';
-    html += '</div>';
+    var html = '';
+    if (forPrint) {
+      html += '<p style="font-size:9pt;color:#7F8C8D;margin:0 0 8px">' +
+        (isReal ? 'Change in constant dollars (CPI-U, BLS)' : 'Change in current dollars') + '</p>';
+    } else {
+      html += '<div class="inflation-controls" style="margin-bottom:10px">';
+      html += '<div class="inflation-toggle">';
+      html += '<button ' + (!isReal ? 'class="active"' : '') + ' onclick="PSR.setMetalHeat(\'nominal\')">Nominal</button>';
+      html += '<button ' + (isReal ? 'class="active"' : '') + ' onclick="PSR.setMetalHeat(\'real\')">Real (CPI-adjusted)</button>';
+      html += '</div>';
+      html += '<span class="inflation-note">' + (isReal ? 'Change in constant dollars (CPI-U, BLS)' : 'Change in current dollars') + '</span>';
+      html += '</div>';
+    }
 
     // Legend
     html += '<div style="display:flex;align-items:center;gap:8px;font-size:10px;color:#888;margin-bottom:10px">';
@@ -986,7 +994,7 @@
 
     for (var start = 0; start < years.length; start += METAL_HEAT_BLOCK) {
       var block = years.slice(start, start + METAL_HEAT_BLOCK);
-      html += '<table class="psr-table" style="margin-bottom:14px;font-size:11px"><thead><tr>';
+      html += '<table class="' + tableClass + '" style="margin-bottom:14px;font-size:' + (forPrint ? '8pt' : '11px') + '"><thead><tr>';
       html += '<th style="width:88px">Metal</th><th style="width:96px">Basis</th>';
       block.forEach(function(y) {
         var isEventYear = evt && y === evt.year;
@@ -1015,7 +1023,7 @@
       html += '</tbody></table>';
     }
 
-    html += '<p style="font-size:10px;color:#888;margin:4px 0 0;font-style:italic">';
+    html += '<p style="font-size:' + (forPrint ? '7.5pt' : '10px') + ';color:#888;margin:4px 0 0;font-style:italic">';
     html += 'Weekly Au, Ag, Pt and Pd prices averaged over September, and over the 12 months to September. ';
     html += 'Platinum and palladium start in April 1990. ';
     html += 'Real figures deflate each year by CPI-U (BLS): the September index, and the Oct&ndash;Sep mean. ';
@@ -5616,6 +5624,11 @@
     html += '.print-btn { position: fixed; bottom: 20px; right: 20px; background: ' + colors.primary + '; color: #fff; border: none; padding: 12px 28px; border-radius: 6px; font-family: "Lato", sans-serif; font-size: 11pt; font-weight: 700; cursor: pointer; box-shadow: 0 2px 8px rgba(0,0,0,0.2); z-index: 999; }';
     html += '.print-btn:hover { opacity: 0.9; }';
 
+    // Metal Price Performance heatmap
+    html += '.metal-heat td, .metal-heat th { padding: 3px 5px; font-size: 8pt; }';
+    html += '.metal-heat th { text-transform: none; letter-spacing: 0; }';
+    html += '.metal-heat { page-break-inside: avoid; }';
+
     // Composition bar row
     html += '.comp-row { display: grid; grid-template-columns: 1fr; gap: 14px; margin-bottom: 16px; }';
     html += '.comp-row img { width: 100%; max-width: 460px; height: auto; margin: 0 auto; display: block; }';
@@ -5956,7 +5969,16 @@
       html += '</div>';
     }
 
-    // ── Charts: Composition doughnuts ────────────────
+    // ── Metal Price Performance heatmap ─────────────
+    var metalHeatPrint = renderMetalPerformance(evt, true);
+    if (metalHeatPrint) {
+      html += '<div class="page-break"></div>';
+      html += '<h2>Metal Price Performance \u2014 Year on Year' +
+        (metalHeatMode === 'real' ? ' (Real)' : ' (Nominal)') + '</h2>';
+      html += metalHeatPrint;
+    }
+
+    // ── Charts: Composition bars ────────────────────
     if (compCharts.length) {
       html += '<div class="page-break"></div>';
       html += '<h2>Member Composition \u2014 ' + evt.year + '</h2>';
