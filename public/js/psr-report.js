@@ -997,12 +997,21 @@
     return { best: best, worst: worst, bestRun: up, worstRun: down };
   }
 
+  // A run measured on the September basis starts at the September before its first up (or down)
+  // year, so its length is the calendar distance between those two mid-Septembers.
+  function metalRunWeeks(r) {
+    var from = new Date(Date.UTC(r.from - 1, 8, 15));
+    var to = new Date(Date.UTC(r.to, 8, 15));
+    return Math.round((to - from) / (7 * 24 * 60 * 60 * 1000));
+  }
+
   function metalRunLabel(r) {
     if (!r) return '<span style="color:#CCC">&mdash;</span>';
     var span = r.n === 1 ? String(r.from) : r.from + '&ndash;' + r.to;
     var pct = (r.factor - 1) * 100;
     return '<strong>' + (pct >= 0 ? '+' : '\u2212') + Math.abs(pct).toFixed(0) + '%</strong> ' +
-      '<span style="color:#777">' + span + ' (' + r.n + (r.n === 1 ? ' yr' : ' yrs') + ')</span>';
+      '<span style="color:#777">' + span + ' (' + r.n + (r.n === 1 ? ' yr' : ' yrs') +
+      ' &middot; ' + fmt(metalRunWeeks(r)) + ' wks)</span>';
   }
 
   function metalYearLabel(r) {
