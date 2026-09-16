@@ -962,6 +962,82 @@
     return years;
   }
 
+
+  // Best/worst single year, and the strongest unbroken run of up or down years.
+  // A run is consecutive same-sign years; its size is the compounded change across them.
+  function metalExtremes(table, cpi, years, idx) {
+    var seq = years.map(function(y) { return { year: y, v: metalYoY(table, cpi, y, idx) }; })
+                   .filter(function(r) { return r.v != null; });
+    if (!seq.length) return null;
+    var best = seq[0], worst = seq[0];
+    seq.forEach(function(r) {
+      if (r.v > best.v) best = r;
+      if (r.v < worst.v) worst = r;
+    });
+
+    var runs = [], cur = null;
+    seq.forEach(function(r, i) {
+      var sign = r.v >= 0 ? 1 : -1;
+      var breaks = !cur || cur.sign !== sign || seq[i - 1].year !== r.year - 1;
+      if (breaks) {
+        cur = { sign: sign, from: r.year, to: r.year, factor: 1 + r.v, n: 1 };
+        runs.push(cur);
+      } else {
+        cur.to = r.year;
+        cur.factor *= (1 + r.v);
+        cur.n++;
+      }
+    });
+    var up = null, down = null;
+    runs.forEach(function(r) {
+      if (r.sign > 0 && (!up || r.factor > up.factor)) up = r;
+      if (r.sign < 0 && (!down || r.factor < down.factor)) down = r;
+    });
+    return { best: best, worst: worst, bestRun: up, worstRun: down };
+  }
+
+  function metalRunLabel(r) {
+    if (!r) return '<span style="color:#CCC">&mdash;</span>';
+    var span = r.n === 1 ? String(r.from) : r.from + '&ndash;' + r.to;
+    var pct = (r.factor - 1) * 100;
+    return '<strong>' + (pct >= 0 ? '+' : '\u2212') + Math.abs(pct).toFixed(0) + '%</strong> ' +
+      '<span style="color:#777">' + span + ' (' + r.n + (r.n === 1 ? ' yr' : ' yrs') + ')</span>';
+  }
+
+  function metalYearLabel(r) {
+    if (!r) return '<span style="color:#CCC">&mdash;</span>';
+    return '<strong>' + fmtYoYPct(r.v) + '</strong> <span style="color:#777">' + r.year + '</span>';
+  }
+
+  function renderMetalSummary(years, forPrint) {
+    var html = '<table class="' + (forPrint ? 'data-table metal-heat' : 'psr-table') +
+      '" style="margin-bottom:14px;font-size:' + (forPrint ? '8pt' : '11px') + '"><thead><tr>';
+    html += '<th style="width:88px">Metal</th><th style="width:96px">Basis</th>';
+    ['Best year', 'Worst year', 'Best run', 'Worst run'].forEach(function(h) {
+      html += '<th>' + h + '</th>';
+    });
+    html += '</tr></thead><tbody>';
+    METAL_NAMES.forEach(function(name, idx) {
+      [['Sep avg', METAL_SEP, CPI_SEP], ['12m to Sep', METAL_ANN, CPI_ANN]].forEach(function(basis, bi) {
+        var x = metalExtremes(basis[1], basis[2], years, idx);
+        html += '<tr>';
+        if (bi === 0) html += '<td rowspan="2" style="font-weight:600;vertical-align:middle">' + name + '</td>';
+        html += '<td style="color:#888">' + basis[0] + '</td>';
+        if (!x) {
+          html += '<td colspan="4" style="color:#CCC">&mdash;</td></tr>';
+          return;
+        }
+        html += '<td style="' + metalHeatStyle(x.best.v) + '">' + metalYearLabel(x.best) + '</td>';
+        html += '<td style="' + metalHeatStyle(x.worst.v) + '">' + metalYearLabel(x.worst) + '</td>';
+        html += '<td style="' + metalHeatStyle(x.bestRun ? x.bestRun.factor - 1 : null) + '">' + metalRunLabel(x.bestRun) + '</td>';
+        html += '<td style="' + metalHeatStyle(x.worstRun ? x.worstRun.factor - 1 : null) + '">' + metalRunLabel(x.worstRun) + '</td>';
+        html += '</tr>';
+      });
+    });
+    html += '</tbody></table>';
+    return html;
+  }
+
   // forPrint: drop the interactive toggle and use the print stylesheet's table class
   function renderMetalPerformance(evt, forPrint) {
     var years = metalHeatYears(evt);
@@ -991,6 +1067,12 @@
     });
     html += '<span>Rise</span><span style="margin-left:6px">&nbsp;&mdash;&nbsp;shading saturates at &plusmn;50%</span>';
     html += '</div>';
+
+    // Summary strip: the standouts across the whole range, on the selected basis
+    html += '<h4 style="font-size:12px;font-weight:700;margin:0 0 6px;color:var(--header-mid)">Standouts, ' +
+      years[0] + '&ndash;' + years[years.length - 1] + '</h4>';
+    html += renderMetalSummary(years, forPrint);
+    html += '<h4 style="font-size:12px;font-weight:700;margin:14px 0 6px;color:var(--header-mid)">Year-on-year change</h4>';
 
     for (var start = 0; start < years.length; start += METAL_HEAT_BLOCK) {
       var block = years.slice(start, start + METAL_HEAT_BLOCK);
