@@ -846,6 +846,10 @@
     'Bullion Dealer': 'Bullion Dealer', 'Developer': 'Developer'
   };
 
+  // Composition bars encode the year, not the category: one hue, two shades
+  var COMP_PRIOR_COLOR = '#B5D4F4';
+  var COMP_CUR_COLOR = '#2A78D6';
+
   function fmtMcap(n) {
     if (n == null || n === 0) return '—';
     var v = Number(n);
@@ -903,28 +907,85 @@
       if (allStatuses.indexOf(s) === -1) allStatuses.push(s);
     });
 
-    // ── Charts: 4 doughnuts per row (prior mineral, current mineral, prior status, current status) ──
+    // ── Charts: paired horizontal bars (prior vs current), one panel per dimension ──
+    // Doughnuts hid the story: Gold / Producer take ~80% of every ring, so the rest are
+    // unreadable slivers and year-on-year growth is invisible. Bars keep magnitudes.
     var chartId = 'md-' + Date.now();
-    var chartCell = 'flex:1;min-width:140px;max-width:180px;text-align:center';
-    var chartLabel = 'font-size:10px;font-weight:600;color:#666;margin-bottom:4px';
+
+    // Categories too small to earn their own bar fold into "Other". The test runs on both
+    // metrics so a dimension keeps one category set across its count and market-cap panels.
+    function foldSmall(keys, curMap, priorMap) {
+      var kept = [], folded = [];
+      keys.forEach(function(k) {
+        var c = curMap[k] || {}, p = priorMap[k] || {};
+        var material = Math.max(c.count || 0, p.count || 0) >= 2 ||
+                       Math.max(c.mcap || 0, p.mcap || 0) >= 1e9;
+        (material ? kept : folded).push(k);
+      });
+      // Nothing gained by folding a single category away
+      if (folded.length < 2) return { kept: keys.slice(), folded: [] };
+      return { kept: kept, folded: folded };
+    }
+
+    function seriesFor(fold, curMap, priorMap, metric, labelFn) {
+      var rows = fold.kept.map(function(k) {
+        return { key: k, label: labelFn ? labelFn(k) : k,
+          cur: (curMap[k] || {})[metric] || 0, prior: (priorMap[k] || {})[metric] || 0 };
+      });
+      rows.sort(function(a, b) { return (b.cur - a.cur) || (b.prior - a.prior); });
+      if (fold.folded.length) {
+        var oc = 0, op = 0;
+        fold.folded.forEach(function(k) {
+          oc += (curMap[k] || {})[metric] || 0;
+          op += (priorMap[k] || {})[metric] || 0;
+        });
+        rows.push({ key: 'Other', label: 'Other', cur: oc, prior: op,
+          members: fold.folded.map(function(k) { return labelFn ? labelFn(k) : k; }) });
+      }
+      return rows;
+    }
+
+    var mineralFold = foldSmall(allMinerals, curByMineral, priorByMineral);
+    var statusFold = foldSmall(allStatuses, curByStatus, priorByStatus);
+    function statusLabel(s) { return STATUS_SHORT[s] || STATUS_TABLE[s] || s; }
+
+    var compSeries = {
+      'mineral-cnt':  seriesFor(mineralFold, curByMineral, priorByMineral, 'count'),
+      'mineral-mcap': seriesFor(mineralFold, curByMineral, priorByMineral, 'mcap'),
+      'status-cnt':   seriesFor(statusFold, curByStatus, priorByStatus, 'count', statusLabel),
+      'status-mcap':  seriesFor(statusFold, curByStatus, priorByStatus, 'mcap', statusLabel)
+    };
+
+    function panelHeight(rows) { return Math.max(150, rows.length * 34 + 40); }
+    function compPanel(slot, title) {
+      var rows = compSeries[slot];
+      return '<div style="flex:1;min-width:260px">' +
+        '<div style="font-size:11px;font-weight:600;color:#666;margin-bottom:4px">' + title + '</div>' +
+        '<div style="position:relative;height:' + panelHeight(rows) + 'px"><canvas id="' + chartId + '-' + slot + '"></canvas></div>' +
+        '</div>';
+    }
+    function compLegend() {
+      return '<div style="display:flex;gap:16px;font-size:11px;color:#666;margin:0 0 6px">' +
+        '<span><span style="display:inline-block;width:10px;height:10px;border-radius:2px;background:' + COMP_PRIOR_COLOR + ';margin-right:5px"></span>' + priorYear + '</span>' +
+        '<span><span style="display:inline-block;width:10px;height:10px;border-radius:2px;background:' + COMP_CUR_COLOR + ';margin-right:5px"></span>' + curYear + '</span>' +
+        '</div>';
+    }
 
     // Row 1: Company Count
     html += '<div style="height:20px"></div>';
     html += '<h4 style="font-size:13px;font-weight:700;margin:0 0 8px;color:var(--header-mid)">Composition by Company Count</h4>';
-    html += '<div style="display:flex;gap:12px;flex-wrap:wrap;margin-bottom:16px;justify-content:center">';
-    html += '<div style="' + chartCell + '"><div style="' + chartLabel + '">Mineral ' + priorYear + '</div><canvas id="' + chartId + '-pm-cnt" height="160"></canvas></div>';
-    html += '<div style="' + chartCell + '"><div style="' + chartLabel + '">Mineral ' + curYear + '</div><canvas id="' + chartId + '-cm-cnt" height="160"></canvas></div>';
-    html += '<div style="' + chartCell + '"><div style="' + chartLabel + '">Status ' + priorYear + '</div><canvas id="' + chartId + '-ps-cnt" height="160"></canvas></div>';
-    html += '<div style="' + chartCell + '"><div style="' + chartLabel + '">Status ' + curYear + '</div><canvas id="' + chartId + '-cs-cnt" height="160"></canvas></div>';
+    html += compLegend();
+    html += '<div style="display:flex;gap:20px;flex-wrap:wrap;margin-bottom:16px">';
+    html += compPanel('mineral-cnt', 'Primary mineral');
+    html += compPanel('status-cnt', 'Company status');
     html += '</div>';
 
     // Row 2: Market Cap
     html += '<h4 style="font-size:13px;font-weight:700;margin:0 0 8px;color:var(--header-mid)">Corporate Composition by Market Cap</h4>';
-    html += '<div style="display:flex;gap:12px;flex-wrap:wrap;margin-bottom:16px;justify-content:center">';
-    html += '<div style="' + chartCell + '"><div style="' + chartLabel + '">Mineral ' + priorYear + '</div><canvas id="' + chartId + '-pm-mcap" height="160"></canvas></div>';
-    html += '<div style="' + chartCell + '"><div style="' + chartLabel + '">Mineral ' + curYear + '</div><canvas id="' + chartId + '-cm-mcap" height="160"></canvas></div>';
-    html += '<div style="' + chartCell + '"><div style="' + chartLabel + '">Status ' + priorYear + '</div><canvas id="' + chartId + '-ps-mcap" height="160"></canvas></div>';
-    html += '<div style="' + chartCell + '"><div style="' + chartLabel + '">Status ' + curYear + '</div><canvas id="' + chartId + '-cs-mcap" height="160"></canvas></div>';
+    html += compLegend();
+    html += '<div style="display:flex;gap:20px;flex-wrap:wrap;margin-bottom:16px">';
+    html += compPanel('mineral-mcap', 'Primary mineral');
+    html += compPanel('status-mcap', 'Company status');
     html += '</div>';
 
     // ── Table: Composition by Mineral (YoY) ──
@@ -1029,63 +1090,62 @@
 
     // ── Deferred chart rendering (after DOM insert) ──
     setTimeout(function() {
-      var smallLegend = { position: 'bottom', labels: { font: { family: 'Inter', size: 9 }, padding: 4, boxWidth: 8 } };
-      var cntTooltip = {
-        callbacks: {
-          label: function(ctx) {
-            var total = ctx.dataset.data.reduce(function(a, b) { return a + b; }, 0);
-            var pct = total ? ((ctx.raw / total) * 100).toFixed(0) : 0;
-            return ctx.label + ': ' + ctx.raw + ' (' + pct + '%)';
-          }
-        }
-      };
-      var mcapTooltip = {
-        callbacks: {
-          label: function(ctx) {
-            var total = ctx.dataset.data.reduce(function(a, b) { return a + b; }, 0);
-            var pct = total ? ((ctx.raw / total) * 100).toFixed(0) : 0;
-            var v = ctx.raw >= 1e9 ? '$' + (ctx.raw / 1e9).toFixed(1) + 'B' : '$' + (ctx.raw / 1e6).toFixed(0) + 'M';
-            return ctx.label + ': ' + v + ' (' + pct + '%)';
-          }
-        }
-      };
-      var cntOpts = { responsive: true, maintainAspectRatio: true, cutout: '50%', plugins: { legend: smallLegend, tooltip: cntTooltip } };
-      var mcapOpts = { responsive: true, maintainAspectRatio: true, cutout: '50%', plugins: { legend: smallLegend, tooltip: mcapTooltip } };
-
-      var mineralLabels = allMinerals;
-      var mineralColors = allMinerals.map(function(m) { return MINERAL_COLORS[m] || '#999'; });
-      var statusLabels = allStatuses.map(function(s) { return STATUS_SHORT[s] || s; });
-      var statusColors = allStatuses.map(function(s) { return STATUS_COLORS[s] || '#999'; });
-
-      function makeDoughnut(id, labels, data, colors, opts) {
-        var el = document.getElementById(id);
+      function makeCompBar(slot, isMcap) {
+        var el = document.getElementById(chartId + '-' + slot);
         if (!el) return;
+        var rows = compSeries[slot];
+        var fmtVal = function(v) { return isMcap ? fmtMcap(v) : fmt(v); };
         new Chart(el.getContext('2d'), {
-          type: 'doughnut',
-          data: { labels: labels, datasets: [{ data: data, backgroundColor: colors }] },
-          options: opts
+          type: 'bar',
+          data: {
+            labels: rows.map(function(r) { return r.label; }),
+            datasets: [
+              { label: String(priorYear), data: rows.map(function(r) { return r.prior; }),
+                backgroundColor: COMP_PRIOR_COLOR, borderRadius: 4, borderSkipped: 'start',
+                barPercentage: 0.82, categoryPercentage: 0.74 },
+              { label: String(curYear), data: rows.map(function(r) { return r.cur; }),
+                backgroundColor: COMP_CUR_COLOR, borderRadius: 4, borderSkipped: 'start',
+                barPercentage: 0.82, categoryPercentage: 0.74 }
+            ]
+          },
+          options: {
+            indexAxis: 'y',
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+              legend: { display: false },
+              tooltip: {
+                callbacks: {
+                  label: function(ctx) {
+                    var r = rows[ctx.dataIndex];
+                    var out = ctx.dataset.label + ': ' + fmtVal(ctx.parsed.x);
+                    if (ctx.datasetIndex === 1 && r.prior) {
+                      var pct = Math.round((r.cur / r.prior - 1) * 100);
+                      out += '  (' + (pct >= 0 ? '+' : '') + pct + '% YoY)';
+                    }
+                    return out;
+                  },
+                  afterBody: function(items) {
+                    var r = rows[items[0].dataIndex];
+                    return r && r.members ? 'Includes: ' + r.members.join(', ') : '';
+                  }
+                }
+              }
+            },
+            scales: {
+              x: { beginAtZero: true, grid: { color: '#EFEFEF' },
+                   ticks: { font: { family: 'Inter', size: 10 }, color: '#888',
+                            callback: function(v) { return fmtVal(v); } } },
+              y: { grid: { display: false }, ticks: { font: { family: 'Inter', size: 11 }, color: '#555' } }
+            }
+          }
         });
       }
 
-      // Row 1: Company count — prior mineral, current mineral, prior status, current status
-      makeDoughnut(chartId + '-pm-cnt', mineralLabels,
-        allMinerals.map(function(m) { return (priorByMineral[m] || {}).count || 0; }), mineralColors, cntOpts);
-      makeDoughnut(chartId + '-cm-cnt', mineralLabels,
-        allMinerals.map(function(m) { return (curByMineral[m] || {}).count || 0; }), mineralColors, cntOpts);
-      makeDoughnut(chartId + '-ps-cnt', statusLabels,
-        allStatuses.map(function(s) { return (priorByStatus[s] || {}).count || 0; }), statusColors, cntOpts);
-      makeDoughnut(chartId + '-cs-cnt', statusLabels,
-        allStatuses.map(function(s) { return (curByStatus[s] || {}).count || 0; }), statusColors, cntOpts);
-
-      // Row 2: Market cap — prior mineral, current mineral, prior status, current status
-      makeDoughnut(chartId + '-pm-mcap', mineralLabels,
-        allMinerals.map(function(m) { return (priorByMineral[m] || {}).mcap || 0; }), mineralColors, mcapOpts);
-      makeDoughnut(chartId + '-cm-mcap', mineralLabels,
-        allMinerals.map(function(m) { return (curByMineral[m] || {}).mcap || 0; }), mineralColors, mcapOpts);
-      makeDoughnut(chartId + '-ps-mcap', statusLabels,
-        allStatuses.map(function(s) { return (priorByStatus[s] || {}).mcap || 0; }), statusColors, mcapOpts);
-      makeDoughnut(chartId + '-cs-mcap', statusLabels,
-        allStatuses.map(function(s) { return (curByStatus[s] || {}).mcap || 0; }), statusColors, mcapOpts);
+      makeCompBar('mineral-cnt', false);
+      makeCompBar('status-cnt', false);
+      makeCompBar('mineral-mcap', true);
+      makeCompBar('status-mcap', true);
     }, 100);
 
     return html;
@@ -5198,11 +5258,11 @@
       hotel:          allSnaps['chart-hotel'] || null
     };
 
-    // Find composition doughnuts (dynamic IDs like md-XXXX-cm-cnt, md-XXXX-cs-cnt)
+    // Find composition bars (dynamic IDs like md-XXXX-mineral-cnt, md-XXXX-status-cnt)
     var compCharts = [];
     Object.keys(allSnaps).forEach(function(id) {
-      if (id.indexOf('md-') === 0 && (id.indexOf('-cm-cnt') > 0 || id.indexOf('-cs-cnt') > 0)) {
-        var label = id.indexOf('-cm-cnt') > 0 ? 'Mineral Composition' : 'Status Composition';
+      if (id.indexOf('md-') === 0 && (id.indexOf('-mineral-cnt') > 0 || id.indexOf('-status-cnt') > 0)) {
+        var label = id.indexOf('-mineral-cnt') > 0 ? 'Mineral Composition' : 'Status Composition';
         compCharts.push({ label: label, snap: allSnaps[id] });
       }
     });
@@ -5329,9 +5389,9 @@
     html += '.print-btn { position: fixed; bottom: 20px; right: 20px; background: ' + colors.primary + '; color: #fff; border: none; padding: 12px 28px; border-radius: 6px; font-family: "Lato", sans-serif; font-size: 11pt; font-weight: 700; cursor: pointer; box-shadow: 0 2px 8px rgba(0,0,0,0.2); z-index: 999; }';
     html += '.print-btn:hover { opacity: 0.9; }';
 
-    // Composition doughnut row
-    html += '.comp-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 16px; }';
-    html += '.comp-row img { width: 100%; max-width: 240px; height: auto; margin: 0 auto; display: block; }';
+    // Composition bar row
+    html += '.comp-row { display: grid; grid-template-columns: 1fr; gap: 14px; margin-bottom: 16px; }';
+    html += '.comp-row img { width: 100%; max-width: 460px; height: auto; margin: 0 auto; display: block; }';
     html += '.comp-row .comp-cell { text-align: center; }';
 
     // Tracking / Engagement tables
