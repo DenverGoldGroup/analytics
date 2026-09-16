@@ -421,7 +421,7 @@
       <!-- PSR: Upload Member Meetings -->
       <div class="upload-section">
         <h3>Upload Member Meetings</h3>
-        <div class="desc">Upload the <strong>Total Confirmed Meetings w/ Requests Made</strong> spreadsheet (.xlsx). Shows company meeting activity with requests and success ratio.</div>
+        <div class="desc">Upload the <strong>Meetings Dashboard</strong> member export (Rank, Member, Room, Meetings, Inbound/Outbound Requests, Accepted/Inbound, Accepted/Outbound), or the older <strong>Total Confirmed Meetings w/ Requests Made</strong> spreadsheet (.xlsx). Replaces the event's member rankings.</div>
         <div class="upload-row">
           <div style="min-width:110px">
             <select id="mm-event" style="width:100%;padding:8px 12px;font-size:12px;font-family:inherit;border:2px solid #E0E0E0;border-radius:6px;background:#fff">
@@ -443,7 +443,7 @@
       <!-- PSR: Upload Participant Meetings -->
       <div class="upload-section">
         <h3>Upload Participant Meetings</h3>
-        <div class="desc">Upload the <strong>Total Confirmed Meeting Counts</strong> spreadsheet (.xlsx). Shows individual participant meeting rankings.</div>
+        <div class="desc">Upload the <strong>Meetings Dashboard</strong> participant export (Rank, Participant, Room, Meetings, Inbound/Outbound Requests, Accepted/Inbound, Accepted/Outbound), or the older <strong>Total Confirmed Meeting Counts</strong> spreadsheet (.xlsx). Replaces the event's participant rankings.</div>
         <div class="upload-row">
           <div style="min-width:110px">
             <select id="pm-event" style="width:100%;padding:8px 12px;font-size:12px;font-family:inherit;border:2px solid #E0E0E0;border-radius:6px;background:#fff">
@@ -1184,6 +1184,23 @@
       } catch (err) { console.error('Meeting event selector error:', err); }
     }
 
+    // Meetings Dashboard export (2026+): one row per member or participant, already ranked,
+    // with requests split inbound/outbound and the share of each accepted
+    function isDashboardExport(jsonRows) {
+      return jsonRows.length && 'Meetings' in jsonRows[0] && 'Inbound Requests' in jsonRows[0];
+    }
+    function dashboardDetail(r) {
+      return {
+        rank: r['Rank'],
+        room: r['Room'] || null,
+        confirmed_meetings: parseInt(r['Meetings']) || 0,
+        inbound_requests: r['Inbound Requests'],
+        outbound_requests: r['Outbound Requests'],
+        accepted_inbound: r['Accepted/Inbound'],
+        accepted_outbound: r['Accepted/Outbound']
+      };
+    }
+
     async function uploadMemberMeetings() {
       var fileInput = document.getElementById('mm-file');
       var eventCode = document.getElementById('mm-event').value;
@@ -1210,20 +1227,28 @@
         var sheet = workbook.Sheets[workbook.SheetNames[0]];
         var jsonRows = XLSX.utils.sheet_to_json(sheet);
 
-        // Columns: Company ID, Company Name, Last Login, Requests Made, Total Confirmed Meetings
-        var rows = jsonRows.filter(function(r) { return r['Company Name']; }).map(function(r) {
-          return {
-            company_name: r['Company Name'] || '',
-            requests_made: parseInt(r['Requests Made']) || 0,
-            confirmed_meetings: parseInt(r['Total Confirmed Meetings']) || 0
-          };
-        });
-        // Sort by confirmed meetings descending
-        rows.sort(function(a, b) { return b.confirmed_meetings - a.confirmed_meetings; });
+        var rows;
+        if (isDashboardExport(jsonRows)) {
+          rows = jsonRows.filter(function(r) { return r['Member']; }).map(function(r) {
+            return Object.assign({ company_name: String(r['Member']).trim() }, dashboardDetail(r));
+          });
+          // The export is already ranked; keep its order (ties share a rank)
+          rows.sort(function(a, b) { return (parseInt(a.rank) || 0) - (parseInt(b.rank) || 0); });
+        } else {
+          // Older export: Company ID, Company Name, Last Login, Requests Made, Total Confirmed Meetings
+          rows = jsonRows.filter(function(r) { return r['Company Name']; }).map(function(r) {
+            return {
+              company_name: r['Company Name'] || '',
+              requests_made: parseInt(r['Requests Made']) || 0,
+              confirmed_meetings: parseInt(r['Total Confirmed Meetings']) || 0
+            };
+          });
+          rows.sort(function(a, b) { return b.confirmed_meetings - a.confirmed_meetings; });
+        }
 
         if (!rows.length) {
           resultEl.className = 'upload-result error';
-          resultEl.textContent = 'No data rows found. Expected columns: Company Name, Requests Made, Total Confirmed Meetings.';
+          resultEl.textContent = 'No data rows found. Expected the Meetings Dashboard member export (Member, Meetings, Inbound Requests…) or Company Name, Requests Made, Total Confirmed Meetings.';
           resultEl.style.display = 'block';
           btn.disabled = false;
           progressEl.style.display = 'none';
@@ -1287,37 +1312,51 @@
         var sheet = workbook.Sheets[workbook.SheetNames[0]];
         var jsonRows = XLSX.utils.sheet_to_json(sheet);
 
-        // Columns: Attendee ID, First Name, Last Name, Company Name, Total Confirmed Meetings
-        // Merge same-company same-count participants into one row
-        var byKey = {};
-        var keyOrder = [];
-        jsonRows.forEach(function(r) {
-          if (!r['First Name'] && !r['Last Name']) return;
-          var name = ((r['First Name'] || '') + ' ' + (r['Last Name'] || '')).trim();
-          var company = r['Company Name'] || '';
-          var count = parseInt(r['Total Confirmed Meetings']) || 0;
-          var key = company + '|' + count;
-          if (!byKey[key]) {
-            byKey[key] = { names: [], company_name: company, confirmed_meetings: count };
-            keyOrder.push(key);
-          }
-          byKey[key].names.push(name);
-        });
+        var rows;
+        if (isDashboardExport(jsonRows)) {
+          // "Name, Company" splits on the first comma, so company suffixes like ", LLP" stay intact.
+          // Team and firm rows ("JP Morgan", "T. Rowe Price Team") have no comma and keep the whole label as the name.
+          rows = jsonRows.filter(function(r) { return r['Participant']; }).map(function(r) {
+            var label = String(r['Participant']).trim();
+            var cut = label.indexOf(', ');
+            return Object.assign({
+              name: cut > 0 ? label.slice(0, cut) : label,
+              company_name: cut > 0 ? label.slice(cut + 2) : ''
+            }, dashboardDetail(r));
+          });
+          rows.sort(function(a, b) { return (parseInt(a.rank) || 0) - (parseInt(b.rank) || 0); });
+        } else {
+          // Columns: Attendee ID, First Name, Last Name, Company Name, Total Confirmed Meetings
+          // Merge same-company same-count participants into one row
+          var byKey = {};
+          var keyOrder = [];
+          jsonRows.forEach(function(r) {
+            if (!r['First Name'] && !r['Last Name']) return;
+            var name = ((r['First Name'] || '') + ' ' + (r['Last Name'] || '')).trim();
+            var company = r['Company Name'] || '';
+            var count = parseInt(r['Total Confirmed Meetings']) || 0;
+            var key = company + '|' + count;
+            if (!byKey[key]) {
+              byKey[key] = { names: [], company_name: company, confirmed_meetings: count };
+              keyOrder.push(key);
+            }
+            byKey[key].names.push(name);
+          });
 
-        var rows = keyOrder.map(function(key) {
-          var entry = byKey[key];
-          return {
-            name: entry.names.join(', '),
-            company_name: entry.company_name,
-            confirmed_meetings: entry.confirmed_meetings
-          };
-        });
-        // Sort by confirmed meetings descending
-        rows.sort(function(a, b) { return b.confirmed_meetings - a.confirmed_meetings; });
+          rows = keyOrder.map(function(key) {
+            var entry = byKey[key];
+            return {
+              name: entry.names.join(', '),
+              company_name: entry.company_name,
+              confirmed_meetings: entry.confirmed_meetings
+            };
+          });
+          rows.sort(function(a, b) { return b.confirmed_meetings - a.confirmed_meetings; });
+        }
 
         if (!rows.length) {
           resultEl.className = 'upload-result error';
-          resultEl.textContent = 'No data rows found. Expected columns: First Name, Last Name, Company Name, Total Confirmed Meetings.';
+          resultEl.textContent = 'No data rows found. Expected the Meetings Dashboard participant export (Participant, Meetings, Inbound Requests…) or First Name, Last Name, Company Name, Total Confirmed Meetings.';
           resultEl.style.display = 'block';
           btn.disabled = false;
           progressEl.style.display = 'none';

@@ -284,6 +284,31 @@ async function fetchBudgetFinancials(eventType, year) {
   }
 }
 
+// Meetings Dashboard numbers: counts are whole numbers, ratios are 0-1 shares.
+// The export writes "–" where a ratio has no denominator, so anything non-numeric is null.
+function optInt(v) {
+  if (v === null || v === undefined || v === '') return null;
+  var n = parseInt(String(v).replace(/,/g, ''), 10);
+  return isNaN(n) ? null : n;
+}
+function optRatio(v) {
+  if (v === null || v === undefined || v === '') return null;
+  var n = Number(String(v).replace(/%$/, ''));
+  if (isNaN(n)) return null;
+  return String(v).trim().slice(-1) === '%' ? n / 100 : n;
+}
+
+// Columns shared by member and participant rankings in the newer Meetings Dashboard export
+function meetingDetail(r) {
+  return {
+    room: r.room ? String(r.room).trim() : null,
+    inbound_requests: optInt(r.inbound_requests),
+    outbound_requests: optInt(r.outbound_requests),
+    accepted_inbound: optRatio(r.accepted_inbound),
+    accepted_outbound: optRatio(r.accepted_outbound)
+  };
+}
+
 function getSecret() {
   if (!process.env.ADMIN_PASSWORD || !process.env.SUPABASE_SERVICE_ROLE_KEY) return null;
   return process.env.ADMIN_PASSWORD + process.env.SUPABASE_SERVICE_ROLE_KEY;
@@ -1141,6 +1166,9 @@ module.exports = async function handler(req, res) {
         else if (body.field === 'rank') updates.rank = Number(body.value) || 0;
         else if (body.field === 'requests_made') updates.requests_made = Number(body.value) || 0;
         else if (body.field === 'company_name') updates.company_name = body.value;
+        else if (body.field === 'room') updates.room = body.value ? String(body.value).trim() : null;
+        else if (body.field === 'inbound_requests' || body.field === 'outbound_requests') updates[body.field] = optInt(body.value);
+        else if (body.field === 'accepted_inbound' || body.field === 'accepted_outbound') updates[body.field] = optRatio(body.value);
         else return res.status(400).json({ ok: false, error: 'Invalid field: ' + body.field });
         var { error } = await sb.from('psr_top_meetings').update(updates).eq('id', body.id);
         if (error) return res.status(500).json({ ok: false, error: error.message });
@@ -1387,17 +1415,19 @@ module.exports = async function handler(req, res) {
         await sb.from('psr_top_meetings').delete().eq('event_code', mmCode).eq('ranking_type', 'member');
 
         var mmInsert = mmRows.map(function(r, i) {
+          var detail = meetingDetail(r);
           var confirmed = parseInt(r.confirmed_meetings) || 0;
-          var requests = parseInt(r.requests_made) || 0;
-          return {
+          // Newer exports split requests into inbound and outbound; "requests made" is the outbound side
+          var requests = r.requests_made != null ? (parseInt(r.requests_made) || 0) : (detail.outbound_requests || 0);
+          return Object.assign({
             event_code: mmCode,
             ranking_type: 'member',
             entity_name: r.company_name || '',
             company_name: r.company_name || '',
             requests_made: requests,
             meeting_count: confirmed,
-            rank: i + 1
-          };
+            rank: optInt(r.rank) || i + 1
+          }, detail);
         });
 
         var { error: mmErr } = await sb.from('psr_top_meetings').insert(mmInsert);
@@ -1416,15 +1446,16 @@ module.exports = async function handler(req, res) {
         await sb.from('psr_top_meetings').delete().eq('event_code', pmCode).eq('ranking_type', 'participant');
 
         var pmInsert = pmRows.map(function(r, i) {
-          return {
+          var detail = meetingDetail(r);
+          return Object.assign({
             event_code: pmCode,
             ranking_type: 'participant',
             entity_name: r.name || '',
             company_name: r.company_name || '',
-            requests_made: 0,
+            requests_made: detail.outbound_requests || 0,
             meeting_count: parseInt(r.confirmed_meetings) || 0,
-            rank: i + 1
-          };
+            rank: optInt(r.rank) || i + 1
+          }, detail);
         });
 
         var { error: pmErr } = await sb.from('psr_top_meetings').insert(pmInsert);

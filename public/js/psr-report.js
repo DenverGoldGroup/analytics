@@ -3876,101 +3876,112 @@
         if (!types['participant']) types['participant'] = [];
       }
 
-      html += '<div class="chart-row" style="margin-top:16px">';
+      // Meetings Dashboard exports (2026+) carry room, inbound/outbound requests and the share of
+      // each accepted. Older events only have requests made and confirmed meetings, so each table
+      // picks its columns from what its rows actually hold.
+      var hasDetail = function(items) {
+        return items.some(function(t) { return t.inbound_requests != null || t.outbound_requests != null; });
+      };
+      var hasRooms = function(items) {
+        return items.some(function(t) { return t.room; });
+      };
+      var fmtRatioPct = function(v) {
+        return v == null || v === '' ? '&mdash;' : Math.round(Number(v) * 100) + '%';
+      };
 
-      // ── Member table: Company Name, Requests Made, Confirmed Meetings, Success Ratio ──
-      if (types['member']) {
-        var memberItems = types['member'];
-        html += '<div class="chart-box"><h4>Top Members by Meetings</h4>';
-        html += '<table class="psr-table"><thead><tr>'
-          + makeSortHeader('#', 0, 'num')
-          + makeSortHeader('Company Name', 1, 'text')
-          + makeSortHeader('Requests Made', 2, 'num')
-          + makeSortHeader('Confirmed Meetings', 3, 'num')
-          + makeSortHeader('Success Ratio', 4, 'num');
-        if (ed) html += '<th></th>';
-        html += '</tr></thead><tbody>';
-        memberItems.forEach(function(t) {
-          var requests = t.requests_made || 0;
-          var confirmed = t.meeting_count || 0;
-          var ratio = requests > 0 ? ((confirmed / requests) * 100).toFixed(0) + '%' : '—';
-          html += '<tr data-top-meeting-id="' + t.id + '">';
-          if (ed) {
-            html += '<td class="num"><input type="number" value="' + t.rank + '" min="1" style="' + numInpStyle + ';width:40px" '
-              + 'onfocus="' + focusJS + '" '
-              + 'onblur="' + blurBase + ';PSR.saveTopMeetingCell(' + t.id + ',\'rank\',this.value)" '
-              + 'onkeydown="if(event.key===\'Enter\'){event.preventDefault();this.blur();}"></td>';
-            html += '<td><input type="text" value="' + esc(t.entity_name || t.company_name || '') + '" style="' + inpStyle + ';width:100%" '
-              + 'onfocus="' + focusJS + '" '
-              + 'onblur="' + blurBase + ';PSR.saveTopMeetingCell(' + t.id + ',\'entity_name\',this.value)" '
-              + 'onkeydown="if(event.key===\'Enter\'){event.preventDefault();this.blur();}"></td>';
-            html += '<td class="num"><input type="text" value="' + fmtEngNum(requests) + '" style="' + numInpStyle + ';width:60px" '
-              + 'onfocus="' + focusJS + '" '
-              + 'onblur="' + blurBase + ';var v=parseEngNum(this.value);this.value=fmtEngNum(v);PSR.saveTopMeetingCell(' + t.id + ',\'requests_made\',v)" '
-              + 'onkeydown="if(event.key===\'Enter\'){event.preventDefault();this.blur();}"></td>';
-            html += '<td class="num"><input type="text" value="' + fmtEngNum(confirmed) + '" style="' + numInpStyle + ';width:60px" '
-              + 'onfocus="' + focusJS + '" '
-              + 'onblur="' + blurBase + ';var v=parseEngNum(this.value);this.value=fmtEngNum(v);PSR.saveTopMeetingCell(' + t.id + ',\'meeting_count\',v)" '
-              + 'onkeydown="if(event.key===\'Enter\'){event.preventDefault();this.blur();}"></td>';
-            html += '<td class="num">' + ratio + '</td>';
-            html += '<td><button onclick="PSR.deleteTopMeetingRow(' + t.id + ')" style="background:none;border:none;color:#C0392B;cursor:pointer;font-size:14px" title="Delete">&times;</button></td>';
-          } else {
-            html += '<td class="num">' + t.rank + '</td><td>' + esc(t.entity_name || t.company_name || '') + '</td><td class="num">' + fmt(requests) + '</td><td class="num">' + fmt(confirmed) + '</td><td class="num">' + ratio + '</td>';
-          }
-          html += '</tr>';
+      var rankCol = function()          { return { label: '#', type: 'num', kind: 'rank' }; };
+      var textCol = function(l, f)      { return { label: l, type: 'text', kind: 'text', field: f }; };
+      var intCol = function(l, f)       { return { label: l, type: 'num', kind: 'int', field: f }; };
+      var ratioCol = function(l, f)     { return { label: l, type: 'num', kind: 'ratio', field: f }; };
+      var detailCols = function(items) {
+        var cols = [];
+        if (hasRooms(items) || ed) cols.push(textCol('Room', 'room'));
+        return cols.concat([
+          intCol('Meetings', 'meeting_count'),
+          intCol('Inbound Requests', 'inbound_requests'),
+          intCol('Outbound Requests', 'outbound_requests'),
+          ratioCol('Accepted / Inbound', 'accepted_inbound'),
+          ratioCol('Accepted / Outbound', 'accepted_outbound')
+        ]);
+      };
+
+      var cellHtml = function(t, col) {
+        var v = col.kind === 'rank' ? t.rank : t[col.field];
+        if (col.kind === 'computed') return '<td class="num">' + col.render(t) + '</td>';
+        if (!ed) {
+          if (col.kind === 'text') return '<td>' + esc(v || '') + '</td>';
+          if (col.kind === 'ratio') return '<td class="num">' + fmtRatioPct(v) + '</td>';
+          if (col.kind === 'int' && v == null) return '<td class="num">&mdash;</td>';
+          return '<td class="num">' + fmt(v || 0) + '</td>';
+        }
+        var keys = 'onkeydown="if(event.key===\'Enter\'){event.preventDefault();this.blur();}"';
+        if (col.kind === 'rank') {
+          return '<td class="num"><input type="number" value="' + t.rank + '" min="1" style="' + numInpStyle + ';width:40px" '
+            + 'onfocus="' + focusJS + '" onblur="' + blurBase + ';PSR.saveTopMeetingCell(' + t.id + ',\'rank\',this.value)" ' + keys + '></td>';
+        }
+        if (col.kind === 'text') {
+          return '<td><input type="text" value="' + esc(v || '') + '" style="' + inpStyle + ';width:100%" '
+            + 'onfocus="' + focusJS + '" onblur="' + blurBase + ';PSR.saveTopMeetingCell(' + t.id + ',\'' + col.field + '\',this.value)" ' + keys + '></td>';
+        }
+        if (col.kind === 'ratio') {
+          return '<td class="num"><input type="text" value="' + (v == null ? '' : Math.round(Number(v) * 100) + '%') + '" style="' + numInpStyle + ';width:56px" '
+            + 'onfocus="' + focusJS + '" onblur="' + blurBase + ';PSR.saveTopMeetingRatio(this,' + t.id + ',\'' + col.field + '\')" ' + keys + '></td>';
+        }
+        return '<td class="num"><input type="text" value="' + (v == null ? '' : fmtEngNum(v)) + '" style="' + numInpStyle + ';width:60px" '
+          + 'onfocus="' + focusJS + '" onblur="' + blurBase + ';var v=this.value.trim()===\'\'?\'\':parseEngNum(this.value);this.value=v===\'\'?\'\':fmtEngNum(v);PSR.saveTopMeetingCell(' + t.id + ',\'' + col.field + '\',v)" ' + keys + '></td>';
+      };
+
+      var rankingTable = function(title, items, cols, rankingType, fullWidth) {
+        var out = '<div class="chart-box' + (fullWidth ? ' chart-full' : '') + '"><h4>' + title + '</h4>';
+        out += '<div style="overflow-x:auto"><table class="psr-table"><thead><tr>';
+        cols.forEach(function(c, i) { out += makeSortHeader(c.label, i, c.type); });
+        if (ed) out += '<th></th>';
+        out += '</tr></thead><tbody>';
+        items.forEach(function(t) {
+          out += '<tr data-top-meeting-id="' + t.id + '">';
+          cols.forEach(function(c) { out += cellHtml(t, c); });
+          if (ed) out += '<td><button onclick="PSR.deleteTopMeetingRow(' + t.id + ')" style="background:none;border:none;color:#C0392B;cursor:pointer;font-size:14px" title="Delete">&times;</button></td>';
+          out += '</tr>';
         });
-        html += '</tbody></table>';
+        out += '</tbody></table></div>';
         if (ed) {
-          html += '<button onclick="PSR.addTopMeetingRow(\'member\')" '
+          out += '<button onclick="PSR.addTopMeetingRow(\'' + rankingType + '\')" '
             + 'style="margin:6px 0 0;padding:4px 12px;font-size:11px;background:#f5f5f5;border:1px solid #ddd;border-radius:4px;cursor:pointer">'
             + '+ Add Entry</button>';
         }
-        html += '</div>';
+        return out + '</div>';
+      };
+
+      var memberItems = types['member'] || [];
+      var participantItems = types['participant'] || [];
+      // The wider dashboard tables need the full width, so they stack instead of sitting side by side
+      var wide = hasDetail(memberItems) || hasDetail(participantItems);
+      html += wide ? '<div style="margin-top:16px">' : '<div class="chart-row" style="margin-top:16px">';
+
+      if (types['member']) {
+        var memberCols = [rankCol(), textCol('Company Name', 'entity_name')];
+        if (hasDetail(memberItems)) {
+          memberCols = memberCols.concat(detailCols(memberItems));
+        } else {
+          memberCols = memberCols.concat([
+            intCol('Requests Made', 'requests_made'),
+            intCol('Confirmed Meetings', 'meeting_count'),
+            { label: 'Success Ratio', type: 'num', kind: 'computed', render: function(t) {
+              var req = t.requests_made || 0;
+              return req > 0 ? (((t.meeting_count || 0) / req) * 100).toFixed(0) + '%' : '&mdash;';
+            } }
+          ]);
+        }
+        html += rankingTable('Top Members by Meetings', memberItems, memberCols, 'member', wide);
       }
 
-      // ── Participant table: Name, Company, Confirmed Meetings ──
       if (types['participant']) {
-        var participantItems = types['participant'];
-        html += '<div class="chart-box"><h4>Top Participants by Meetings</h4>';
-        html += '<table class="psr-table"><thead><tr>'
-          + makeSortHeader('#', 0, 'num')
-          + makeSortHeader('Name', 1, 'text')
-          + makeSortHeader('Company', 2, 'text')
-          + makeSortHeader('Confirmed Meetings', 3, 'num');
-        if (ed) html += '<th></th>';
-        html += '</tr></thead><tbody>';
-        participantItems.forEach(function(t) {
-          html += '<tr data-top-meeting-id="' + t.id + '">';
-          if (ed) {
-            html += '<td class="num"><input type="number" value="' + t.rank + '" min="1" style="' + numInpStyle + ';width:40px" '
-              + 'onfocus="' + focusJS + '" '
-              + 'onblur="' + blurBase + ';PSR.saveTopMeetingCell(' + t.id + ',\'rank\',this.value)" '
-              + 'onkeydown="if(event.key===\'Enter\'){event.preventDefault();this.blur();}"></td>';
-            html += '<td><input type="text" value="' + esc(t.entity_name) + '" style="' + inpStyle + ';width:100%" '
-              + 'onfocus="' + focusJS + '" '
-              + 'onblur="' + blurBase + ';PSR.saveTopMeetingCell(' + t.id + ',\'entity_name\',this.value)" '
-              + 'onkeydown="if(event.key===\'Enter\'){event.preventDefault();this.blur();}"></td>';
-            html += '<td><input type="text" value="' + esc(t.company_name || '') + '" style="' + inpStyle + ';width:100%" '
-              + 'onfocus="' + focusJS + '" '
-              + 'onblur="' + blurBase + ';PSR.saveTopMeetingCell(' + t.id + ',\'company_name\',this.value)" '
-              + 'onkeydown="if(event.key===\'Enter\'){event.preventDefault();this.blur();}"></td>';
-            html += '<td class="num"><input type="text" value="' + fmtEngNum(t.meeting_count || 0) + '" style="' + numInpStyle + ';width:60px" '
-              + 'onfocus="' + focusJS + '" '
-              + 'onblur="' + blurBase + ';var v=parseEngNum(this.value);this.value=fmtEngNum(v);PSR.saveTopMeetingCell(' + t.id + ',\'meeting_count\',v)" '
-              + 'onkeydown="if(event.key===\'Enter\'){event.preventDefault();this.blur();}"></td>';
-            html += '<td><button onclick="PSR.deleteTopMeetingRow(' + t.id + ')" style="background:none;border:none;color:#C0392B;cursor:pointer;font-size:14px" title="Delete">&times;</button></td>';
-          } else {
-            html += '<td class="num">' + t.rank + '</td><td>' + esc(t.entity_name) + '</td><td>' + esc(t.company_name || '') + '</td><td class="num">' + fmt(t.meeting_count) + '</td>';
-          }
-          html += '</tr>';
-        });
-        html += '</tbody></table>';
-        if (ed) {
-          html += '<button onclick="PSR.addTopMeetingRow(\'participant\')" '
-            + 'style="margin:6px 0 0;padding:4px 12px;font-size:11px;background:#f5f5f5;border:1px solid #ddd;border-radius:4px;cursor:pointer">'
-            + '+ Add Entry</button>';
-        }
-        html += '</div>';
+        var participantCols = [rankCol(), textCol('Name', 'entity_name'), textCol('Company', 'company_name')];
+        participantCols = participantCols.concat(hasDetail(participantItems)
+          ? detailCols(participantItems)
+          : [intCol('Confirmed Meetings', 'meeting_count')]);
+        if (wide) html += '<div style="height:16px"></div>';
+        html += rankingTable('Top Participants by Meetings', participantItems, participantCols, 'participant', wide);
       }
 
       html += '</div>';
@@ -5306,6 +5317,15 @@
     });
   }
 
+  // Accepts "61%", "61" or "0.61"; blank clears the value
+  function saveTopMeetingRatio(el, id, field) {
+    var raw = String(el.value || '').trim();
+    var n = parseFloat(raw.replace('%', ''));
+    var v = (raw === '' || isNaN(n)) ? null : ((raw.indexOf('%') >= 0 || n > 1) ? n / 100 : n);
+    el.value = v == null ? '' : Math.round(v * 100) + '%';
+    saveTopMeetingCell(id, field, v == null ? '' : v);
+  }
+
   function deleteTopMeetingRow(id) {
     if (!confirm('Delete this ranking entry?')) return;
     postAPI({ action: 'top-meeting-delete', id: id }).then(function(res) {
@@ -5440,6 +5460,7 @@
     deleteMeetingRow: deleteMeetingRow,
     addMeetingRow: addMeetingRow,
     saveTopMeetingCell: saveTopMeetingCell,
+    saveTopMeetingRatio: saveTopMeetingRatio,
     deleteTopMeetingRow: deleteTopMeetingRow,
     addTopMeetingRow: addTopMeetingRow,
     saveWebcastCell: saveWebcastCell,
