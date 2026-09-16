@@ -44,6 +44,96 @@
     2019: 255.548, 2020: 256.389, 2021: 267.054, 2022: 289.109,
     2023: 303.363, 2024: 313.548, 2025: 320.795, 2026: 333.020
   };
+  // Weekly Au/Ag/Pt/Pd 1968-2026 (user-supplied export, 2026-09-15), averaged two ways:
+  // METAL_SEP = that year's September weeks; METAL_ANN = the 12 months to September (Oct-Sep).
+  // Pt/Pd series begin April 1990, so their early cells are empty. [Au, Ag, Pt, Pd]
+  var METAL_SEP = {
+    1988: [411.84, 6.36, null, null],
+    1989: [361.86, 5.14, null, null],
+    1990: [389.32, 4.80, 461.47, 104.91],
+    1991: [348.43, 4.03, 349.12, 81.96],
+    1992: [345.47, 3.77, 362.20, 91.27],
+    1993: [356.39, 4.26, 363.92, 121.88],
+    1994: [392.10, 5.53, 417.59, 152.93],
+    1995: [383.13, 5.44, 429.63, 143.19],
+    1996: [383.34, 5.04, 390.21, 121.56],
+    1997: [322.14, 4.70, 424.04, 190.10],
+    1998: [289.47, 5.02, 359.42, 283.09],
+    1999: [265.66, 5.24, 370.75, 360.94],
+    2000: [273.51, 4.89, 591.90, 728.70],
+    2001: [283.42, 4.35, 458.15, 443.30],
+    2002: [318.91, 4.55, 556.05, 328.60],
+    2003: [378.34, 5.17, 705.33, 211.15],
+    2004: [405.88, 6.43, 849.79, 212.08],
+    2005: [457.49, 7.18, 916.00, 189.38],
+    2006: [597.04, 11.62, 1180.72, 321.98],
+    2007: [712.65, 12.83, 1307.65, 334.59],
+    2008: [823.45, 12.31, 1240.40, 251.85],
+    2009: [996.25, 16.35, 1285.85, 293.04],
+    2010: [1270.77, 20.49, 1589.99, 537.53],
+    2011: [1764.22, 37.77, 1737.12, 701.75],
+    2012: [1744.45, 33.61, 1623.65, 657.85],
+    2013: [1349.91, 22.61, 1459.15, 708.30],
+    2014: [1241.14, 18.57, 1367.04, 843.88],
+    2015: [1127.11, 14.80, 965.74, 615.84],
+    2016: [1326.09, 19.30, 1046.43, 687.30],
+    2017: [1315.76, 17.44, 966.29, 933.95],
+    2018: [1197.68, 14.27, 803.88, 1012.93],
+    2019: [1509.03, 18.11, 944.22, 1601.22],
+    2020: [1923.60, 25.75, 907.47, 2297.54],
+    2021: [1780.40, 23.29, 978.53, 2128.89],
+    2022: [1677.01, 18.95, 881.62, 2119.05],
+    2023: [1913.36, 23.10, 919.95, 1237.41],
+    2024: [2563.98, 29.96, 964.00, 1019.39],
+    2025: [3649.11, 42.14, 1415.30, 1174.15],
+    2026: [4359.92, 64.56, 1795.10, 1334.93],
+  };
+  var METAL_ANN = {
+    1988: [451.41, 6.73, null, null],
+    1989: [387.56, 5.71, null, null],
+    1990: [385.80, 5.13, null, null],
+    1991: [367.39, 4.10, 391.73, 90.39],
+    1992: [349.25, 4.02, 360.09, 84.74],
+    1993: [350.88, 4.10, 369.87, 115.30],
+    1994: [381.68, 5.16, 395.74, 135.88],
+    1995: [383.96, 5.16, 424.82, 156.39],
+    1996: [390.07, 5.31, 405.48, 132.36],
+    1997: [348.81, 4.79, 390.95, 155.55],
+    1998: [297.65, 5.63, 383.82, 263.41],
+    1999: [278.11, 5.14, 355.95, 328.94],
+    2000: [285.55, 5.08, 503.90, 580.52],
+    2001: [268.67, 4.48, 568.10, 718.35],
+    2002: [298.75, 4.55, 502.49, 355.73],
+    2003: [345.84, 4.69, 645.85, 221.37],
+    2004: [398.93, 6.16, 824.53, 227.87],
+    2005: [432.20, 7.10, 869.72, 193.46],
+    2006: [572.30, 10.45, 1099.31, 300.23],
+    2007: [652.67, 12.97, 1224.34, 344.93],
+    2008: [869.52, 16.03, 1724.79, 395.11],
+    2009: [897.48, 12.83, 1073.76, 224.53],
+    2010: [1159.52, 17.97, 1535.68, 446.04],
+    2011: [1492.93, 33.93, 1761.80, 746.11],
+    2012: [1658.08, 30.89, 1532.28, 637.70],
+    2013: [1524.07, 26.82, 1537.12, 706.75],
+    2014: [1284.31, 20.17, 1427.13, 786.88],
+    2015: [1184.54, 16.15, 1135.22, 736.71],
+    2016: [1220.95, 16.54, 979.95, 594.51],
+    2017: [1243.31, 17.16, 954.68, 792.65],
+    2018: [1281.48, 16.26, 904.57, 990.05],
+    2019: [1328.22, 15.49, 842.89, 1375.41],
+    2020: [1673.17, 18.78, 877.07, 2060.75],
+    2021: [1818.35, 25.41, 1077.87, 2498.81],
+    2022: [1818.73, 22.30, 969.35, 2112.73],
+    2023: [1881.18, 22.89, 981.75, 1549.75],
+    2024: [2215.78, 26.23, 943.89, 1004.85],
+    2025: [3056.90, 33.96, 1094.63, 1031.75],
+    2026: [4446.39, 68.64, 1885.21, 1481.37],
+  };
+  // CPI-U (BLS, NSA, CUUR0000SA0): September value, and the Oct-Sep mean, per year.
+  var CPI_SEP = {1987: 115.0, 1988: 119.8, 1989: 125.0, 1990: 132.7, 1991: 137.2, 1992: 141.3, 1993: 145.1, 1994: 149.4, 1995: 153.2, 1996: 157.8, 1997: 161.2, 1998: 163.6, 1999: 167.9, 2000: 173.7, 2001: 178.3, 2002: 181.0, 2003: 185.2, 2004: 189.9, 2005: 198.8, 2006: 202.9, 2007: 208.49, 2008: 218.783, 2009: 215.969, 2010: 218.439, 2011: 226.889, 2012: 231.407, 2013: 234.149, 2014: 238.031, 2015: 237.945, 2016: 241.428, 2017: 246.819, 2018: 252.439, 2019: 256.759, 2020: 260.28, 2021: 274.31, 2022: 296.808, 2023: 307.789, 2024: 315.301, 2025: 324.8, 2026: 334.980};  // 2026 = August, provisional: September CPI is published mid-October
+
+  var CPI_ANN = {1988: 117.017, 1989: 122.583, 1990: 128.7, 1991: 135.192, 1992: 139.267, 1993: 143.492, 1994: 147.258, 1995: 151.392, 1996: 155.625, 1997: 159.775, 1998: 162.383, 1999: 165.5, 2000: 170.758, 2001: 176.258, 2002: 178.9, 2003: 183.1, 2004: 187.35, 2005: 193.508, 2006: 200.633, 2007: 205.338, 2008: 214.463, 2009: 213.768, 2010: 217.369, 2011: 223.137, 2012: 228.526, 2013: 232.247, 2014: 236.008, 2015: 236.742, 2016: 238.939, 2017: 243.841, 2018: 249.749, 2019: 254.376, 2020: 258.014, 2021: 266.616, 2022: 287.723, 2023: 302.289, 2024: 311.581, 2025: 319.997, 2026: 330.142};
+  var metalHeatMode = 'nominal'; // Metal Price Performance heatmap: 'nominal' or 'real'
   var inflationMode = 'nominal'; // 'nominal' or 'real'
   var baseYear = 2025;
   var marketCharts = [];  // track chart instances for cleanup
@@ -342,6 +432,14 @@
       sectionNum++;
       marketSectionId = 'section-' + sectionNum;
       html += renderSection(sectionNum, 'Market Context', renderMarketContext(d.market_data, evt));
+    }
+
+    // 4b. Metal Price Performance (long-range, not event-data dependent)
+    var metalPerfHtml = renderMetalPerformance(evt);
+    if (metalPerfHtml) {
+      sectionNum++;
+      metalPerfSectionId = 'section-' + sectionNum;
+      html += renderSection(sectionNum, 'Metal Price Performance', metalPerfHtml);
     }
 
     // 5. Member Data (composition from analytics)
@@ -811,6 +909,119 @@
 
 
 
+    return html;
+  }
+
+
+  // ── 4b. Metal Price Performance heatmap ──────────────
+  // Year-on-year change per metal, on two bases: the September average (the month the
+  // Americas forum runs) and the 12 months to September. Real deflates each year's price
+  // by the matching CPI-U before comparing, so the cell is the change in purchasing power.
+  var METAL_NAMES = ['Gold', 'Silver', 'Platinum', 'Palladium'];
+  var METAL_HEAT_START = 1989;   // first Denver Gold Forum
+  var METAL_HEAT_BLOCK = 5;      // years per block
+  var METAL_DATA_THROUGH = '2026-09-16';  // last week in the price file
+  var METAL_PARTIAL_SEP = 2026;  // September of this year is still a part-month average
+
+  function metalYoY(table, cpi, year, idx) {
+    var cur = table[year], prev = table[year - 1];
+    if (!cur || !prev) return null;
+    var a = cur[idx], b = prev[idx];
+    if (a == null || b == null || !b) return null;
+    if (metalHeatMode === 'real') {
+      var ca = cpi[year], cb = cpi[year - 1];
+      if (!ca || !cb) return null;
+      return (a / ca) / (b / cb) - 1;
+    }
+    return a / b - 1;
+  }
+
+  // Diverging scale: red below zero, green above, neutral at no change. ±50% saturates.
+  function metalHeatStyle(v) {
+    if (v == null) return 'background:#FAFAFA';
+    var t = Math.min(Math.abs(v) / 0.5, 1);
+    var alpha = (0.10 + 0.55 * t).toFixed(2);
+    var rgb = v >= 0 ? '39, 174, 96' : '192, 57, 43';
+    var ink = t > 0.6 ? '#fff' : '#333';
+    return 'background:rgba(' + rgb + ',' + alpha + ');color:' + ink;
+  }
+
+  function fmtYoYPct(v) {
+    if (v == null) return '<span style="color:#CCC">&mdash;</span>';
+    var pct = Math.abs(v * 100).toFixed(0);
+    if (pct === '0') return '0%';   // no sign on a change that rounds to nothing
+    return (v >= 0 ? '+' : '\u2212') + pct + '%';
+  }
+
+  function metalHeatYears(evt) {
+    var years = [];
+    var last = (evt && evt.year) || 2026;
+    for (var y = METAL_HEAT_START; y <= last; y++) {
+      if (METAL_SEP[y] || METAL_ANN[y]) years.push(y);
+    }
+    return years;
+  }
+
+  function renderMetalPerformance(evt) {
+    var years = metalHeatYears(evt);
+    if (years.length < 2) return '';
+    var isReal = metalHeatMode === 'real';
+
+    var html = '<div class="inflation-controls" style="margin-bottom:10px">';
+    html += '<div class="inflation-toggle">';
+    html += '<button ' + (!isReal ? 'class="active"' : '') + ' onclick="PSR.setMetalHeat(\'nominal\')">Nominal</button>';
+    html += '<button ' + (isReal ? 'class="active"' : '') + ' onclick="PSR.setMetalHeat(\'real\')">Real (CPI-adjusted)</button>';
+    html += '</div>';
+    html += '<span class="inflation-note">' + (isReal ? 'Change in constant dollars (CPI-U, BLS)' : 'Change in current dollars') + '</span>';
+    html += '</div>';
+
+    // Legend
+    html += '<div style="display:flex;align-items:center;gap:8px;font-size:10px;color:#888;margin-bottom:10px">';
+    html += '<span>Fall</span>';
+    [-0.5, -0.25, -0.08, 0.08, 0.25, 0.5].forEach(function(v) {
+      html += '<span style="display:inline-block;width:22px;height:12px;border-radius:2px;' + metalHeatStyle(v) + '"></span>';
+    });
+    html += '<span>Rise</span><span style="margin-left:6px">&nbsp;&mdash;&nbsp;shading saturates at &plusmn;50%</span>';
+    html += '</div>';
+
+    for (var start = 0; start < years.length; start += METAL_HEAT_BLOCK) {
+      var block = years.slice(start, start + METAL_HEAT_BLOCK);
+      html += '<table class="psr-table" style="margin-bottom:14px;font-size:11px"><thead><tr>';
+      html += '<th style="width:88px">Metal</th><th style="width:96px">Basis</th>';
+      block.forEach(function(y) {
+        var isEventYear = evt && y === evt.year;
+        html += '<th class="num"' + (isEventYear ? ' style="background:#FFFDE7"' : '') + '>' + y + '</th>';
+      });
+      // Pad short final blocks so every block keeps the same column widths
+      for (var pad = block.length; pad < METAL_HEAT_BLOCK; pad++) html += '<th></th>';
+      html += '</tr></thead><tbody>';
+
+      METAL_NAMES.forEach(function(name, idx) {
+        [['Sep avg', METAL_SEP, CPI_SEP], ['12m to Sep', METAL_ANN, CPI_ANN]].forEach(function(basis, bi) {
+          html += '<tr>';
+          if (bi === 0) html += '<td rowspan="2" style="font-weight:600;vertical-align:middle">' + name + '</td>';
+          html += '<td style="color:#888">' + basis[0] + '</td>';
+          block.forEach(function(y) {
+            var v = metalYoY(basis[1], basis[2], y, idx);
+            var prices = basis[1][y] && basis[1][y - 1] ? basis[1][y - 1][idx] + ' \u2192 ' + basis[1][y][idx] : '';
+            var partial = (bi === 0 && y === METAL_PARTIAL_SEP);
+            html += '<td class="num" style="' + metalHeatStyle(v) + '"' + (prices ? ' title="' + name + ' ' + y + ': $' + prices + '"' : '') + '>' +
+              fmtYoYPct(v) + (partial && v != null ? '<span style="font-size:9px">&nbsp;&dagger;</span>' : '') + '</td>';
+          });
+          for (var pad2 = block.length; pad2 < METAL_HEAT_BLOCK; pad2++) html += '<td></td>';
+          html += '</tr>';
+        });
+      });
+      html += '</tbody></table>';
+    }
+
+    html += '<p style="font-size:10px;color:#888;margin:4px 0 0;font-style:italic">';
+    html += 'Weekly Au, Ag, Pt and Pd prices averaged over September, and over the 12 months to September. ';
+    html += 'Platinum and palladium start in April 1990. ';
+    html += 'Real figures deflate each year by CPI-U (BLS): the September index, and the Oct&ndash;Sep mean. ';
+    html += '&dagger; September ' + METAL_PARTIAL_SEP + ' is a part-month average (prices through ' + METAL_DATA_THROUGH + '); ';
+    html += 'its real figure uses August CPI, as September CPI is published mid-October.';
+    html += '</p>';
     return html;
   }
 
@@ -4691,6 +4902,7 @@
 
   // ── Inflation toggle ──────────────────────────────────
   var marketSectionId = null; // set during renderReport
+  var metalPerfSectionId = null; // set during renderReport
   var histFinSectionId = null; // set during renderReport
   var histFinChart = null; // track hist chart instance for cleanup
 
@@ -4706,6 +4918,17 @@
       refreshMarketSection();
       refreshHistFinSection();
     }
+  }
+
+  // Metal Price Performance owns its own nominal/real switch — the heatmap is a long-range
+  // series of its own, independent of the event's market data
+  function setMetalHeat(mode) {
+    metalHeatMode = mode;
+    if (!reportData || !metalPerfSectionId) return;
+    var section = document.getElementById(metalPerfSectionId);
+    if (!section) return;
+    var body = section.querySelector('.psr-section-body');
+    if (body) body.innerHTML = renderMetalPerformance(reportData.event);
   }
 
   function refreshMarketSection() {
@@ -5123,6 +5346,7 @@
     toggleHistTable: toggleHistTable,
     refreshRegRecon: refreshRegRecon,
     toggleRegHistTable: PSR.toggleRegHistTable,
+    setMetalHeat: setMetalHeat,
     setHistAttAxis: PSR.setHistAttAxis,
     toggleMtgHistTable: PSR.toggleMtgHistTable,
     sortTable: sortTable,
