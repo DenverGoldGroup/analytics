@@ -853,6 +853,8 @@
   function fmtMcap(n) {
     if (n == null || n === 0) return '—';
     var v = Number(n);
+    // Roll over to trillions rather than printing four-digit billions ($1035.3B)
+    if (v >= 1e12) return '$' + (v / 1e12).toFixed(1) + 'T';
     if (v >= 1e9) return '$' + (v / 1e9).toFixed(1) + 'B';
     if (v >= 1e6) return '$' + (v / 1e6).toFixed(0) + 'M';
     return '$' + fmt(v);
@@ -1320,7 +1322,7 @@
     html += '<div style="display:flex;gap:12px;flex-wrap:wrap;margin-bottom:16px">';
     html += '<div style="background:#FDEDEC;border-radius:8px;padding:12px 18px;text-align:center"><div style="font-size:22px;font-weight:700;color:#C0392B">' + total + '</div><div style="font-size:10px;color:#999;text-transform:uppercase;letter-spacing:0.5px">Cancellations</div></div>';
     if (totalMcap > 0) {
-      var mcapStr = totalMcap >= 1e9 ? '$' + (totalMcap / 1e9).toFixed(1) + 'B' : '$' + (totalMcap / 1e6).toFixed(0) + 'M';
+      var mcapStr = fmtMcap(totalMcap);
       html += '<div style="background:#FEF9E7;border-radius:8px;padding:12px 18px;text-align:center"><div style="font-size:22px;font-weight:700;color:#7D6608">' + mcapStr + '</div><div style="font-size:10px;color:#999;text-transform:uppercase;letter-spacing:0.5px">Lost Market Cap</div></div>';
     }
     html += '</div>';
@@ -1362,6 +1364,7 @@
   function formatCxlMcap(val) {
     if (!val || Number(val) === 0) return '<span style="color:#999">Private</span>';
     var n = Number(val);
+    if (n >= 1e12) return '$' + (n / 1e12).toFixed(2) + 'T';
     if (n >= 1e9) return '$' + (n / 1e9).toFixed(2) + 'B';
     if (n >= 1e6) return '$' + (n / 1e6).toFixed(1) + 'M';
     return '$' + Math.round(n).toLocaleString();
