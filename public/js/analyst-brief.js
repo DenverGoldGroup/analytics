@@ -651,7 +651,7 @@
       }
       var projWord = m.projected ? ', projected' : '';
       if (m.perIssuer != null) {
-        cells.push([m.perIssuer.toFixed(1), 'average per issuer' + projWord + ' (' + fmtInt(m.issuersWithMeetings) + ' issuers)']);
+        cells.push([m.perIssuer.toFixed(1), 'average per issuer' + projWord + ' (' + fmtInt(m.issuersWithMeetings) + ' of ' + fmtInt(s.n) + ' issuers accepting meetings)']);
       }
       if (m.perInvestor != null) {
         cells.push([m.perInvestor.toFixed(1), 'average per investor' + projWord + ' (' + fmtInt(m.investors) + ' investors)']);
@@ -659,11 +659,11 @@
       var cellW = CONTENT_W / cells.length;
       cells.forEach(function(cell, i) {
         var cx = M + i * cellW;
-        if (i) doc.moveTo(cx - 8, y + 2).lineTo(cx - 8, y + 40).lineWidth(0.5).strokeColor(RULE).stroke();
+        if (i) doc.moveTo(cx - 8, y + 2).lineTo(cx - 8, y + 50).lineWidth(0.5).strokeColor(RULE).stroke();
         doc.font('serif').fontSize(22).fillColor(i === 0 ? GOLD_DARK : INK).text(cell[0], cx, y, { lineBreak: false });
-        doc.font('regular').fontSize(7.8).fillColor(MUTED).text(cell[1], cx, y + 27, { width: cellW - 18, lineGap: 0.8, height: 20 });
+        doc.font('regular').fontSize(7.8).fillColor(MUTED).text(cell[1], cx, y + 27, { width: cellW - 18, lineGap: 0.8, height: 30 });
       });
-      y += 50;
+      y += 60;
       doc.font('italic').fontSize(7).fillColor(MUTED)
         .text((m.projected ? 'Scheduling is still open: the total is a Denver Gold Group projection of the final tally, based on confirmed bookings to date. ' : '') +
           'Source: Denver Gold Group meeting system.', M, y, { width: CONTENT_W, lineBreak: false });
