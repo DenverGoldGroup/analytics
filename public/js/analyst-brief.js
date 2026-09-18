@@ -328,13 +328,20 @@
       var nInvestors = Number(inputs.investors_with_meetings) || 0;
       var investorMeetings = Number(inputs.investor_meetings_total) || 0;
 
+      // The admin can enter the current confirmed total; otherwise it is the sum of the dashboard upload.
+      // Issuer-side figures from the upload scale with it, so the per-issuer average follows the total.
+      var entered = Number(inputs.meetings_current) > 0 ? Number(inputs.meetings_current) : null;
+      var base = entered || totalMeet;
+      var baseScale = totalMeet ? base / totalMeet : 1;
+
       meetings = {
-        total: totalMeet, hosts: active.length, factor: factor, projected: factor !== 1,
-        shownTotal: Math.round(totalMeet * factor),
-        mean: active.length ? totalMeet * factor / active.length : 0,
+        total: base, uploadTotal: totalMeet, baseEntered: !!entered,
+        hosts: active.length, factor: factor, projected: factor !== 1,
+        shownTotal: Math.round(base * factor),
+        mean: active.length ? base * factor / active.length : 0,
         priorFinal: Number(inputs.meetings_prior_final) || null,
         issuersWithMeetings: nIssuers,
-        perIssuer: nIssuers ? issuerMeetings * factor / nIssuers : null,
+        perIssuer: nIssuers ? issuerMeetings * baseScale * factor / nIssuers : null,
         perInvestor: nInvestors && investorMeetings ? investorMeetings * factor / nInvestors : null,
         investors: Number(inputs.investors_with_meetings) || null,
         investorFirms: Number(inputs.investor_firms) || null

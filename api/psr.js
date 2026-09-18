@@ -788,7 +788,11 @@ module.exports = async function handler(req, res) {
         }
         var { data, error } = await sb.from('psr_brief_inputs').select('*').eq('event_code', eventCode).maybeSingle();
         if (error) return res.status(500).json({ ok: false, error: error.message });
-        return res.status(200).json({ ok: true, inputs: data || null });
+        // The uploaded dashboard total, shown beside the 'current confirmed meetings' field
+        var { data: mRows } = await sb.from('psr_top_meetings').select('meeting_count')
+          .eq('event_code', eventCode).eq('ranking_type', 'member');
+        var uploaded = (mRows || []).reduce(function(t, r) { return t + (Number(r.meeting_count) || 0); }, 0);
+        return res.status(200).json({ ok: true, inputs: data || null, uploaded_meetings: (mRows && mRows.length) ? uploaded : null });
       }
 
       if (action === 'member-holdings' && eventCode) {
@@ -1490,6 +1494,7 @@ module.exports = async function handler(req, res) {
           investors_with_meetings: optInt(bi.investors_with_meetings),
           investor_firms: optInt(bi.investor_firms),
           investor_meetings_total: optInt(bi.investor_meetings_total),
+          meetings_current: optInt(bi.meetings_current),
           attendees_projected_total: optInt(bi.attendees_projected_total),
           investor_meetings_source: bi.investor_meetings_source ? String(bi.investor_meetings_source).slice(0, 200) : null,
           updated_at: new Date().toISOString()

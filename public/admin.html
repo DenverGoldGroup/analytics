@@ -390,11 +390,12 @@
           <label title="Only used when no attendee data is loaded; otherwise the briefing projects buy-side from the attendee upload, as the attendees page does.">Projected buy-side (fallback)<input type="number" id="ab-buyside" min="0" class="ab-input"></label>
           <label title="Leave blank to use the site's projection. When set, every audience group is scaled pro-rata to this total.">Projected attendees on site (override)<input type="number" id="ab-site-total" min="0" class="ab-input"></label>
           <label>Last year's buy-side<input type="number" id="ab-buyside-prior" min="0" class="ab-input"></label>
+          <label title="Leave blank to use the total from the Member Meetings upload.">Current confirmed meetings<input type="number" id="ab-meetings-current" min="0" class="ab-input"><span id="ab-meetings-uploaded" style="display:block;font-size:10px;color:#999;margin-top:2px"></span></label>
           <label>Last year's final 1x1 meetings<input type="number" id="ab-meetings-prior" min="0" class="ab-input"></label>
           <label>Last year's shareholder representation (%)<input type="number" id="ab-holdings-prior" min="0" max="100" step="0.1" class="ab-input"></label>
           <label>Investors with confirmed 1x1s<input type="number" id="ab-investors" min="0" class="ab-input"></label>
           <label>&hellip;from how many firms<input type="number" id="ab-investor-firms" min="0" class="ab-input"></label>
-          <label>Their confirmed meetings, summed<input type="number" id="ab-investor-meetings" min="0" class="ab-input"></label>
+          <label title="From the Total Confirmed Meeting Counts file. Only used for the average per investor.">Investors' confirmed meetings, summed (per-investor average only)<input type="number" id="ab-investor-meetings" min="0" class="ab-input"></label>
           <label title="Applied to current meetings and investor requests until the event starts. Never printed.">Meetings projection multiplier (internal)<input type="number" id="ab-factor" min="1" step="0.05" class="ab-input"></label>
         </div>
         <div style="margin-top:10px;font-size:11px;color:#555">
@@ -1258,7 +1259,7 @@
           loadScriptOnce('https://cdn.jsdelivr.net/npm/pdfkit@0.15.0/js/pdfkit.standalone.js'),
           loadScriptOnce('/js/metal-history.js?v=1'),
           // analyst-brief.js reads AttendeeProjection as it loads, so this one must be in first
-          loadScriptOnce('/js/attendee-projection.js?v=1').then(function() { return loadScriptOnce('/js/analyst-brief.js?v=12'); }),
+          loadScriptOnce('/js/attendee-projection.js?v=1').then(function() { return loadScriptOnce('/js/analyst-brief.js?v=13'); }),
         ]).catch(function(err) { _abLibs = null; throw err; });
       }
       return _abLibs;
@@ -1275,7 +1276,7 @@
       var eventCode = document.getElementById('ab-event').value;
       var ids = { 'ab-buyside': 'buyside_projected', 'ab-buyside-prior': 'buyside_prior', 'ab-meetings-prior': 'meetings_prior_final', 'ab-factor': 'projection_factor',
         'ab-investors': 'investors_with_meetings', 'ab-investor-firms': 'investor_firms', 'ab-investor-meetings': 'investor_meetings_total',
-        'ab-site-total': 'attendees_projected_total' };
+        'ab-site-total': 'attendees_projected_total', 'ab-meetings-current': 'meetings_current' };
       _abInvestorSource = null;
       document.getElementById('ab-investor-note').textContent = '';
       Object.keys(ids).forEach(function(id) { document.getElementById(id).value = ''; });
@@ -1285,6 +1286,10 @@
         var r = await fetch('/api/psr?action=brief-inputs&event_code=' + encodeURIComponent(eventCode), { headers: { 'Authorization': 'Bearer ' + adminToken } });
         var d = await r.json();
         var inp = (d.ok && d.inputs) || {};
+        var up = d.ok ? d.uploaded_meetings : null;
+        document.getElementById('ab-meetings-current').placeholder = up != null ? up.toLocaleString('en-US') : '';
+        document.getElementById('ab-meetings-uploaded').textContent = up != null
+          ? 'Upload total: ' + up.toLocaleString('en-US') + ' (used when blank)' : 'No member meetings uploaded';
         Object.keys(ids).forEach(function(id) { if (inp[ids[id]] != null) document.getElementById(id).value = inp[ids[id]]; });
         _abInvestorSource = inp.investor_meetings_source || null;
         if (_abInvestorSource) document.getElementById('ab-investor-note').textContent = 'Last filled from ' + _abInvestorSource;
@@ -1303,6 +1308,7 @@
         investors_with_meetings: num('ab-investors'), investor_firms: num('ab-investor-firms'),
         investor_meetings_total: num('ab-investor-meetings'),
         attendees_projected_total: num('ab-site-total'),
+        meetings_current: num('ab-meetings-current'),
         investor_meetings_source: _abInvestorSource
       };
     }
@@ -1390,7 +1396,10 @@
           } catch (e) { reject(e); }
         });
 
-        var fileName = eventCode + '-Analyst-Briefing-' + new Date().toISOString().slice(0, 10) + '.pdf';
+        var now = new Date();
+        var stamp = now.getFullYear() + '-' + String(now.getMonth() + 1).padStart(2, '0') + '-' + String(now.getDate()).padStart(2, '0') +
+          '-' + String(now.getHours()).padStart(2, '0') + String(now.getMinutes()).padStart(2, '0') + String(now.getSeconds()).padStart(2, '0');
+        var fileName = eventCode + '-Analyst-Briefing-' + stamp + '.pdf';
         var url = URL.createObjectURL(blob);
         var a = document.createElement('a');
         a.href = url; a.download = fileName;
@@ -1407,7 +1416,14 @@
         fillEl.style.width = '100%';
         textEl.textContent = 'Done!';
         resultEl.className = 'upload-result ' + (gaps.length ? 'error' : 'success');
-        resultEl.textContent = 'Downloaded ' + fileName + ' (' + Math.round(blob.size / 1024) + ' KB).' +
+        var used = [];
+        if (s.meetings) {
+          used.push('meetings ' + s.meetings.total.toLocaleString('en-US') + (s.meetings.baseEntered ? ' (entered)' : ' (from upload)') +
+            (s.meetings.projected ? ' \u00d7 ' + s.meetings.factor + ' = ' + s.meetings.shownTotal.toLocaleString('en-US') + ' projected' : ''));
+        }
+        if (s.audience) used.push('audience ' + s.audience.total.toLocaleString('en-US') + (s.audience.projected ? ' projected' : ''));
+        if (s.buyside) used.push('buy-side ' + s.buyside.value.toLocaleString('en-US'));
+        resultEl.textContent = 'Downloaded ' + fileName + ' (' + Math.round(blob.size / 1024) + ' KB). Used: ' + used.join('; ') + '.' +
           (gaps.length ? ' Left out for lack of data: ' + gaps.join('; ') + '.' : '');
         resultEl.style.display = 'block';
       } catch (err) {
