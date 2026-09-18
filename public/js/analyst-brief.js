@@ -5,6 +5,10 @@
 (function(root) {
   'use strict';
 
+  // The site's standing attendee projection rule (shared with the attendees view)
+  var Projection = (typeof module !== 'undefined' && module.exports)
+    ? require('./attendee-projection.js') : root.AttendeeProjection;
+
   // ── Brand ────────────────────────────────────────────
   var INK = '#0B0B0B';
   var GOLD = '#C4993B';
@@ -162,13 +166,25 @@
     var pool = useAttended ? attended : att;
     var audience = null;
     if (pool.length >= 10) {
-      var buy = pool.filter(function(a) { return a.category === 'Buy-Side'; });
-      var sell = pool.filter(function(a) { return a.category === 'Sell-Side'; });
+      // Before the forum, headcounts are projected to on-site attendance with the same per-attendee
+      // factors the attendees view uses; once it has started, the counts are who actually attended.
+      var projecting = upcoming && !!Projection;
+      var mult = projecting ? Projection.buySellMult(data.event.start_date, asOf) : 1;
+      // Projections are estimates, so they are shown rounded up to the nearest 10; actual counts are exact
+      var headcount = function(list) {
+        return projecting ? Math.ceil(Projection.projectedCount(list, mult) / 10) * 10 : list.length;
+      };
+      // Same definitions as the attendees view: buy-side and sell-side are participants
+      var buy = pool.filter(function(a) { return a.type !== 'Delegate' && a.category === 'Buy-Side'; });
+      var sell = pool.filter(function(a) { return a.type !== 'Delegate' && a.category === 'Sell-Side'; });
       // Corporate delegates are the issuers' own people; sponsor banks also register delegates
       var delegates = pool.filter(function(a) { return a.type === 'Delegate' && a.category === 'Member'; });
       if (!delegates.length) delegates = pool.filter(function(a) { return a.type === 'Delegate' && a.category !== 'Buy-Side' && a.category !== 'Sell-Side'; });
       var bankers = pool.filter(function(a) { return a.category === 'Banking & Corporate Finance Services'; });
-      var otherN = pool.length - buy.length - sell.length - delegates.length - bankers.length;
+      var totalN = headcount(pool), buyN = headcount(buy), sellN = headcount(sell),
+          delegateN = headcount(delegates), bankerN = headcount(bankers);
+      // "Other" is the remainder, so the rows always add up to the (rounded) total
+      var otherN = totalN - buyN - sellN - delegateN - bankerN;
       var subMap = {};
       buy.forEach(function(a) {
         var s = String(a.subcategory || 'Unclassified');
@@ -179,7 +195,7 @@
         .sort(function(a, b) { return b.count - a.count; });
       var subTop = subs.slice(0, 5);
       var subRest = subs.slice(5).reduce(function(s, x) { return s + x.count; }, 0);
-      if (subRest) subTop.push({ label: 'All other types', count: subRest });
+      if (subRest > 0) subTop.push({ label: 'All other types', count: subRest });
 
       // C-suite representation among corporate delegates, read from job titles
       var csuite = null;
@@ -209,16 +225,17 @@
 
       audience = {
         mode: useAttended ? 'Attended' : 'Registered',
-        phrase: useAttended ? 'attendees' : (upcoming ? 'pre-registered attendees' : 'registered attendees'),
-        mixLabel: useAttended ? 'Attendee mix' : (upcoming ? 'Attendee mix, pre-registered to date' : 'Attendee mix'),
+        projected: projecting, registered: pool.length,
+        phrase: useAttended ? 'attendees' : (projecting ? 'attendees projected on site' : 'registered attendees'),
+        mixLabel: projecting ? 'Attendee mix, projected on site' : 'Attendee mix',
         csuite: csuite,
-        total: pool.length,
-        buy: buy.length, sell: sell.length, delegates: delegates.length, other: Math.max(otherN, 0),
+        total: totalN,
+        buy: buyN, sell: sellN, delegates: delegateN, other: Math.max(otherN, 0),
         mix: [
-          { label: 'Corporate delegates', count: delegates.length },
-          { label: 'Buy-side investors', count: buy.length },
-          { label: 'Bankers & corporate finance', count: bankers.length },
-          { label: 'Sell-side analysts', count: sell.length },
+          { label: 'Corporate delegates', count: delegateN },
+          { label: 'Buy-side investors', count: buyN },
+          { label: 'Bankers & corporate finance', count: bankerN },
+          { label: 'Sell-side analysts', count: sellN },
           { label: 'Other participants', count: Math.max(otherN, 0) }
         ].filter(function(x) { return x.count > 0; }),
         buySubs: subTop,
@@ -282,10 +299,10 @@
 
     // Buy-side headline: before the forum, the admin's projected pre-registration; afterwards, the count
     var buyside = null;
-    if (upcoming && Number(inputs.buyside_projected) > 0) {
+    if (audience) {
+      buyside = { value: audience.buy, projected: audience.projected };
+    } else if (upcoming && Number(inputs.buyside_projected) > 0) {
       buyside = { value: Number(inputs.buyside_projected), projected: true };
-    } else if (audience) {
-      buyside = { value: audience.buy, projected: false };
     }
     if (buyside) buyside.prior = Number(inputs.buyside_prior) || null;
 
@@ -378,6 +395,10 @@
       var fw = Math.max(barW * it.count / max, 2);
       doc.roundedRect(barX, ry + 3.5, fw, 7, 1.5).fill(i === 0 && opts.leadDark ? GOLD_DARK : GOLD);
       var vx = barX + barW + 6;
+      if (opts.shareOnly) {
+        doc.font('bold').fontSize(8.3).fillColor(INK).text(fmtPct(it.count / totalCount), vx, ry + 2, { width: valueW, align: 'right', lineBreak: false });
+        return;
+      }
       doc.font('bold').fontSize(8.3).fillColor(INK).text(fmtInt(it.count), vx, ry + 2, { width: 24, align: 'right', lineBreak: false });
       var second = opts.secondary ? opts.secondary(it) : fmtPct(it.count / totalCount);
       doc.font('regular').fontSize(7.8).fillColor(MUTED).text(second, vx + 28, ry + 2.4, { width: valueW - 28, align: 'right', lineBreak: false });
@@ -576,8 +597,14 @@
       b.caps(a.mixLabel, M, y, { color: GOLD_DARK });
       b.caps('Buy-side investors by type', M + colW + 24, y, { color: GOLD_DARK });
       var y1 = b.barList(a.mix, M, y + 13, colW, { labelW: 132, valueW: 62, rowH: 15.5 });
-      var y2 = b.barList(a.buySubs, M + colW + 24, y + 13, colW, { labelW: 132, valueW: 62, rowH: 15.5 });
-      y = Math.max(y1, y2) + 4;
+      var y2 = b.barList(a.buySubs, M + colW + 24, y + 13, colW, { labelW: 132, valueW: 62, rowH: 15.5, shareOnly: a.projected });
+      y = Math.max(y1, y2) + 2;
+      if (a.projected) {
+        doc.font('italic').fontSize(7).fillColor(MUTED)
+          .text('Projected on-site attendance, rounded up to the nearest 10, from ' + fmtInt(a.registered) + ' registrations to date. Denver Gold Group projection allowing for late registration and attrition.',
+            M, y, { width: CONTENT_W, lineBreak: false });
+        y += 12;
+      }
       if (a.csuite && a.csuite.total) {
         var c = a.csuite, boxH = 40;
         // Lead with the strongest true statement: how many issuers bring their chief executive
@@ -586,13 +613,13 @@
         doc.rect(M, y, 3, boxH).fill(GOLD);
         doc.font('serif').fontSize(26).fillColor(GOLD_DARK).text(fmtPct(lead), M + 13, y + 5, { lineBreak: false });
         var cw = doc.widthOfString(fmtPct(lead));
-        var parts = [fmtInt(c.ceo) + ' chief executives and presidents', fmtInt(c.cfo) + ' chief financial officers'];
+        var parts = [fmtInt(c.ceo) + ' CEOs and presidents', fmtInt(c.cfo) + ' CFOs'];
         if (c.other) parts.push(fmtInt(c.other) + ' other chief officers');
         var breakdown = parts.join(', ').replace(/, ([^,]*)$/, ' and $1');
         var line;
         if (c.ceoCompanies && c.companies) {
           line = 'of issuers sending delegates bring their chief executive, ' + fmtInt(c.ceoCompanies) + ' of ' + fmtInt(c.companies) + '. ' +
-            fmtInt(c.total) + ' of the ' + fmtInt(c.delegates) + ' corporate delegates (' + fmtPct(c.share) + ') are C-suite: ' + breakdown +
+            fmtInt(c.total) + ' of the ' + fmtInt(c.delegates) + ' registered corporate delegates (' + fmtPct(c.share) + ') are C-suite: ' + breakdown +
             (c.chairs ? '; ' + fmtInt(c.chairs) + ' board chairs also attend.' : '.');
         } else {
           line = 'of the ' + fmtInt(c.delegates) + ' corporate delegates are C-suite executives: ' + breakdown + '.';

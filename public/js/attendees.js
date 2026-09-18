@@ -6,37 +6,12 @@ var CHART_COLORS = [
   '#16A085', '#C0392B', '#2C3E50', '#7F8C8D', '#2ECC71'
 ];
 
-// Standing projection rule — reflects expected accretion/attrition by the event start date.
-// Buy-Side & Sell-Side inflation is time-phased: 1.11 (+11%) until the Friday before the
-// event start, then 1.035 (+3.5%) from that Friday onward. Member Delegates suppressed -2%;
-// all other classes unchanged.
-var ATT_PROJ_BUYSELL_EARLY = 1.11;  // until the Friday before the event
-var ATT_PROJ_BUYSELL_LATE = 1.035;  // that Friday onward
-var ATT_PROJ_DELEGATE = 0.98;
-var ATT_PROJ_OTHER = 1.0;
-
-// The Buy/Sell-Side multiplier in effect today, given the event start date (YYYY-MM-DD).
+// Standing projection rule — lives in attendee-projection.js, shared with the Analyst Briefing
 function attBuySellMult(cfg) {
-  if (!cfg || !cfg.eventStartDate) return ATT_PROJ_BUYSELL_LATE;
-  var friday = new Date(cfg.eventStartDate + 'T00:00:00');
-  do { friday.setDate(friday.getDate() - 1); } while (friday.getDay() !== 5); // walk back to the prior Friday
-  var today = new Date();
-  today.setHours(0, 0, 0, 0);
-  return today < friday ? ATT_PROJ_BUYSELL_EARLY : ATT_PROJ_BUYSELL_LATE;
+  return AttendeeProjection.buySellMult(cfg && cfg.eventStartDate);
 }
-
-function attProjFactor(a, buySellMult) {
-  if (a.type === 'Delegate') return ATT_PROJ_DELEGATE;
-  if (a.category === 'Buy-Side' || a.category === 'Sell-Side') return buySellMult;
-  return ATT_PROJ_OTHER;
-}
-
-// Projected headcount for a set of attendees, summing each attendee's class factor.
-function attProjectedCount(list, buySellMult) {
-  var s = 0;
-  for (var i = 0; i < list.length; i++) { s += attProjFactor(list[i], buySellMult); }
-  return Math.round(s);
-}
+function attProjFactor(a, buySellMult) { return AttendeeProjection.factor(a, buySellMult); }
+function attProjectedCount(list, buySellMult) { return AttendeeProjection.projectedCount(list, buySellMult); }
 
 function renderAttendees(attendees, cfg) {
   if (!attendees || attendees.length === 0) {

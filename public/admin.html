@@ -387,7 +387,7 @@
           <button class="btn btn-gold" id="ab-generate-btn" onclick="generateAnalystBrief()">Generate &amp; Download PDF</button>
         </div>
         <div id="ab-inputs" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:10px;margin-top:12px;font-size:11px;color:#555">
-          <label>Projected buy-side pre-registration<input type="number" id="ab-buyside" min="0" class="ab-input"></label>
+          <label title="Only used when no attendee data is loaded; otherwise the briefing projects buy-side from the attendee upload, as the attendees page does.">Projected buy-side (fallback)<input type="number" id="ab-buyside" min="0" class="ab-input"></label>
           <label>Last year's buy-side investors<input type="number" id="ab-buyside-prior" min="0" class="ab-input"></label>
           <label>Last year's final 1x1 meetings<input type="number" id="ab-meetings-prior" min="0" class="ab-input"></label>
           <label>Last year's shareholder representation (%)<input type="number" id="ab-holdings-prior" min="0" max="100" step="0.1" class="ab-input"></label>
@@ -1255,7 +1255,8 @@
         _abLibs = Promise.all([
           loadScriptOnce('https://cdn.jsdelivr.net/npm/pdfkit@0.15.0/js/pdfkit.standalone.js'),
           loadScriptOnce('/js/metal-history.js?v=1'),
-          loadScriptOnce('/js/analyst-brief.js?v=4')
+          // analyst-brief.js reads AttendeeProjection as it loads, so this one must be in first
+          loadScriptOnce('/js/attendee-projection.js?v=1').then(function() { return loadScriptOnce('/js/analyst-brief.js?v=5'); }),
         ]).catch(function(err) { _abLibs = null; throw err; });
       }
       return _abLibs;
