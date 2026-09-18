@@ -393,6 +393,7 @@
           <label>Last year's shareholder representation (%)<input type="number" id="ab-holdings-prior" min="0" max="100" step="0.1" class="ab-input"></label>
           <label>Investors with confirmed 1x1s<input type="number" id="ab-investors" min="0" class="ab-input"></label>
           <label>&hellip;from how many firms<input type="number" id="ab-investor-firms" min="0" class="ab-input"></label>
+          <label>Their confirmed meetings, summed<input type="number" id="ab-investor-meetings" min="0" class="ab-input"></label>
           <label title="Applied to current meetings and investor requests until the event starts. Never printed.">Meetings projection multiplier (internal)<input type="number" id="ab-factor" min="1" step="0.05" class="ab-input"></label>
         </div>
         <div style="margin-top:10px;font-size:11px;color:#555">
@@ -400,7 +401,7 @@
           <input type="file" id="ab-investor-file" accept=".xlsx,.xls,.csv" onchange="readInvestorMeetingFile(this)" style="font-size:11px;margin-left:6px">
           <span id="ab-investor-note" style="color:#999"></span>
         </div>
-        <div style="font-size:10px;color:#999;margin-top:6px">The meeting total itself comes from the Member Meetings upload (Meetings Dashboard export). Only the two counts are kept from the investor file, never names or emails. These figures are saved with the event when you generate. Before the event starts, meetings and investor requests are shown as projections of the final tally using the multiplier, which is never printed; afterwards the actual totals are used.</div>
+        <div style="font-size:10px;color:#999;margin-top:6px">The meeting total itself comes from the Member Meetings upload (Meetings Dashboard export). Only the three totals are kept from the investor file, never names or emails. These figures are saved with the event when you generate. Before the event starts, meetings and investor requests are shown as projections of the final tally using the multiplier, which is never printed; afterwards the actual totals are used.</div>
         <style>.ab-input{display:block;width:100%;box-sizing:border-box;margin-top:3px;padding:7px 9px;font-size:12px;font-family:inherit;border:2px solid #E0E0E0;border-radius:6px}</style>
         <div class="upload-progress" id="ab-progress">
           <div class="progress-bar"><div class="progress-fill" id="ab-progress-fill"></div></div>
@@ -1256,7 +1257,7 @@
           loadScriptOnce('https://cdn.jsdelivr.net/npm/pdfkit@0.15.0/js/pdfkit.standalone.js'),
           loadScriptOnce('/js/metal-history.js?v=1'),
           // analyst-brief.js reads AttendeeProjection as it loads, so this one must be in first
-          loadScriptOnce('/js/attendee-projection.js?v=1').then(function() { return loadScriptOnce('/js/analyst-brief.js?v=5'); }),
+          loadScriptOnce('/js/attendee-projection.js?v=1').then(function() { return loadScriptOnce('/js/analyst-brief.js?v=6'); }),
         ]).catch(function(err) { _abLibs = null; throw err; });
       }
       return _abLibs;
@@ -1272,7 +1273,7 @@
     async function loadBriefInputs() {
       var eventCode = document.getElementById('ab-event').value;
       var ids = { 'ab-buyside': 'buyside_projected', 'ab-buyside-prior': 'buyside_prior', 'ab-meetings-prior': 'meetings_prior_final', 'ab-factor': 'projection_factor',
-        'ab-investors': 'investors_with_meetings', 'ab-investor-firms': 'investor_firms' };
+        'ab-investors': 'investors_with_meetings', 'ab-investor-firms': 'investor_firms', 'ab-investor-meetings': 'investor_meetings_total' };
       _abInvestorSource = null;
       document.getElementById('ab-investor-note').textContent = '';
       Object.keys(ids).forEach(function(id) { document.getElementById(id).value = ''; });
@@ -1298,6 +1299,7 @@
         holdings_ratio_prior: pct == null ? null : pct / 100,
         projection_factor: num('ab-factor') || 1.4,
         investors_with_meetings: num('ab-investors'), investor_firms: num('ab-investor-firms'),
+        investor_meetings_total: num('ab-investor-meetings'),
         investor_meetings_source: _abInvestorSource
       };
     }
@@ -1311,17 +1313,20 @@
         var wb = XLSX.read(await input.files[0].arrayBuffer(), { type: 'array' });
         var rows = XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]]);
         if (!rows.length || !('Total Confirmed Meetings' in rows[0])) throw new Error('expected a "Total Confirmed Meetings" column');
-        var people = 0, firms = {};
+        var people = 0, firms = {}, meetings = 0;
         rows.forEach(function(r) {
-          if ((parseInt(r['Total Confirmed Meetings']) || 0) <= 0) return;
+          var n = parseInt(r['Total Confirmed Meetings']) || 0;
+          if (n <= 0) return;
           people++;
+          meetings += n;
           var firm = String(r['Company Name'] || '').trim().toLowerCase();
           if (firm) firms[firm] = 1;
         });
         document.getElementById('ab-investors').value = people;
         document.getElementById('ab-investor-firms').value = Object.keys(firms).length;
+        document.getElementById('ab-investor-meetings').value = meetings;
         _abInvestorSource = input.files[0].name + ', ' + new Date().toISOString().slice(0, 10);
-        note.textContent = people + ' investors from ' + Object.keys(firms).length + ' firms';
+        note.textContent = people + ' investors from ' + Object.keys(firms).length + ' firms, ' + meetings + ' confirmed meetings';
       } catch (err) {
         note.textContent = 'Could not read that file: ' + err.message;
       }

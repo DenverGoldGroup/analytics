@@ -201,10 +201,14 @@
       var csuite = null;
       var titled = delegates.filter(function(a) { return a.job_title; });
       if (titled.length >= 10) {
-        var ceo = 0, cfo = 0, otherChief = 0, chairs = 0, ceoCompanies = {};
+        var ceo = 0, cfo = 0, otherChief = 0, chairs = 0, mds = 0, ceoCompanies = {};
         titled.forEach(function(a) {
           var level = executiveLevel(a.job_title);
-          if (level === 'ceo') { ceo++; if (a.member_id) ceoCompanies[a.member_id] = 1; }
+          if (level === 'ceo') {
+            ceo++;
+            if (a.member_id) ceoCompanies[a.member_id] = 1;
+            if (/managing director|\bmd\b/i.test(a.job_title)) mds++;
+          }
           else if (level === 'cfo') cfo++;
           else if (level === 'chief') otherChief++;
           else if (level === 'chair') chairs++;
@@ -212,7 +216,7 @@
         var companyIds = {};
         delegates.forEach(function(a) { if (a.member_id) companyIds[a.member_id] = 1; });
         csuite = {
-          delegates: titled.length, ceo: ceo, cfo: cfo, other: otherChief, chairs: chairs, total: ceo + cfo + otherChief,
+          delegates: titled.length, ceo: ceo, cfo: cfo, other: otherChief, chairs: chairs, mds: mds, total: ceo + cfo + otherChief,
           share: (ceo + cfo + otherChief) / titled.length,
           ceoCompanies: Object.keys(ceoCompanies).length, companies: Object.keys(companyIds).length
         };
@@ -265,19 +269,25 @@
         return cands.length === 1 ? byName[cands[0]] : null;
       }
       // Issuers with at least one confirmed meeting (an issuer may run several host accounts)
-      var issuersMeeting = {};
+      // Meetings held by roster issuers' host accounts; host accounts not on the roster are left out
+      var issuersMeeting = {}, issuerMeetings = 0;
       members.forEach(function(t) {
         if (!(Number(t.meeting_count) > 0)) return;
         var c = findCompany(t.entity_name || t.company_name);
-        if (c) issuersMeeting[c.company_name] = 1;
+        if (c) { issuersMeeting[c.company_name] = 1; issuerMeetings += Number(t.meeting_count); }
       });
+      var nIssuers = Object.keys(issuersMeeting).length;
+      var nInvestors = Number(inputs.investors_with_meetings) || 0;
+      var investorMeetings = Number(inputs.investor_meetings_total) || 0;
 
       meetings = {
         total: totalMeet, hosts: active.length, factor: factor, projected: factor !== 1,
         shownTotal: Math.round(totalMeet * factor),
         mean: active.length ? totalMeet * factor / active.length : 0,
         priorFinal: Number(inputs.meetings_prior_final) || null,
-        issuersWithMeetings: Object.keys(issuersMeeting).length,
+        issuersWithMeetings: nIssuers,
+        perIssuer: nIssuers ? issuerMeetings * factor / nIssuers : null,
+        perInvestor: nInvestors && investorMeetings ? investorMeetings * factor / nInvestors : null,
         investors: Number(inputs.investors_with_meetings) || null,
         investorFirms: Number(inputs.investor_firms) || null
       };
@@ -328,7 +338,7 @@
   // an executive (counted separately, never as C-suite). Vice presidents are not C-suite.
   function executiveLevel(title) {
     var t = ' ' + String(title || '').toLowerCase().replace(/vice[\s-]*president/g, 'vp').replace(/[.,&\/()\u2013\u2014-]/g, ' ').replace(/\s+/g, ' ') + ' ';
-    if (/ ceo | chief executive| president | managing director | founder /.test(t)) return 'ceo';
+    if (/ ceo | chief executive| president | managing director | md | founder /.test(t)) return 'ceo';
     if (/ executive (co )?chair/.test(t) && !/ non executive /.test(t)) return 'ceo';
     if (/ cfo | chief financial| finance director | financial director /.test(t)) return 'cfo';
     if (/ c[a-z]o | chief [a-z ]*officer/.test(t)) return 'chief';
@@ -504,12 +514,12 @@
     var tone = function(now, prior) { return !prior ? MUTED : (now >= prior ? UP : DOWN); };
     var tiles = [];
     tiles.push({ v: fmtInt(s.n), l: 'Issuers presenting', n: versus(s.n, s.priorN, fmtInt), c: tone(s.n, s.priorN) });
-    tiles.push({ v: fmtUsd(s.mcap), l: 'Aggregate market cap', n: versus(s.mcap, s.priorMcap, fmtUsd), c: tone(s.mcap, s.priorMcap) });
-    if (s.holdings) tiles.push({ v: fmtUsd(s.holdings.held), l: 'Held by attending investors',
+    tiles.push({ v: fmtUsd(s.mcap), l: 'Aggregate MC', n: versus(s.mcap, s.priorMcap, fmtUsd), c: tone(s.mcap, s.priorMcap) });
+    if (s.holdings) tiles.push({ v: fmtUsd(s.holdings.held), l: 'Shareholding',
       n: fmtPct(s.holdings.ratio) + ' of aggregate event market cap' + (s.holdings.priorRatio != null ? ', vs ' + fmtPct(s.holdings.priorRatio) + ' in ' + py : '') });
-    if (s.meetings) tiles.push({ v: fmtInt(s.meetings.shownTotal), l: (s.meetings.projected ? 'Projected 1x1 meetings' : '1x1 meetings held'),
+    if (s.meetings) tiles.push({ v: fmtInt(s.meetings.shownTotal), l: (s.meetings.projected ? 'Proj. accepted meetings' : 'Accepted meetings'),
       n: versus(s.meetings.shownTotal, s.meetings.priorFinal, fmtInt) || s.meetings.mean.toFixed(1) + ' per issuer', c: tone(s.meetings.shownTotal, s.meetings.priorFinal) });
-    if (s.buyside) tiles.push({ v: fmtInt(s.buyside.value), l: (s.buyside.projected ? 'Projected buy-side investors' : 'Buy-side investors'),
+    if (s.buyside) tiles.push({ v: fmtInt(s.buyside.value), l: (s.buyside.projected ? 'Proj. buy-side' : 'Buy-side'),
       n: versus(s.buyside.value, s.buyside.prior, fmtInt), c: tone(s.buyside.value, s.buyside.prior) });
     tiles.push({ v: fmtInt(s.countries), l: 'Countries of operation', n: fmtInt(s.exchanges) + ' stock exchanges' });
     tiles = tiles.slice(0, 5);
@@ -564,8 +574,7 @@
       doc.font('regular').fontSize(9.6).fillColor(TEXT)
         .text('of aggregate event market cap is held by investors registered to attend' +
           (h.priorRatio != null ? ', against ' + fmtPct(h.priorRatio) + ' in ' + (evt.year - 1) : '') + ': ' +
-          fmtUsd(h.held) + ' of ' + fmtUsd(h.mc) + ' across ' + fmtInt(h.members) + ' issuers. ' +
-          leadTier(h), M + bigW + 14, y + 2, { width: CONTENT_W - bigW - 14, lineGap: 2.2 });
+          fmtUsd(h.held) + ' of ' + fmtUsd(h.mc) + ' across ' + fmtInt(h.members) + ' issuers.', M + bigW + 14, y + 2, { width: CONTENT_W - bigW - 14, lineGap: 2.2 });
       y += 40;
 
       var maxRatio = h.rows.reduce(function(m, r) { return Math.max(m, r.ratio || 0); }, 0) || 1;
@@ -601,7 +610,7 @@
       y = Math.max(y1, y2) + 2;
       if (a.projected) {
         doc.font('italic').fontSize(7).fillColor(MUTED)
-          .text('Projected on-site attendance, rounded up to the nearest 10, from ' + fmtInt(a.registered) + ' registrations to date. Denver Gold Group projection allowing for late registration and attrition.',
+          .text('Projected on-site attendance, rounded up to the nearest 10. Denver Gold Group projection allowing for late registration and attrition.',
             M, y, { width: CONTENT_W, lineBreak: false });
         y += 12;
       }
@@ -613,7 +622,7 @@
         doc.rect(M, y, 3, boxH).fill(GOLD);
         doc.font('serif').fontSize(26).fillColor(GOLD_DARK).text(fmtPct(lead), M + 13, y + 5, { lineBreak: false });
         var cw = doc.widthOfString(fmtPct(lead));
-        var parts = [fmtInt(c.ceo) + ' CEOs and presidents', fmtInt(c.cfo) + ' CFOs'];
+        var parts = [fmtInt(c.ceo) + ' CEOs, presidents and managing directors', fmtInt(c.cfo) + ' CFOs'];
         if (c.other) parts.push(fmtInt(c.other) + ' other chief officers');
         var breakdown = parts.join(', ').replace(/, ([^,]*)$/, ' and $1');
         var line;
@@ -640,11 +649,12 @@
       if (m.priorFinal) {
         cells.push([fmtSigned(m.shownTotal / m.priorFinal - 1), 'against ' + fmtInt(m.priorFinal) + ' final meetings in ' + (evt.year - 1)]);
       }
-      if (m.issuersWithMeetings) {
-        cells.push([fmtInt(m.issuersWithMeetings), 'of ' + fmtInt(s.n) + ' issuers with meetings ' + (m.projected ? 'booked' : 'held')]);
+      var projWord = m.projected ? ', projected' : '';
+      if (m.perIssuer != null) {
+        cells.push([m.perIssuer.toFixed(1), 'average per issuer' + projWord + ' (' + fmtInt(m.issuersWithMeetings) + ' issuers)']);
       }
-      if (m.investors) {
-        cells.push([fmtInt(m.investors), 'investors' + (m.investorFirms ? ' from ' + fmtInt(m.investorFirms) + ' firms' : '') + ' with meetings ' + (m.projected ? 'booked' : 'held')]);
+      if (m.perInvestor != null) {
+        cells.push([m.perInvestor.toFixed(1), 'average per investor' + projWord + ' (' + fmtInt(m.investors) + ' investors)']);
       }
       var cellW = CONTENT_W / cells.length;
       cells.forEach(function(cell, i) {
@@ -707,15 +717,6 @@
     }
 
     b.footer(2, asOf);
-  }
-
-  // One sentence on where representation is deepest
-  function leadTier(h) {
-    var best = null;
-    h.rows.forEach(function(r) { if (r.ratio != null && r.members >= 5 && (!best || r.ratio > best.ratio)) best = r; });
-    if (!best) return '';
-    var name = String(best.label).split(':')[0].toLowerCase();
-    return 'Representation is deepest among ' + name + ' issuers, at ' + fmtPct(best.ratio) + '.';
   }
 
   // ── Entry point ──────────────────────────────────────
