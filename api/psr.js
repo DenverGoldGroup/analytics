@@ -756,7 +756,7 @@ module.exports = async function handler(req, res) {
         var bAtt = [];
         for (var bFrom = 0; ; bFrom += 1000) {
           var { data: bPage, error: bErr } = await sb.from('attendees')
-            .select('type, category, subcategory, country, invitation_status, attendance, job_title, member_id, company')
+            .select('contact_id, type, category, subcategory, country, invitation_status, attendance, job_title, member_id, company')
             .eq('event_code', eventCode).order('id').range(bFrom, bFrom + 999);
           if (bErr || !bPage || !bPage.length) break;
           bAtt = bAtt.concat(bPage);

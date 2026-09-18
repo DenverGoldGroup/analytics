@@ -175,7 +175,16 @@
     var attended = att.filter(function(a) { return a.invitation_status === 'Attended' || a.attendance === 'Attended'; });
     // Nobody has checked in before the doors open, whatever a stray status says
     var useAttended = !upcoming && attended.length > 0;
-    var pool = useAttended ? attended : att;
+    // One registration per person per issuer: someone representing two issuers has two registrations.
+    // Headcounts count people (by contact ID); issuer coverage counts registrations.
+    var registrations = useAttended ? attended : att;
+    var seenPeople = {};
+    var pool = registrations.filter(function(a) {
+      if (!a.contact_id) return true;
+      if (seenPeople[a.contact_id]) return false;
+      seenPeople[a.contact_id] = true;
+      return true;
+    });
     var audience = null;
     if (pool.length >= 10) {
       // Before the forum, headcounts are projected to on-site attendance with the same per-attendee
@@ -203,10 +212,19 @@
       // Corporate delegates are the issuers' own people. Sponsor banks and partners (BMO, JP Morgan,
       // VRIFY, the World Gold Council...) also register as member delegates, so match to the roster.
       var hasCompany = pool.some(function(a) { return a.company; });
-      var delegates = pool.filter(function(a) {
+      var isIssuerDelegate = function(a) {
         return a.type === 'Delegate' && a.category === 'Member' && (!hasCompany || findCompany(a.company));
+      };
+      var delegateRegs = registrations.filter(isIssuerDelegate);
+      if (!delegateRegs.length) delegateRegs = registrations.filter(function(a) { return a.type === 'Delegate' && a.category !== 'Buy-Side' && a.category !== 'Sell-Side'; });
+      // The same people, once each
+      var delegatePeople = {};
+      var delegates = delegateRegs.filter(function(a) {
+        if (!a.contact_id) return true;
+        if (delegatePeople[a.contact_id]) return false;
+        delegatePeople[a.contact_id] = true;
+        return true;
       });
-      if (!delegates.length) delegates = pool.filter(function(a) { return a.type === 'Delegate' && a.category !== 'Buy-Side' && a.category !== 'Sell-Side'; });
       var bankers = pool.filter(function(a) { return a.category === 'Banking & Corporate Finance Services'; });
       var totalN = siteTotal ? Math.ceil(siteTotal / 10) * 10 : headcount(pool), buyN = headcount(buy), sellN = headcount(sell),
           delegateN = headcount(delegates), bankerN = headcount(bankers);
@@ -226,26 +244,35 @@
 
       // C-suite representation among corporate delegates, read from job titles
       var csuite = null;
-      var titled = delegates.filter(function(a) { return a.job_title; });
-      if (titled.length >= 10) {
-        var ceo = 0, cfo = 0, otherChief = 0, chairs = 0, mds = 0, ceoCompanies = {};
-        titled.forEach(function(a) {
+      var titledRegs = delegateRegs.filter(function(a) { return a.job_title; });
+      if (titledRegs.length >= 10) {
+        // Each person counts once, at their most senior role across the issuers they represent
+        var RANK = { ceo: 4, cfo: 3, chief: 2, chair: 1 };
+        var personLevel = {}, personMd = {}, people = [];
+        titledRegs.forEach(function(a, i) {
+          var key = a.contact_id || ('row' + i);
           var level = executiveLevel(a.job_title);
-          if (level === 'ceo') {
-            ceo++;
-            var issuerKey = hasCompany ? findCompany(a.company).company_name : a.member_id;
-            if (issuerKey) ceoCompanies[issuerKey] = 1;
-            if (/managing director|\bmd\b/i.test(a.job_title)) mds++;
-          }
+          if (!(key in personLevel)) { personLevel[key] = null; people.push(key); }
+          if (level && (!personLevel[key] || RANK[level] > RANK[personLevel[key]])) personLevel[key] = level;
+          if (level === 'ceo' && /managing director|\bmd\b/i.test(a.job_title)) personMd[key] = true;
+        });
+        var ceo = 0, cfo = 0, otherChief = 0, chairs = 0, mds = 0;
+        people.forEach(function(key) {
+          var level = personLevel[key];
+          if (level === 'ceo') { ceo++; if (personMd[key]) mds++; }
           else if (level === 'cfo') cfo++;
           else if (level === 'chief') otherChief++;
           else if (level === 'chair') chairs++;
         });
-        var companyIds = {};
-        delegates.forEach(function(a) {
+        // Issuer coverage is per registration: which issuers have a chief executive attending
+        var ceoCompanies = {}, companyIds = {};
+        titledRegs.concat(delegateRegs).forEach(function(a) {
           var key = hasCompany ? findCompany(a.company).company_name : a.member_id;
-          if (key) companyIds[key] = 1;
+          if (!key) return;
+          companyIds[key] = 1;
+          if (a.job_title && executiveLevel(a.job_title) === 'ceo') ceoCompanies[key] = 1;
         });
+        var titled = people;
         csuite = {
           delegates: titled.length, ceo: ceo, cfo: cfo, other: otherChief, chairs: chairs, mds: mds, total: ceo + cfo + otherChief,
           share: (ceo + cfo + otherChief) / titled.length,
