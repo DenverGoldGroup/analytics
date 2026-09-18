@@ -731,7 +731,7 @@ module.exports = async function handler(req, res) {
       }
 
       // Analyst Briefing: everything the PDF generator needs, in one admin-only call.
-      // Attendee rows are reduced to classification fields — no names or contact details leave the API.
+      // Attendee rows carry classification fields and the attendee's organization — no personal names or contact details.
       if (action === 'analyst-brief-data' && eventCode) {
         if (!verifyToken(req.headers.authorization)) {
           return res.status(401).json({ ok: false, error: 'Unauthorized' });
@@ -756,7 +756,7 @@ module.exports = async function handler(req, res) {
         var bAtt = [];
         for (var bFrom = 0; ; bFrom += 1000) {
           var { data: bPage, error: bErr } = await sb.from('attendees')
-            .select('type, category, subcategory, country, invitation_status, attendance, job_title, member_id')
+            .select('type, category, subcategory, country, invitation_status, attendance, job_title, member_id, company')
             .eq('event_code', eventCode).order('id').range(bFrom, bFrom + 999);
           if (bErr || !bPage || !bPage.length) break;
           bAtt = bAtt.concat(bPage);

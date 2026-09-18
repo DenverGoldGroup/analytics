@@ -150,6 +150,18 @@
     var upcoming = !!(evtStart && asOf < evtStart);
     var inputs = data.inputs || {};
     var cur = data.companies || [], prior = data.companies_prior || [];
+
+    // Match a name from another system (meeting accounts, attendee companies) to a roster issuer
+    var byName = {};
+    cur.forEach(function(c) { byName[normName(c.company_name)] = c; });
+    var rosterKeys = Object.keys(byName);
+    function findCompany(name) {
+      var n = normName(name);
+      if (!n) return null;
+      if (byName[n]) return byName[n];
+      var cands = rosterKeys.filter(function(k) { return k.indexOf(n) === 0 || n.indexOf(k) === 0; });
+      return cands.length === 1 ? byName[cands[0]] : null;
+    }
     function total(rows) { return rows.reduce(function(s, r) { return s + (Number(r.market_cap_usd) || 0); }, 0); }
     function distinct(rows, key) {
       var seen = {};
@@ -188,8 +200,12 @@
       // Same definitions as the attendees view: buy-side and sell-side are participants
       var buy = pool.filter(function(a) { return a.type !== 'Delegate' && a.category === 'Buy-Side'; });
       var sell = pool.filter(function(a) { return a.type !== 'Delegate' && a.category === 'Sell-Side'; });
-      // Corporate delegates are the issuers' own people; sponsor banks also register delegates
-      var delegates = pool.filter(function(a) { return a.type === 'Delegate' && a.category === 'Member'; });
+      // Corporate delegates are the issuers' own people. Sponsor banks and partners (BMO, JP Morgan,
+      // VRIFY, the World Gold Council...) also register as member delegates, so match to the roster.
+      var hasCompany = pool.some(function(a) { return a.company; });
+      var delegates = pool.filter(function(a) {
+        return a.type === 'Delegate' && a.category === 'Member' && (!hasCompany || findCompany(a.company));
+      });
       if (!delegates.length) delegates = pool.filter(function(a) { return a.type === 'Delegate' && a.category !== 'Buy-Side' && a.category !== 'Sell-Side'; });
       var bankers = pool.filter(function(a) { return a.category === 'Banking & Corporate Finance Services'; });
       var totalN = siteTotal ? Math.ceil(siteTotal / 10) * 10 : headcount(pool), buyN = headcount(buy), sellN = headcount(sell),
@@ -217,7 +233,8 @@
           var level = executiveLevel(a.job_title);
           if (level === 'ceo') {
             ceo++;
-            if (a.member_id) ceoCompanies[a.member_id] = 1;
+            var issuerKey = hasCompany ? findCompany(a.company).company_name : a.member_id;
+            if (issuerKey) ceoCompanies[issuerKey] = 1;
             if (/managing director|\bmd\b/i.test(a.job_title)) mds++;
           }
           else if (level === 'cfo') cfo++;
@@ -225,11 +242,16 @@
           else if (level === 'chair') chairs++;
         });
         var companyIds = {};
-        delegates.forEach(function(a) { if (a.member_id) companyIds[a.member_id] = 1; });
+        delegates.forEach(function(a) {
+          var key = hasCompany ? findCompany(a.company).company_name : a.member_id;
+          if (key) companyIds[key] = 1;
+        });
         csuite = {
           delegates: titled.length, ceo: ceo, cfo: cfo, other: otherChief, chairs: chairs, mds: mds, total: ceo + cfo + otherChief,
           share: (ceo + cfo + otherChief) / titled.length,
-          ceoCompanies: Object.keys(ceoCompanies).length, companies: Object.keys(companyIds).length
+          ceoCompanies: Object.keys(ceoCompanies).length, companies: Object.keys(companyIds).length,
+          // Denominator for CEO attendance: every presenting issuer, the same count used across the briefing
+          issuers: hasCompany ? cur.length : Object.keys(companyIds).length
         };
       }
 
@@ -268,18 +290,6 @@
       // tally. The multiplier is an internal input and is never printed.
       var factor = upcoming ? (Number(inputs.projection_factor) > 0 ? Number(inputs.projection_factor) : 1.4) : 1;
 
-      // Match host accounts to the roster
-      var byName = {};
-      cur.forEach(function(c) { byName[normName(c.company_name)] = c; });
-      var keys = Object.keys(byName);
-      function findCompany(name) {
-        var n = normName(name);
-        if (!n) return null;
-        if (byName[n]) return byName[n];
-        var cands = keys.filter(function(k) { return k.indexOf(n) === 0 || n.indexOf(k) === 0; });
-        return cands.length === 1 ? byName[cands[0]] : null;
-      }
-      // Issuers with at least one confirmed meeting (an issuer may run several host accounts)
       // Meetings held by roster issuers' host accounts; host accounts not on the roster are left out
       var issuersMeeting = {}, issuerMeetings = 0;
       members.forEach(function(t) {
@@ -630,7 +640,7 @@
       if (a.csuite && a.csuite.total) {
         var c = a.csuite, boxH = 40;
         // Lead with the strongest true statement: how many issuers bring their chief executive
-        var lead = c.ceoCompanies && c.companies ? c.ceoCompanies / c.companies : c.share;
+        var lead = c.ceoCompanies && c.issuers ? c.ceoCompanies / c.issuers : c.share;
         doc.roundedRect(M, y, CONTENT_W, boxH, 3).fill(TINT);
         doc.rect(M, y, 3, boxH).fill(GOLD);
         doc.font('serif').fontSize(26).fillColor(GOLD_DARK).text(fmtPct(lead), M + 13, y + 5, { lineBreak: false });
@@ -639,8 +649,8 @@
         if (c.other) parts.push(fmtInt(c.other) + ' other chief officers');
         var breakdown = parts.join(', ').replace(/, ([^,]*)$/, ' and $1');
         var line;
-        if (c.ceoCompanies && c.companies) {
-          line = 'of issuers sending delegates bring their chief executive, ' + fmtInt(c.ceoCompanies) + ' of ' + fmtInt(c.companies) + '. ' +
+        if (c.ceoCompanies && c.issuers) {
+          line = 'of issuers bring their chief executive, ' + fmtInt(c.ceoCompanies) + ' of ' + fmtInt(c.issuers) + '. ' +
             fmtInt(c.total) + ' of the ' + fmtInt(c.delegates) + ' registered corporate delegates (' + fmtPct(c.share) + ') are C-suite: ' + breakdown +
             (c.chairs ? '; ' + fmtInt(c.chairs) + ' board chairs also attend.' : '.');
         } else {
