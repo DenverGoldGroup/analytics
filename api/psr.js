@@ -1487,6 +1487,9 @@ module.exports = async function handler(req, res) {
           meetings_prior_final: optInt(bi.meetings_prior_final),
           holdings_ratio_prior: ratio,
           projection_factor: factor > 0 ? factor : 1.4,
+          investors_with_meetings: optInt(bi.investors_with_meetings),
+          investor_firms: optInt(bi.investor_firms),
+          investor_meetings_source: bi.investor_meetings_source ? String(bi.investor_meetings_source).slice(0, 200) : null,
           updated_at: new Date().toISOString()
         }, { onConflict: 'event_code' });
         if (biErr) return res.status(500).json({ ok: false, error: biErr.message });

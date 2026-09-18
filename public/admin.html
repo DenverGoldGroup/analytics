@@ -391,9 +391,16 @@
           <label>Last year's buy-side investors<input type="number" id="ab-buyside-prior" min="0" class="ab-input"></label>
           <label>Last year's final 1x1 meetings<input type="number" id="ab-meetings-prior" min="0" class="ab-input"></label>
           <label>Last year's shareholder representation (%)<input type="number" id="ab-holdings-prior" min="0" max="100" step="0.1" class="ab-input"></label>
+          <label>Investors with confirmed 1x1s<input type="number" id="ab-investors" min="0" class="ab-input"></label>
+          <label>&hellip;from how many firms<input type="number" id="ab-investor-firms" min="0" class="ab-input"></label>
           <label title="Applied to current meetings and investor requests until the event starts. Never printed.">Meetings projection multiplier (internal)<input type="number" id="ab-factor" min="1" step="0.05" class="ab-input"></label>
         </div>
-        <div style="font-size:10px;color:#999;margin-top:6px">These figures are saved with the event when you generate. Before the event starts, meetings and investor requests are shown as projections of the final tally using the multiplier, which is never printed; afterwards the actual totals are used.</div>
+        <div style="margin-top:10px;font-size:11px;color:#555">
+          Fill the two investor fields from the <strong>Total Confirmed Meeting Counts</strong> export:
+          <input type="file" id="ab-investor-file" accept=".xlsx,.xls,.csv" onchange="readInvestorMeetingFile(this)" style="font-size:11px;margin-left:6px">
+          <span id="ab-investor-note" style="color:#999"></span>
+        </div>
+        <div style="font-size:10px;color:#999;margin-top:6px">The meeting total itself comes from the Member Meetings upload (Meetings Dashboard export). Only the two counts are kept from the investor file, never names or emails. These figures are saved with the event when you generate. Before the event starts, meetings and investor requests are shown as projections of the final tally using the multiplier, which is never printed; afterwards the actual totals are used.</div>
         <style>.ab-input{display:block;width:100%;box-sizing:border-box;margin-top:3px;padding:7px 9px;font-size:12px;font-family:inherit;border:2px solid #E0E0E0;border-radius:6px}</style>
         <div class="upload-progress" id="ab-progress">
           <div class="progress-bar"><div class="progress-fill" id="ab-progress-fill"></div></div>
@@ -1248,7 +1255,7 @@
         _abLibs = Promise.all([
           loadScriptOnce('https://cdn.jsdelivr.net/npm/pdfkit@0.15.0/js/pdfkit.standalone.js'),
           loadScriptOnce('/js/metal-history.js?v=1'),
-          loadScriptOnce('/js/analyst-brief.js?v=2')
+          loadScriptOnce('/js/analyst-brief.js?v=3')
         ]).catch(function(err) { _abLibs = null; throw err; });
       }
       return _abLibs;
@@ -1263,7 +1270,10 @@
     // Inputs the briefing can't derive: projections and last year's comparatives
     async function loadBriefInputs() {
       var eventCode = document.getElementById('ab-event').value;
-      var ids = { 'ab-buyside': 'buyside_projected', 'ab-buyside-prior': 'buyside_prior', 'ab-meetings-prior': 'meetings_prior_final', 'ab-factor': 'projection_factor' };
+      var ids = { 'ab-buyside': 'buyside_projected', 'ab-buyside-prior': 'buyside_prior', 'ab-meetings-prior': 'meetings_prior_final', 'ab-factor': 'projection_factor',
+        'ab-investors': 'investors_with_meetings', 'ab-investor-firms': 'investor_firms' };
+      _abInvestorSource = null;
+      document.getElementById('ab-investor-note').textContent = '';
       Object.keys(ids).forEach(function(id) { document.getElementById(id).value = ''; });
       document.getElementById('ab-holdings-prior').value = '';
       if (!eventCode) return;
@@ -1272,6 +1282,8 @@
         var d = await r.json();
         var inp = (d.ok && d.inputs) || {};
         Object.keys(ids).forEach(function(id) { if (inp[ids[id]] != null) document.getElementById(id).value = inp[ids[id]]; });
+        _abInvestorSource = inp.investor_meetings_source || null;
+        if (_abInvestorSource) document.getElementById('ab-investor-note').textContent = 'Last filled from ' + _abInvestorSource;
         if (inp.holdings_ratio_prior != null) document.getElementById('ab-holdings-prior').value = Math.round(Number(inp.holdings_ratio_prior) * 1000) / 10;
         if (!document.getElementById('ab-factor').value) document.getElementById('ab-factor').value = 1.4;
       } catch (err) { console.error('Brief inputs error:', err); }
@@ -1283,8 +1295,35 @@
         buyside_projected: num('ab-buyside'), buyside_prior: num('ab-buyside-prior'),
         meetings_prior_final: num('ab-meetings-prior'),
         holdings_ratio_prior: pct == null ? null : pct / 100,
-        projection_factor: num('ab-factor') || 1.4
+        projection_factor: num('ab-factor') || 1.4,
+        investors_with_meetings: num('ab-investors'), investor_firms: num('ab-investor-firms'),
+        investor_meetings_source: _abInvestorSource
       };
+    }
+
+    // Count investors and firms with at least one confirmed meeting. Nothing but the two counts leaves the browser.
+    var _abInvestorSource = null;
+    async function readInvestorMeetingFile(input) {
+      var note = document.getElementById('ab-investor-note');
+      if (!input.files.length) return;
+      try {
+        var wb = XLSX.read(await input.files[0].arrayBuffer(), { type: 'array' });
+        var rows = XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]]);
+        if (!rows.length || !('Total Confirmed Meetings' in rows[0])) throw new Error('expected a "Total Confirmed Meetings" column');
+        var people = 0, firms = {};
+        rows.forEach(function(r) {
+          if ((parseInt(r['Total Confirmed Meetings']) || 0) <= 0) return;
+          people++;
+          var firm = String(r['Company Name'] || '').trim().toLowerCase();
+          if (firm) firms[firm] = 1;
+        });
+        document.getElementById('ab-investors').value = people;
+        document.getElementById('ab-investor-firms').value = Object.keys(firms).length;
+        _abInvestorSource = input.files[0].name + ', ' + new Date().toISOString().slice(0, 10);
+        note.textContent = people + ' investors from ' + Object.keys(firms).length + ' firms';
+      } catch (err) {
+        note.textContent = 'Could not read that file: ' + err.message;
+      }
     }
 
     async function generateAnalystBrief() {

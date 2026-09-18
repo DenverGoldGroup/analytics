@@ -176,8 +176,8 @@
       });
       var subs = Object.keys(subMap).map(function(k) { return { label: k, count: subMap[k] }; })
         .sort(function(a, b) { return b.count - a.count; });
-      var subTop = subs.slice(0, 4);
-      var subRest = subs.slice(4).reduce(function(s, x) { return s + x.count; }, 0);
+      var subTop = subs.slice(0, 5);
+      var subRest = subs.slice(5).reduce(function(s, x) { return s + x.count; }, 0);
       if (subRest) subTop.push({ label: 'All other types', count: subRest });
 
       // C-suite representation among corporate delegates, read from job titles
@@ -229,18 +229,11 @@
     if (members.length) {
       var totalMeet = members.reduce(function(s, t) { return s + (Number(t.meeting_count) || 0); }, 0);
       var active = members.filter(function(t) { return (Number(t.meeting_count) || 0) > 0; });
-      var hasInbound = members.some(function(t) { return t.inbound_requests != null; });
-      var totalInbound = members.reduce(function(s, t) { return s + (Number(t.inbound_requests) || 0); }, 0);
-      var ranked = members.slice().sort(function(a, b) {
-        return hasInbound
-          ? ((Number(b.inbound_requests) || 0) - (Number(a.inbound_requests) || 0)) || ((b.meeting_count || 0) - (a.meeting_count || 0))
-          : (b.meeting_count || 0) - (a.meeting_count || 0);
-      });
       // Before the forum, bookings are still building: totals are shown projected to the final
       // tally. The multiplier is an internal input and is never printed.
       var factor = upcoming ? (Number(inputs.projection_factor) > 0 ? Number(inputs.projection_factor) : 1.4) : 1;
 
-      // Requests and meetings by stage of development, via the roster
+      // Match host accounts to the roster
       var byName = {};
       cur.forEach(function(c) { byName[normName(c.company_name)] = c; });
       var keys = Object.keys(byName);
@@ -251,41 +244,22 @@
         var cands = keys.filter(function(k) { return k.indexOf(n) === 0 || n.indexOf(k) === 0; });
         return cands.length === 1 ? byName[cands[0]] : null;
       }
-      var stageMap = {}, stageOrder = [];
+      // Issuers with at least one confirmed meeting (an issuer may run several host accounts)
+      var issuersMeeting = {};
       members.forEach(function(t) {
+        if (!(Number(t.meeting_count) > 0)) return;
         var c = findCompany(t.entity_name || t.company_name);
-        if (!c) return;
-        var k = c.company_status || 'Other';
-        if (!stageMap[k]) { stageMap[k] = { key: k, label: STATUS_LABELS[k] || k, issuers: {}, inbound: 0, meetings: 0 }; stageOrder.push(k); }
-        stageMap[k].issuers[c.company_name] = 1;
-        stageMap[k].inbound += Number(t.inbound_requests) || 0;
-        stageMap[k].meetings += Number(t.meeting_count) || 0;
+        if (c) issuersMeeting[c.company_name] = 1;
       });
-      var rosterCount = {};
-      cur.forEach(function(c) { var k = c.company_status || 'Other'; rosterCount[k] = (rosterCount[k] || 0) + 1; });
-      var stages = stageOrder.map(function(k) {
-        var g = stageMap[k];
-        g.n = rosterCount[k] || Object.keys(g.issuers).length;
-        return g;
-      }).sort(function(a, b) { return hasInbound ? b.inbound - a.inbound : b.meetings - a.meetings; });
-      // Fold stages with a single issuer into one row
-      var mainStages = stages.filter(function(g) { return g.n >= 2; });
-      var minor = stages.filter(function(g) { return g.n < 2; });
-      if (minor.length) {
-        mainStages.push(minor.reduce(function(o, g) {
-          o.n += g.n; o.inbound += g.inbound; o.meetings += g.meetings; return o;
-        }, { key: 'Other', label: 'Other', n: 0, inbound: 0, meetings: 0 }));
-      }
 
       meetings = {
         total: totalMeet, hosts: active.length, factor: factor, projected: factor !== 1,
         shownTotal: Math.round(totalMeet * factor),
-        shownInbound: Math.round(totalInbound * factor),
         mean: active.length ? totalMeet * factor / active.length : 0,
-        hasInbound: hasInbound, totalInbound: totalInbound,
         priorFinal: Number(inputs.meetings_prior_final) || null,
-        stages: mainStages,
-        ranked: ranked
+        issuersWithMeetings: Object.keys(issuersMeeting).length,
+        investors: Number(inputs.investors_with_meetings) || null,
+        investorFirms: Number(inputs.investor_firms) || null
       };
     }
 
@@ -552,7 +526,7 @@
     var month = start ? start.getUTCMonth() : -1;
     if (month < 7 || month > 9) metal = null;
     var sections = (s.holdings ? 1 : 0) + (s.audience ? 1 : 0) + (s.meetings ? 1 : 0) + (metal ? 1 : 0);
-    var gapY = sections >= 4 ? 9 : 24;
+    var gapY = sections >= 4 ? 16 : 26;
 
     // ── Shareholder representation ──
     if (s.holdings) {
@@ -621,48 +595,29 @@
     // ── 1x1 meetings ──
     if (s.meetings) {
       var m = s.meetings;
-      y = b.sectionTitle('One-on-one meetings', y, m.projected ? 'projected to the final tally' : 'confirmed at the forum');
-      var leftW = 150;
-      var proj = m.projected ? ', projected' : '';
-      var stats = [[fmtInt(m.shownTotal), 'meetings' + proj]];
-      if (m.hasInbound) stats.push([fmtInt(m.shownInbound), 'investor requests' + proj]);
-      stats.push([m.mean.toFixed(1), 'meetings per issuer' + proj]);
-      if (m.priorFinal) stats.push([fmtInt(m.priorFinal), 'final meetings in ' + (evt.year - 1)]);
-
-      var meetY = y;
-      var allIn = m.stages.reduce(function(t, g) { return t + (m.hasInbound ? g.inbound : g.meetings); }, 0) || 1;
-      var stageRows = m.stages.filter(function(g) { return (m.hasInbound ? g.inbound : g.meetings) / allIn >= 0.005; }).slice(0, 7);
-      var blockH = 16 + Math.max(5, stageRows.length) * 14.5;
-      var perCol = Math.ceil(stats.length / 2), cellH = blockH / perCol, cellW = leftW / 2;
-      stats.forEach(function(st, i) {
-        var sx = M + (i % 2) * cellW, sy = y + Math.floor(i / 2) * cellH + 2;
-        doc.font('serif').fontSize(17).fillColor(INK).text(st[0], sx, sy, { lineBreak: false });
-        doc.font('regular').fontSize(7.2).fillColor(MUTED).text(st[1], sx, sy + 20, { width: cellW - 8, lineGap: 0.5, height: 20 });
-      });
-
-      // Most requested, by stage of development
-      var sumIn = stageRows.reduce(function(t, g) { return t + g.inbound; }, 0) || 1;
-      var sumMeet = stageRows.reduce(function(t, g) { return t + g.meetings; }, 0) || 1;
-      var maxShare = stageRows.reduce(function(t, g) { return Math.max(t, m.hasInbound ? g.inbound / sumIn : g.meetings / sumMeet); }, 0) || 1;
-      var cols = [
-        { label: m.hasInbound ? 'Most requested, by stage' : 'Most active, by stage', w: 124, font: 'bold', get: function(g) { return g.label; } },
-        { label: 'Issuers', w: 42, align: 'right', get: function(g) { return fmtInt(g.n); } },
-        { label: m.hasInbound ? 'Share of requests' : 'Share of meetings', w: 84, get: function() { return ''; }, draw: function(d, g, cx, cy, cw, rh) {
-          var share = m.hasInbound ? g.inbound / sumIn : g.meetings / sumMeet, bw = cw - 36;
-          d.roundedRect(cx + 5, cy + rh / 2 - 3, bw, 6, 1.5).fill(TRACK);
-          d.roundedRect(cx + 5, cy + rh / 2 - 3, Math.max(bw * share / maxShare, 1.5), 6, 1.5).fill(GOLD);
-          d.font('bold').fontSize(8).fillColor(INK).text(fmtPct(share), cx + bw + 8, cy + rh / 2 - 4.6, { width: 25, align: 'right', lineBreak: false });
-        } }
-      ];
-      if (m.hasInbound) cols.push({ label: 'Requests each', w: 70, align: 'right', get: function(g) { return g.n ? (g.inbound * m.factor / g.n).toFixed(0) : '—'; } });
-      cols.push({ label: 'Meetings each', w: 70 + (m.hasInbound ? 0 : 70), align: 'right', font: 'bold', get: function(g) { return g.n ? (g.meetings * m.factor / g.n).toFixed(1) : '—'; } });
-      y = Math.max(b.table(cols, stageRows, M + leftW, y, { rowH: 14.5, size: 8 }), meetY + blockH);
-      if (m.projected) {
-        doc.font('italic').fontSize(7).fillColor(MUTED)
-          .text('Scheduling is still open. Totals and per-issuer averages ("each") are Denver Gold Group projections of the final tally, based on bookings to date.', M, y + 4, { width: CONTENT_W, lineBreak: false });
-        y += 13;
+      y = b.sectionTitle('One-on-one meetings', y, 'between issuers and investors');
+      var cells = [[fmtInt(m.shownTotal), m.projected ? 'meetings, projected final tally' : 'meetings held']];
+      if (m.priorFinal) {
+        cells.push([fmtSigned(m.shownTotal / m.priorFinal - 1), 'against ' + fmtInt(m.priorFinal) + ' final meetings in ' + (evt.year - 1)]);
       }
-      y += gapY;
+      if (m.issuersWithMeetings) {
+        cells.push([fmtInt(m.issuersWithMeetings), 'of ' + fmtInt(s.n) + ' issuers with meetings ' + (m.projected ? 'booked' : 'held')]);
+      }
+      if (m.investors) {
+        cells.push([fmtInt(m.investors), 'investors' + (m.investorFirms ? ' from ' + fmtInt(m.investorFirms) + ' firms' : '') + ' with meetings ' + (m.projected ? 'booked' : 'held')]);
+      }
+      var cellW = CONTENT_W / cells.length;
+      cells.forEach(function(cell, i) {
+        var cx = M + i * cellW;
+        if (i) doc.moveTo(cx - 8, y + 2).lineTo(cx - 8, y + 40).lineWidth(0.5).strokeColor(RULE).stroke();
+        doc.font('serif').fontSize(22).fillColor(i === 0 ? GOLD_DARK : INK).text(cell[0], cx, y, { lineBreak: false });
+        doc.font('regular').fontSize(7.8).fillColor(MUTED).text(cell[1], cx, y + 27, { width: cellW - 18, lineGap: 0.8, height: 20 });
+      });
+      y += 50;
+      doc.font('italic').fontSize(7).fillColor(MUTED)
+        .text((m.projected ? 'Scheduling is still open: the total is a Denver Gold Group projection of the final tally, based on confirmed bookings to date. ' : '') +
+          'Source: Denver Gold Group meeting system.', M, y, { width: CONTENT_W, lineBreak: false });
+      y += 11 + gapY;
     }
 
     // ── Market backdrop ──
