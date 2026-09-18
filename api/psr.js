@@ -467,6 +467,7 @@ function _buildDetail(action, body) {
   if (a.indexOf('venue') === 0) return 'Venue history: ' + a.replace('venue-', '');
   if (a.indexOf('hotel') === 0) return 'Hotel: ' + a.replace('hotel-', '');
   if (a.indexOf('engagement') === 0) return 'Engagement: ' + a.replace('engagement-', '') + (body.metric ? ' — ' + body.metric : '');
+  if (a === 'upload-member-holdings') return 'Uploaded member holdings (' + ((body.rows || []).length) + ' tiers)';
   if (a === 'upload-member-meetings') return 'Uploaded member meetings (' + ((body.rows || []).length) + ' rows)';
   if (a === 'upload-participant-meetings') return 'Uploaded participant meetings (' + ((body.rows || []).length) + ' rows)';
   if (a === 'upload-webcasts') return 'Uploaded webcast metrics (' + ((body.rows || []).length) + ' rows)';
@@ -726,6 +727,61 @@ module.exports = async function handler(req, res) {
           spot_prices: results[17].data || [],
           attendees_provisional: attendeesProvisional
         });
+      }
+
+      // Analyst Briefing: everything the PDF generator needs, in one admin-only call.
+      // Attendee rows are reduced to classification fields — no names or contact details leave the API.
+      if (action === 'analyst-brief-data' && eventCode) {
+        if (!verifyToken(req.headers.authorization)) {
+          return res.status(401).json({ ok: false, error: 'Unauthorized' });
+        }
+        var { data: bEvt } = await sb.from('psr_events')
+          .select('event_code, event_name, event_type, year, start_date, end_date, venue, city, country')
+          .eq('event_code', eventCode).single();
+        if (!bEvt) return res.status(404).json({ ok: false, error: 'Event not found' });
+        var bPrior = bEvt.event_type + String(bEvt.year - 1).slice(-2);
+
+        var bResults = await Promise.all([
+          sb.from('event_participations')
+            .select('event_code, company_name, ticker, primary_stock_exchange, company_status, primary_mineral, primary_country, primary_region, market_cap_usd, production_high, reserves')
+            .in('event_code', [eventCode, bPrior]),
+          sb.from('psr_top_meetings').select('*').eq('event_code', eventCode).order('rank'),
+          sb.from('psr_member_holdings').select('*').eq('event_code', eventCode).order('sort_order'),
+          sb.from('psr_meetings').select('section, metric, value_current, value_prior').eq('event_code', eventCode)
+        ]);
+
+        // Attendees, paged past the 1,000-row response cap
+        var bAtt = [];
+        for (var bFrom = 0; ; bFrom += 1000) {
+          var { data: bPage, error: bErr } = await sb.from('attendees')
+            .select('type, category, subcategory, country, invitation_status, attendance, job_title, member_id')
+            .eq('event_code', eventCode).order('id').range(bFrom, bFrom + 999);
+          if (bErr || !bPage || !bPage.length) break;
+          bAtt = bAtt.concat(bPage);
+          if (bPage.length < 1000) break;
+        }
+
+        var bRows = bResults[0].data || [];
+        logActivity(sb, { event_code: eventCode, email: extractTokenInfo(req.headers.authorization).email,
+          role: extractTokenInfo(req.headers.authorization).role, action: 'analyst-brief', detail: 'Generated analyst briefing PDF', ip: getClientIP(req) });
+        return res.status(200).json({
+          ok: true,
+          generated_at: new Date().toISOString(),
+          event: bEvt,
+          prior_code: bPrior,
+          companies: bRows.filter(function(r) { return r.event_code === eventCode; }),
+          companies_prior: bRows.filter(function(r) { return r.event_code === bPrior; }),
+          top_meetings: bResults[1].data || [],
+          holdings: bResults[2].data || [],
+          meetings: bResults[3].data || [],
+          attendees: bAtt
+        });
+      }
+
+      if (action === 'member-holdings' && eventCode) {
+        var { data, error } = await sb.from('psr_member_holdings').select('*').eq('event_code', eventCode).order('sort_order');
+        if (error) return res.status(500).json({ ok: false, error: error.message });
+        return res.status(200).json({ ok: true, holdings: data || [] });
       }
 
       if (action === 'reg-recon' && eventCode) {
@@ -1402,6 +1458,31 @@ module.exports = async function handler(req, res) {
         var { error: cxlErr } = await sb.from('psr_cancellations').insert(insertRows);
         if (cxlErr) return res.status(500).json({ ok: false, error: cxlErr.message });
         return res.status(200).json({ ok: true, message: 'Uploaded ' + insertRows.length + ' cancellations for ' + cxlCode, total: insertRows.length });
+      }
+
+      // Upload Member Holdings by market-cap tier (parsed client-side from XLSX or pasted text)
+      if (postAction === 'upload-member-holdings') {
+        var mhCode = body.event_code;
+        var mhRows = (body.rows || []).filter(function(r) { return r && r.mc_range; });
+        if (!mhCode || !mhRows.length) {
+          return res.status(400).json({ ok: false, error: 'event_code and rows are required' });
+        }
+        await sb.from('psr_member_holdings').delete().eq('event_code', mhCode);
+        var mhInsert = mhRows.map(function(r, i) {
+          return {
+            event_code: mhCode,
+            mc_range: String(r.mc_range).trim(),
+            sort_order: i + 1,
+            members: optInt(r.members),
+            total_mc: r.total_mc != null && !isNaN(Number(r.total_mc)) ? Number(r.total_mc) : null,
+            average_mc: r.average_mc != null && !isNaN(Number(r.average_mc)) ? Number(r.average_mc) : null,
+            attendee_holdings: r.attendee_holdings != null && !isNaN(Number(r.attendee_holdings)) ? Number(r.attendee_holdings) : null,
+            updated_at: new Date().toISOString()
+          };
+        });
+        var { error: mhErr } = await sb.from('psr_member_holdings').insert(mhInsert);
+        if (mhErr) return res.status(500).json({ ok: false, error: mhErr.message });
+        return res.status(200).json({ ok: true, message: 'Saved ' + mhInsert.length + ' holdings tiers for ' + mhCode, total: mhInsert.length });
       }
 
       // Upload member meetings (from XLSX)

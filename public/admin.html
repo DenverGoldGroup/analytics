@@ -374,6 +374,44 @@
         <div id="psr-report-links" style="display:flex;gap:8px;flex-wrap:wrap"></div>
       </div>
 
+      <!-- Analyst Briefing PDF -->
+      <div class="upload-section" style="border:2px solid #E8DDBF">
+        <h3>Analyst Briefing (PDF)</h3>
+        <div class="desc">Generate a fresh two-page, Denver Gold Group and event-branded briefing for sell-side analysts: companies and market cap, shareholder representation, the audience and its C-suite presence, 1x1 meetings and the metals backdrop. Built from the data loaded at this moment, so upload the latest attendees, meetings and holdings first.</div>
+        <div class="upload-row">
+          <div style="min-width:110px">
+            <select id="ab-event" style="width:100%;padding:8px 12px;font-size:12px;font-family:inherit;border:2px solid #E0E0E0;border-radius:6px;background:#fff">
+              <option value="">Loading events...</option>
+            </select>
+          </div>
+          <button class="btn btn-gold" id="ab-generate-btn" onclick="generateAnalystBrief()">Generate &amp; Download PDF</button>
+        </div>
+        <div class="upload-progress" id="ab-progress">
+          <div class="progress-bar"><div class="progress-fill" id="ab-progress-fill"></div></div>
+          <div class="progress-text" id="ab-progress-text">Working...</div>
+        </div>
+        <div class="upload-result" id="ab-result"></div>
+      </div>
+
+      <!-- Member Holdings (shareholder representation) -->
+      <div class="upload-section">
+        <h3>Member Holdings</h3>
+        <div class="desc">Shareholder representation for the Analyst Briefing. Upload the <strong>Member Holdings</strong> export (.xlsx or .csv), or paste the table, with columns MC Range, Members, Total MC, Average MC, Attendee Holdings. Amounts like <em>$985.62 B</em> or <em>$836.21 M</em> are understood; the total row is ignored and recalculated. Replaces the event's holdings.</div>
+        <div class="upload-row">
+          <div style="min-width:110px">
+            <select id="mh-event" style="width:100%;padding:8px 12px;font-size:12px;font-family:inherit;border:2px solid #E0E0E0;border-radius:6px;background:#fff">
+              <option value="">Loading events...</option>
+            </select>
+          </div>
+          <div class="file-input-wrap">
+            <input type="file" id="mh-file" accept=".xlsx,.xls,.csv">
+          </div>
+          <button class="btn btn-gold" id="mh-upload-btn" onclick="uploadMemberHoldings()">Save Holdings</button>
+        </div>
+        <textarea id="mh-paste" placeholder="…or paste the table here (tab- or comma-separated)" style="width:100%;min-height:70px;margin-top:8px;padding:8px 10px;font-size:11px;font-family:ui-monospace,Menlo,monospace;border:2px solid #E0E0E0;border-radius:6px;box-sizing:border-box"></textarea>
+        <div class="upload-result" id="mh-result"></div>
+      </div>
+
       <!-- PSR: Upload Member Tracking -->
       <div class="upload-section">
         <h3>Upload Member Tracking</h3>
@@ -1171,7 +1209,7 @@
         var r = await fetch('/api/psr?action=events', { headers: { 'Authorization': 'Bearer ' + adminToken } });
         var d = await r.json();
         if (!d.ok) return;
-        ['mm-event', 'pm-event', 'wc-event'].forEach(function(selId) {
+        ['mm-event', 'pm-event', 'wc-event', 'ab-event', 'mh-event'].forEach(function(selId) {
           var sel = document.getElementById(selId);
           sel.innerHTML = '<option value="">Select event</option>';
           d.events.forEach(function(e) {
@@ -1182,6 +1220,183 @@
           });
         });
       } catch (err) { console.error('Meeting event selector error:', err); }
+    }
+
+    // ── Analyst Briefing PDF ─────────────────────────────
+    // PDFKit is large, so it and the briefing code load on first use
+    var _abLibs = null;
+    function loadScriptOnce(src) {
+      return new Promise(function(resolve, reject) {
+        var el = document.createElement('script');
+        el.src = src;
+        el.onload = resolve;
+        el.onerror = function() { reject(new Error('Could not load ' + src)); };
+        document.head.appendChild(el);
+      });
+    }
+    function loadBriefLibs() {
+      if (!_abLibs) {
+        _abLibs = Promise.all([
+          loadScriptOnce('https://cdn.jsdelivr.net/npm/pdfkit@0.15.0/js/pdfkit.standalone.js'),
+          loadScriptOnce('/js/metal-history.js?v=1'),
+          loadScriptOnce('/js/analyst-brief.js?v=1')
+        ]).catch(function(err) { _abLibs = null; throw err; });
+      }
+      return _abLibs;
+    }
+    function fetchBinary(url, optional) {
+      return fetch(url).then(function(r) {
+        if (!r.ok) { if (optional) return null; throw new Error('Could not load ' + url); }
+        return r.arrayBuffer();
+      });
+    }
+
+    async function generateAnalystBrief() {
+      var eventCode = document.getElementById('ab-event').value;
+      var progressEl = document.getElementById('ab-progress');
+      var fillEl = document.getElementById('ab-progress-fill');
+      var textEl = document.getElementById('ab-progress-text');
+      var resultEl = document.getElementById('ab-result');
+      var btn = document.getElementById('ab-generate-btn');
+      if (!eventCode) { alert('Select an event.'); return; }
+
+      btn.disabled = true;
+      progressEl.style.display = 'block';
+      resultEl.style.display = 'none';
+      fillEl.style.width = '15%';
+      textEl.textContent = 'Gathering the latest data...';
+
+      try {
+        var res = await fetch('/api/psr?action=analyst-brief-data&event_code=' + encodeURIComponent(eventCode), {
+          headers: { 'Authorization': 'Bearer ' + adminToken }
+        });
+        var data = await res.json();
+        if (!data.ok) throw new Error(data.error || 'Could not load the briefing data');
+
+        fillEl.style.width = '40%';
+        textEl.textContent = 'Loading fonts and logos...';
+        var loaded = await Promise.all([
+          loadBriefLibs(),
+          fetchBinary('/fonts/Lato-Regular.ttf'), fetchBinary('/fonts/Lato-Bold.ttf'), fetchBinary('/fonts/Lato-Black.ttf'),
+          fetchBinary('/fonts/Lato-Light.ttf'), fetchBinary('/fonts/Lato-Italic.ttf'), fetchBinary('/fonts/BreeSerif-Regular.ttf'),
+          fetchBinary('/logos/' + eventCode.toLowerCase() + '-logo.png', true), fetchBinary('/logos/dgg-logo.png', true)
+        ]);
+        var assets = {
+          fonts: { regular: loaded[1], bold: loaded[2], black: loaded[3], light: loaded[4], italic: loaded[5], serif: loaded[6] },
+          logos: { event: loaded[7], dgg: loaded[8] }
+        };
+
+        fillEl.style.width = '70%';
+        textEl.textContent = 'Typesetting the PDF...';
+        var blob = await new Promise(function(resolve, reject) {
+          try {
+            var doc = AnalystBrief.generate(PDFDocument, data, assets, window.METAL_HISTORY);
+            var chunks = [];
+            doc.on('data', function(c) { chunks.push(c); });
+            doc.on('end', function() { resolve(new Blob(chunks, { type: 'application/pdf' })); });
+            doc.end();
+          } catch (e) { reject(e); }
+        });
+
+        var fileName = eventCode + '-Analyst-Briefing-' + new Date().toISOString().slice(0, 10) + '.pdf';
+        var url = URL.createObjectURL(blob);
+        var a = document.createElement('a');
+        a.href = url; a.download = fileName;
+        document.body.appendChild(a); a.click(); a.remove();
+        setTimeout(function() { URL.revokeObjectURL(url); }, 60000);
+
+        // Say plainly what the briefing could not include
+        var s = AnalystBrief.summarise(data), gaps = [];
+        if (!s.holdings) gaps.push('shareholder representation (no Member Holdings saved)');
+        if (!s.audience) gaps.push('the audience and C-suite section (attendee upload has no classifications)');
+        else if (!s.audience.csuite) gaps.push('the C-suite note (no delegate job titles)');
+        if (!s.meetings) gaps.push('1x1 meetings (no member meetings uploaded)');
+        fillEl.style.width = '100%';
+        textEl.textContent = 'Done!';
+        resultEl.className = 'upload-result ' + (gaps.length ? 'error' : 'success');
+        resultEl.textContent = 'Downloaded ' + fileName + ' (' + Math.round(blob.size / 1024) + ' KB).' +
+          (gaps.length ? ' Left out for lack of data: ' + gaps.join('; ') + '.' : '');
+        resultEl.style.display = 'block';
+      } catch (err) {
+        resultEl.className = 'upload-result error';
+        resultEl.textContent = 'Could not generate the briefing: ' + err.message;
+        resultEl.style.display = 'block';
+        textEl.textContent = 'Failed';
+      }
+      btn.disabled = false;
+    }
+
+    // ── Member Holdings upload ───────────────────────────
+    // "$985.62 B" -> 985620000000; "$836.21 M" -> 836210000; plain numbers pass through
+    function parseMoney(v) {
+      if (v == null || v === '') return null;
+      if (typeof v === 'number') return v;
+      var m = String(v).replace(/[$,\s]/g, '').match(/^(-?[\d.]+)([KMBT])?/i);
+      if (!m) return null;
+      var mult = { K: 1e3, M: 1e6, B: 1e9, T: 1e12 }[(m[2] || '').toUpperCase()] || 1;
+      var n = parseFloat(m[1]);
+      return isNaN(n) ? null : n * mult;
+    }
+    function holdingsRowsFromGrid(grid) {
+      // Find the header row, then map columns by name so column order doesn't matter
+      var hi = -1;
+      for (var i = 0; i < grid.length; i++) {
+        if (grid[i].some(function(c) { return /mc range/i.test(String(c)); })) { hi = i; break; }
+      }
+      if (hi < 0) return [];
+      var head = grid[hi].map(function(c) { return String(c || '').trim().toLowerCase(); });
+      function col(re) { for (var j = 0; j < head.length; j++) if (re.test(head[j])) return j; return -1; }
+      var cRange = col(/mc range/), cMembers = col(/^members/), cTotal = col(/total mc/), cAvg = col(/average mc/), cHeld = col(/attendee holdings|holdings/);
+      return grid.slice(hi + 1).map(function(r) {
+        return {
+          mc_range: String(r[cRange] || '').trim(),
+          members: parseInt(String(r[cMembers] || '').replace(/,/g, ''), 10),
+          total_mc: parseMoney(r[cTotal]), average_mc: parseMoney(r[cAvg]), attendee_holdings: parseMoney(r[cHeld])
+        };
+      }).filter(function(r) { return r.mc_range && !/^total$/i.test(r.mc_range) && r.total_mc != null; });
+    }
+
+    async function uploadMemberHoldings() {
+      var eventCode = document.getElementById('mh-event').value;
+      var fileInput = document.getElementById('mh-file');
+      var pasted = document.getElementById('mh-paste').value;
+      var resultEl = document.getElementById('mh-result');
+      var btn = document.getElementById('mh-upload-btn');
+      if (!eventCode) { alert('Select an event.'); return; }
+      if (!fileInput.files.length && !pasted.trim()) { alert('Choose a file or paste the table.'); return; }
+
+      btn.disabled = true;
+      resultEl.style.display = 'none';
+      try {
+        var grid;
+        if (fileInput.files.length) {
+          var wb = XLSX.read(await fileInput.files[0].arrayBuffer(), { type: 'array' });
+          grid = XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]], { header: 1, raw: true, defval: '' });
+        } else {
+          grid = pasted.split(/\r?\n/).filter(function(l) { return l.trim(); }).map(function(l) {
+            return l.indexOf('\t') >= 0 ? l.split('\t') : l.split(',');
+          });
+        }
+        var rows = holdingsRowsFromGrid(grid);
+        if (!rows.length) throw new Error('No tiers found. Expected a header row with MC Range, Members, Total MC, Average MC, Attendee Holdings.');
+
+        var res = await fetch('/api/psr', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + adminToken },
+          body: JSON.stringify({ action: 'upload-member-holdings', event_code: eventCode, rows: rows })
+        });
+        var data = await res.json();
+        if (!data.ok) throw new Error(data.error || 'Unknown error');
+        var held = rows.reduce(function(s, r) { return s + (r.attendee_holdings || 0); }, 0);
+        var mc = rows.reduce(function(s, r) { return s + (r.total_mc || 0); }, 0);
+        resultEl.className = 'upload-result success';
+        resultEl.textContent = data.message + ' — attendee holdings $' + (held / 1e9).toFixed(2) + 'B of $' + (mc / 1e9).toFixed(2) + 'B market cap (' + (mc ? Math.round(held / mc * 100) : 0) + '%).';
+      } catch (err) {
+        resultEl.className = 'upload-result error';
+        resultEl.textContent = 'Could not save holdings: ' + err.message;
+      }
+      resultEl.style.display = 'block';
+      btn.disabled = false;
     }
 
     // Meetings Dashboard export (2026+): one row per member or participant, already ranked,
