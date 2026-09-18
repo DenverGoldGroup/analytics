@@ -380,12 +380,21 @@
         <div class="desc">Generate a fresh two-page, Denver Gold Group and event-branded briefing for sell-side analysts: companies and market cap, shareholder representation, the audience and its C-suite presence, 1x1 meetings and the metals backdrop. Built from the data loaded at this moment, so upload the latest attendees, meetings and holdings first.</div>
         <div class="upload-row">
           <div style="min-width:110px">
-            <select id="ab-event" style="width:100%;padding:8px 12px;font-size:12px;font-family:inherit;border:2px solid #E0E0E0;border-radius:6px;background:#fff">
+            <select id="ab-event" onchange="loadBriefInputs()" style="width:100%;padding:8px 12px;font-size:12px;font-family:inherit;border:2px solid #E0E0E0;border-radius:6px;background:#fff">
               <option value="">Loading events...</option>
             </select>
           </div>
           <button class="btn btn-gold" id="ab-generate-btn" onclick="generateAnalystBrief()">Generate &amp; Download PDF</button>
         </div>
+        <div id="ab-inputs" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:10px;margin-top:12px;font-size:11px;color:#555">
+          <label>Projected buy-side pre-registration<input type="number" id="ab-buyside" min="0" class="ab-input"></label>
+          <label>Last year's buy-side investors<input type="number" id="ab-buyside-prior" min="0" class="ab-input"></label>
+          <label>Last year's final 1x1 meetings<input type="number" id="ab-meetings-prior" min="0" class="ab-input"></label>
+          <label>Last year's shareholder representation (%)<input type="number" id="ab-holdings-prior" min="0" max="100" step="0.1" class="ab-input"></label>
+          <label title="Applied to current meetings and investor requests until the event starts. Never printed.">Meetings projection multiplier (internal)<input type="number" id="ab-factor" min="1" step="0.05" class="ab-input"></label>
+        </div>
+        <div style="font-size:10px;color:#999;margin-top:6px">These figures are saved with the event when you generate. Before the event starts, meetings and investor requests are shown as projections of the final tally using the multiplier, which is never printed; afterwards the actual totals are used.</div>
+        <style>.ab-input{display:block;width:100%;box-sizing:border-box;margin-top:3px;padding:7px 9px;font-size:12px;font-family:inherit;border:2px solid #E0E0E0;border-radius:6px}</style>
         <div class="upload-progress" id="ab-progress">
           <div class="progress-bar"><div class="progress-fill" id="ab-progress-fill"></div></div>
           <div class="progress-text" id="ab-progress-text">Working...</div>
@@ -1239,7 +1248,7 @@
         _abLibs = Promise.all([
           loadScriptOnce('https://cdn.jsdelivr.net/npm/pdfkit@0.15.0/js/pdfkit.standalone.js'),
           loadScriptOnce('/js/metal-history.js?v=1'),
-          loadScriptOnce('/js/analyst-brief.js?v=1')
+          loadScriptOnce('/js/analyst-brief.js?v=2')
         ]).catch(function(err) { _abLibs = null; throw err; });
       }
       return _abLibs;
@@ -1249,6 +1258,33 @@
         if (!r.ok) { if (optional) return null; throw new Error('Could not load ' + url); }
         return r.arrayBuffer();
       });
+    }
+
+    // Inputs the briefing can't derive: projections and last year's comparatives
+    async function loadBriefInputs() {
+      var eventCode = document.getElementById('ab-event').value;
+      var ids = { 'ab-buyside': 'buyside_projected', 'ab-buyside-prior': 'buyside_prior', 'ab-meetings-prior': 'meetings_prior_final', 'ab-factor': 'projection_factor' };
+      Object.keys(ids).forEach(function(id) { document.getElementById(id).value = ''; });
+      document.getElementById('ab-holdings-prior').value = '';
+      if (!eventCode) return;
+      try {
+        var r = await fetch('/api/psr?action=brief-inputs&event_code=' + encodeURIComponent(eventCode), { headers: { 'Authorization': 'Bearer ' + adminToken } });
+        var d = await r.json();
+        var inp = (d.ok && d.inputs) || {};
+        Object.keys(ids).forEach(function(id) { if (inp[ids[id]] != null) document.getElementById(id).value = inp[ids[id]]; });
+        if (inp.holdings_ratio_prior != null) document.getElementById('ab-holdings-prior').value = Math.round(Number(inp.holdings_ratio_prior) * 1000) / 10;
+        if (!document.getElementById('ab-factor').value) document.getElementById('ab-factor').value = 1.4;
+      } catch (err) { console.error('Brief inputs error:', err); }
+    }
+    function readBriefInputs() {
+      var num = function(id) { var v = document.getElementById(id).value; return v === '' ? null : Number(v); };
+      var pct = num('ab-holdings-prior');
+      return {
+        buyside_projected: num('ab-buyside'), buyside_prior: num('ab-buyside-prior'),
+        meetings_prior_final: num('ab-meetings-prior'),
+        holdings_ratio_prior: pct == null ? null : pct / 100,
+        projection_factor: num('ab-factor') || 1.4
+      };
     }
 
     async function generateAnalystBrief() {
@@ -1267,6 +1303,14 @@
       textEl.textContent = 'Gathering the latest data...';
 
       try {
+        // Save the inputs first so the briefing and the next admin see the same figures
+        var saved = await fetch('/api/psr', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + adminToken },
+          body: JSON.stringify({ action: 'brief-inputs-save', event_code: eventCode, inputs: readBriefInputs() })
+        }).then(function(r) { return r.json(); });
+        if (!saved.ok) throw new Error('Could not save the inputs: ' + (saved.error || 'unknown error'));
+
         var res = await fetch('/api/psr?action=analyst-brief-data&event_code=' + encodeURIComponent(eventCode), {
           headers: { 'Authorization': 'Bearer ' + adminToken }
         });
@@ -1307,6 +1351,7 @@
 
         // Say plainly what the briefing could not include
         var s = AnalystBrief.summarise(data), gaps = [];
+        if (s.upcoming && !s.buyside) gaps.push('the buy-side headline (enter the projected buy-side pre-registration)');
         if (!s.holdings) gaps.push('shareholder representation (no Member Holdings saved)');
         if (!s.audience) gaps.push('the audience and C-suite section (attendee upload has no classifications)');
         else if (!s.audience.csuite) gaps.push('the C-suite note (no delegate job titles)');

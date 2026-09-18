@@ -467,6 +467,7 @@ function _buildDetail(action, body) {
   if (a.indexOf('venue') === 0) return 'Venue history: ' + a.replace('venue-', '');
   if (a.indexOf('hotel') === 0) return 'Hotel: ' + a.replace('hotel-', '');
   if (a.indexOf('engagement') === 0) return 'Engagement: ' + a.replace('engagement-', '') + (body.metric ? ' — ' + body.metric : '');
+  if (a === 'brief-inputs-save') return 'Saved Analyst Briefing inputs';
   if (a === 'upload-member-holdings') return 'Uploaded member holdings (' + ((body.rows || []).length) + ' tiers)';
   if (a === 'upload-member-meetings') return 'Uploaded member meetings (' + ((body.rows || []).length) + ' rows)';
   if (a === 'upload-participant-meetings') return 'Uploaded participant meetings (' + ((body.rows || []).length) + ' rows)';
@@ -747,7 +748,8 @@ module.exports = async function handler(req, res) {
             .in('event_code', [eventCode, bPrior]),
           sb.from('psr_top_meetings').select('*').eq('event_code', eventCode).order('rank'),
           sb.from('psr_member_holdings').select('*').eq('event_code', eventCode).order('sort_order'),
-          sb.from('psr_meetings').select('section, metric, value_current, value_prior').eq('event_code', eventCode)
+          sb.from('psr_meetings').select('section, metric, value_current, value_prior').eq('event_code', eventCode),
+          sb.from('psr_brief_inputs').select('*').eq('event_code', eventCode).maybeSingle()
         ]);
 
         // Attendees, paged past the 1,000-row response cap
@@ -774,8 +776,19 @@ module.exports = async function handler(req, res) {
           top_meetings: bResults[1].data || [],
           holdings: bResults[2].data || [],
           meetings: bResults[3].data || [],
+          inputs: bResults[4].data || null,
           attendees: bAtt
         });
+      }
+
+      // Analyst Briefing inputs (projected buy-side, prior-year comparatives) — admin only
+      if (action === 'brief-inputs' && eventCode) {
+        if (!verifyToken(req.headers.authorization)) {
+          return res.status(401).json({ ok: false, error: 'Unauthorized' });
+        }
+        var { data, error } = await sb.from('psr_brief_inputs').select('*').eq('event_code', eventCode).maybeSingle();
+        if (error) return res.status(500).json({ ok: false, error: error.message });
+        return res.status(200).json({ ok: true, inputs: data || null });
       }
 
       if (action === 'member-holdings' && eventCode) {
@@ -1458,6 +1471,26 @@ module.exports = async function handler(req, res) {
         var { error: cxlErr } = await sb.from('psr_cancellations').insert(insertRows);
         if (cxlErr) return res.status(500).json({ ok: false, error: cxlErr.message });
         return res.status(200).json({ ok: true, message: 'Uploaded ' + insertRows.length + ' cancellations for ' + cxlCode, total: insertRows.length });
+      }
+
+      // Save the Analyst Briefing inputs for an event
+      if (postAction === 'brief-inputs-save') {
+        if (!body.event_code) return res.status(400).json({ ok: false, error: 'event_code is required' });
+        var bi = body.inputs || {};
+        var ratio = optRatio(bi.holdings_ratio_prior);
+        if (ratio != null && ratio > 1) ratio = ratio / 100;   // "17" means 17%
+        var factor = Number(bi.projection_factor);
+        var { error: biErr } = await sb.from('psr_brief_inputs').upsert({
+          event_code: body.event_code,
+          buyside_projected: optInt(bi.buyside_projected),
+          buyside_prior: optInt(bi.buyside_prior),
+          meetings_prior_final: optInt(bi.meetings_prior_final),
+          holdings_ratio_prior: ratio,
+          projection_factor: factor > 0 ? factor : 1.4,
+          updated_at: new Date().toISOString()
+        }, { onConflict: 'event_code' });
+        if (biErr) return res.status(500).json({ ok: false, error: biErr.message });
+        return res.status(200).json({ ok: true });
       }
 
       // Upload Member Holdings by market-cap tier (parsed client-side from XLSX or pasted text)
