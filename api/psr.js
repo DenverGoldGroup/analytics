@@ -1490,6 +1490,7 @@ module.exports = async function handler(req, res) {
           investors_with_meetings: optInt(bi.investors_with_meetings),
           investor_firms: optInt(bi.investor_firms),
           investor_meetings_total: optInt(bi.investor_meetings_total),
+          attendees_projected_total: optInt(bi.attendees_projected_total),
           investor_meetings_source: bi.investor_meetings_source ? String(bi.investor_meetings_source).slice(0, 200) : null,
           updated_at: new Date().toISOString()
         }, { onConflict: 'event_code' });

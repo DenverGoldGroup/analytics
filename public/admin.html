@@ -388,7 +388,8 @@
         </div>
         <div id="ab-inputs" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:10px;margin-top:12px;font-size:11px;color:#555">
           <label title="Only used when no attendee data is loaded; otherwise the briefing projects buy-side from the attendee upload, as the attendees page does.">Projected buy-side (fallback)<input type="number" id="ab-buyside" min="0" class="ab-input"></label>
-          <label>Last year's buy-side investors<input type="number" id="ab-buyside-prior" min="0" class="ab-input"></label>
+          <label title="Leave blank to use the site's projection. When set, every audience group is scaled pro-rata to this total.">Projected attendees on site (override)<input type="number" id="ab-site-total" min="0" class="ab-input"></label>
+          <label>Last year's buy-side<input type="number" id="ab-buyside-prior" min="0" class="ab-input"></label>
           <label>Last year's final 1x1 meetings<input type="number" id="ab-meetings-prior" min="0" class="ab-input"></label>
           <label>Last year's shareholder representation (%)<input type="number" id="ab-holdings-prior" min="0" max="100" step="0.1" class="ab-input"></label>
           <label>Investors with confirmed 1x1s<input type="number" id="ab-investors" min="0" class="ab-input"></label>
@@ -1257,7 +1258,7 @@
           loadScriptOnce('https://cdn.jsdelivr.net/npm/pdfkit@0.15.0/js/pdfkit.standalone.js'),
           loadScriptOnce('/js/metal-history.js?v=1'),
           // analyst-brief.js reads AttendeeProjection as it loads, so this one must be in first
-          loadScriptOnce('/js/attendee-projection.js?v=1').then(function() { return loadScriptOnce('/js/analyst-brief.js?v=9'); }),
+          loadScriptOnce('/js/attendee-projection.js?v=1').then(function() { return loadScriptOnce('/js/analyst-brief.js?v=10'); }),
         ]).catch(function(err) { _abLibs = null; throw err; });
       }
       return _abLibs;
@@ -1273,7 +1274,8 @@
     async function loadBriefInputs() {
       var eventCode = document.getElementById('ab-event').value;
       var ids = { 'ab-buyside': 'buyside_projected', 'ab-buyside-prior': 'buyside_prior', 'ab-meetings-prior': 'meetings_prior_final', 'ab-factor': 'projection_factor',
-        'ab-investors': 'investors_with_meetings', 'ab-investor-firms': 'investor_firms', 'ab-investor-meetings': 'investor_meetings_total' };
+        'ab-investors': 'investors_with_meetings', 'ab-investor-firms': 'investor_firms', 'ab-investor-meetings': 'investor_meetings_total',
+        'ab-site-total': 'attendees_projected_total' };
       _abInvestorSource = null;
       document.getElementById('ab-investor-note').textContent = '';
       Object.keys(ids).forEach(function(id) { document.getElementById(id).value = ''; });
@@ -1300,6 +1302,7 @@
         projection_factor: num('ab-factor') || 1.4,
         investors_with_meetings: num('ab-investors'), investor_firms: num('ab-investor-firms'),
         investor_meetings_total: num('ab-investor-meetings'),
+        attendees_projected_total: num('ab-site-total'),
         investor_meetings_source: _abInvestorSource
       };
     }

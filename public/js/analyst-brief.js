@@ -170,9 +170,20 @@
       // factors the attendees view uses; once it has started, the counts are who actually attended.
       var projecting = upcoming && !!Projection;
       var mult = projecting ? Projection.buySellMult(data.event.start_date, asOf) : 1;
+      // An admin can set the projected on-site total; every group is then scaled pro-rata to it
+      var siteTotal = projecting && Number(inputs.attendees_projected_total) > 0 ? Number(inputs.attendees_projected_total) : null;
+      var scale = 1;
+      if (siteTotal) {
+        var rawTotal = 0;
+        pool.forEach(function(a) { rawTotal += Projection.factor(a, mult); });
+        scale = rawTotal ? siteTotal / rawTotal : 1;
+      }
       // Projections are estimates, so they are shown rounded up to the nearest 10; actual counts are exact
       var headcount = function(list) {
-        return projecting ? Math.ceil(Projection.projectedCount(list, mult) / 10) * 10 : list.length;
+        if (!projecting) return list.length;
+        var raw = 0;
+        list.forEach(function(a) { raw += Projection.factor(a, mult); });
+        return Math.ceil(raw * scale / 10) * 10;
       };
       // Same definitions as the attendees view: buy-side and sell-side are participants
       var buy = pool.filter(function(a) { return a.type !== 'Delegate' && a.category === 'Buy-Side'; });
@@ -181,7 +192,7 @@
       var delegates = pool.filter(function(a) { return a.type === 'Delegate' && a.category === 'Member'; });
       if (!delegates.length) delegates = pool.filter(function(a) { return a.type === 'Delegate' && a.category !== 'Buy-Side' && a.category !== 'Sell-Side'; });
       var bankers = pool.filter(function(a) { return a.category === 'Banking & Corporate Finance Services'; });
-      var totalN = headcount(pool), buyN = headcount(buy), sellN = headcount(sell),
+      var totalN = siteTotal ? Math.ceil(siteTotal / 10) * 10 : headcount(pool), buyN = headcount(buy), sellN = headcount(sell),
           delegateN = headcount(delegates), bankerN = headcount(bankers);
       // "Other" is the remainder, so the rows always add up to the (rounded) total
       var otherN = totalN - buyN - sellN - delegateN - bankerN;
@@ -237,9 +248,9 @@
         buy: buyN, sell: sellN, delegates: delegateN, other: Math.max(otherN, 0),
         mix: [
           { label: 'Corporate delegates', count: delegateN },
-          { label: 'Buy-side investors', count: buyN },
-          { label: 'Bankers & corporate finance', count: bankerN },
-          { label: 'Sell-side analysts', count: sellN },
+          { label: 'Buy-side', count: buyN },
+          { label: 'Investment Bankers', count: bankerN },
+          { label: 'Sell-side', count: sellN },
           { label: 'Other participants', count: Math.max(otherN, 0) }
         ].filter(function(x) { return x.count > 0; }),
         buySubs: subTop,
@@ -606,7 +617,7 @@
         (a.countries.length ? ' from ' + a.countries.length + ' countries' : ''));
       var colW = (CONTENT_W - 24) / 2;
       b.caps(a.mixLabel, M, y, { color: GOLD_DARK });
-      b.caps('Buy-side investors by type', M + colW + 24, y, { color: GOLD_DARK });
+      b.caps('Buy-side by type', M + colW + 24, y, { color: GOLD_DARK });
       var y1 = b.barList(a.mix, M, y + 13, colW, { labelW: 132, valueW: 62, rowH: 15.5 });
       var y2 = b.barList(a.buySubs, M + colW + 24, y + 13, colW, { labelW: 132, valueW: 62, rowH: 15.5, shareOnly: a.projected });
       y = Math.max(y1, y2) + 2;
