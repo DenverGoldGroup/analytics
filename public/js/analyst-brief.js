@@ -305,9 +305,6 @@
       var tMembers = rows.reduce(function(s, r) { return s + r.members; }, 0);
       holdings = { rows: rows, mc: tMc, held: tHeld, members: tMembers, ratio: tMc ? tHeld / tMc : null, avg: tMembers ? tMc / tMembers : 0,
         priorRatio: inputs.holdings_ratio_prior != null ? Number(inputs.holdings_ratio_prior) : null };
-      // No 2025 dollar figure is on file, so last year's holdings are its share of last year's aggregate market cap
-      var priorMc = total(prior);
-      holdings.priorHeld = holdings.priorRatio != null && priorMc ? holdings.priorRatio * priorMc : null;
     }
 
     // Buy-side headline: before the forum, the admin's projected pre-registration; afterwards, the count
@@ -518,8 +515,10 @@
     var tiles = [];
     tiles.push({ v: fmtInt(s.n), l: 'Issuers presenting', n: versus(s.n, s.priorN, fmtInt), c: tone(s.n, s.priorN) });
     tiles.push({ v: fmtUsd(s.mcap), l: 'Aggregate MC', n: versus(s.mcap, s.priorMcap, fmtUsd), c: tone(s.mcap, s.priorMcap) });
-    if (s.holdings) tiles.push({ v: fmtUsd(s.holdings.held), l: 'Shareholding',
-      n: versus(s.holdings.held, s.holdings.priorHeld, fmtUsd), c: tone(s.holdings.held, s.holdings.priorHeld) });
+    // Share of aggregate event market cap held by attending investors, against last year's share
+    if (s.holdings) tiles.push({ v: fmtPct(s.holdings.ratio), l: 'Shareholding',
+      n: versus(s.holdings.ratio, s.holdings.priorRatio, function(r) { return fmtPct(r); }),
+      c: tone(s.holdings.ratio, s.holdings.priorRatio) });
     if (s.meetings) tiles.push({ v: fmtInt(s.meetings.shownTotal), l: (s.meetings.projected ? 'Proj. accepted meetings' : 'Accepted meetings'),
       n: versus(s.meetings.shownTotal, s.meetings.priorFinal, fmtInt) || s.meetings.mean.toFixed(1) + ' per issuer', c: tone(s.meetings.shownTotal, s.meetings.priorFinal) });
     if (s.buyside) tiles.push({ v: fmtInt(s.buyside.value), l: (s.buyside.projected ? 'Proj. buy-side' : 'Buy-side'),
@@ -596,9 +595,7 @@
         } }
       ], tierRows, M, y, { rowH: 16 });
       doc.font('italic').fontSize(7.2).fillColor(MUTED)
-        .text('Attendee holdings: the value of shares in participating issuers held by investment firms registered for the forum. Source: Denver Gold Group.' +
-          (h.priorHeld ? ' ' + (evt.year - 1) + ' holdings of ' + fmtUsd(h.priorHeld) + ' are ' + fmtPct(h.priorRatio) + ' of that year\u2019s ' + fmtUsd(s.priorMcap) + ' aggregate market cap.' : ''),
-          M, y + 5, { width: CONTENT_W, lineBreak: false });
+        .text('Attendee holdings: the value of shares in participating issuers held by investment firms registered for the forum. Source: Denver Gold Group.', M, y + 5, { width: CONTENT_W });
       y += 16 + gapY;
     }
 
