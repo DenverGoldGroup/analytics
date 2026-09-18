@@ -1255,7 +1255,7 @@
         _abLibs = Promise.all([
           loadScriptOnce('https://cdn.jsdelivr.net/npm/pdfkit@0.15.0/js/pdfkit.standalone.js'),
           loadScriptOnce('/js/metal-history.js?v=1'),
-          loadScriptOnce('/js/analyst-brief.js?v=3')
+          loadScriptOnce('/js/analyst-brief.js?v=4')
         ]).catch(function(err) { _abLibs = null; throw err; });
       }
       return _abLibs;

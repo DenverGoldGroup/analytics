@@ -164,10 +164,11 @@
     if (pool.length >= 10) {
       var buy = pool.filter(function(a) { return a.category === 'Buy-Side'; });
       var sell = pool.filter(function(a) { return a.category === 'Sell-Side'; });
-      var delegates = pool.filter(function(a) { return a.type === 'Delegate'; });
-      var otherN = pool.length - buy.length - sell.length - delegates.filter(function(a) {
-        return a.category !== 'Buy-Side' && a.category !== 'Sell-Side';
-      }).length;
+      // Corporate delegates are the issuers' own people; sponsor banks also register delegates
+      var delegates = pool.filter(function(a) { return a.type === 'Delegate' && a.category === 'Member'; });
+      if (!delegates.length) delegates = pool.filter(function(a) { return a.type === 'Delegate' && a.category !== 'Buy-Side' && a.category !== 'Sell-Side'; });
+      var bankers = pool.filter(function(a) { return a.category === 'Banking & Corporate Finance Services'; });
+      var otherN = pool.length - buy.length - sell.length - delegates.length - bankers.length;
       var subMap = {};
       buy.forEach(function(a) {
         var s = String(a.subcategory || 'Unclassified');
@@ -184,17 +185,18 @@
       var csuite = null;
       var titled = delegates.filter(function(a) { return a.job_title; });
       if (titled.length >= 10) {
-        var ceo = 0, cfo = 0, otherChief = 0, ceoCompanies = {};
+        var ceo = 0, cfo = 0, otherChief = 0, chairs = 0, ceoCompanies = {};
         titled.forEach(function(a) {
           var level = executiveLevel(a.job_title);
           if (level === 'ceo') { ceo++; if (a.member_id) ceoCompanies[a.member_id] = 1; }
           else if (level === 'cfo') cfo++;
           else if (level === 'chief') otherChief++;
+          else if (level === 'chair') chairs++;
         });
         var companyIds = {};
         delegates.forEach(function(a) { if (a.member_id) companyIds[a.member_id] = 1; });
         csuite = {
-          delegates: titled.length, ceo: ceo, cfo: cfo, other: otherChief, total: ceo + cfo + otherChief,
+          delegates: titled.length, ceo: ceo, cfo: cfo, other: otherChief, chairs: chairs, total: ceo + cfo + otherChief,
           share: (ceo + cfo + otherChief) / titled.length,
           ceoCompanies: Object.keys(ceoCompanies).length, companies: Object.keys(companyIds).length
         };
@@ -213,9 +215,10 @@
         total: pool.length,
         buy: buy.length, sell: sell.length, delegates: delegates.length, other: Math.max(otherN, 0),
         mix: [
-          { label: 'Buy-side investors', count: buy.length },
           { label: 'Corporate delegates', count: delegates.length },
-          { label: 'Sell-side analysts & bankers', count: sell.length },
+          { label: 'Buy-side investors', count: buy.length },
+          { label: 'Bankers & corporate finance', count: bankers.length },
+          { label: 'Sell-side analysts', count: sell.length },
           { label: 'Other participants', count: Math.max(otherN, 0) }
         ].filter(function(x) { return x.count > 0; }),
         buySubs: subTop,
@@ -303,13 +306,16 @@
     };
   }
 
-  // 'ceo' = chief executive, president, managing director, executive chair or founder;
-  // 'cfo' = finance chief; 'chief' = any other C-level officer. Vice presidents are not C-suite.
+  // 'ceo' = chief executive, president, managing director, founder or executive chair;
+  // 'cfo' = finance chief; 'chief' = any other chief officer; 'chair' = a board chair who is not
+  // an executive (counted separately, never as C-suite). Vice presidents are not C-suite.
   function executiveLevel(title) {
-    var t = ' ' + String(title || '').toLowerCase().replace(/vice[\s-]*president/g, 'vp').replace(/[.,&\/()\u2013\u2014-]/g, ' ') + ' ';
-    if (/ ceo | chief executive| president | managing director | executive chair| chairman | chairwoman | chair | founder /.test(t)) return 'ceo';
+    var t = ' ' + String(title || '').toLowerCase().replace(/vice[\s-]*president/g, 'vp').replace(/[.,&\/()\u2013\u2014-]/g, ' ').replace(/\s+/g, ' ') + ' ';
+    if (/ ceo | chief executive| president | managing director | founder /.test(t)) return 'ceo';
+    if (/ executive (co )?chair/.test(t) && !/ non executive /.test(t)) return 'ceo';
     if (/ cfo | chief financial| finance director | financial director /.test(t)) return 'cfo';
     if (/ c[a-z]o | chief [a-z ]*officer/.test(t)) return 'chief';
+    if (/ chair| chairman | chairwoman /.test(t)) return 'chair';
     return null;
   }
 
@@ -574,15 +580,22 @@
       y = Math.max(y1, y2) + 4;
       if (a.csuite && a.csuite.total) {
         var c = a.csuite, boxH = 40;
+        // Lead with the strongest true statement: how many issuers bring their chief executive
+        var lead = c.ceoCompanies && c.companies ? c.ceoCompanies / c.companies : c.share;
         doc.roundedRect(M, y, CONTENT_W, boxH, 3).fill(TINT);
         doc.rect(M, y, 3, boxH).fill(GOLD);
-        doc.font('serif').fontSize(26).fillColor(GOLD_DARK).text(fmtPct(c.share), M + 13, y + 5, { lineBreak: false });
-        var cw = doc.widthOfString(fmtPct(c.share));
+        doc.font('serif').fontSize(26).fillColor(GOLD_DARK).text(fmtPct(lead), M + 13, y + 5, { lineBreak: false });
+        var cw = doc.widthOfString(fmtPct(lead));
         var parts = [fmtInt(c.ceo) + ' chief executives and presidents', fmtInt(c.cfo) + ' chief financial officers'];
         if (c.other) parts.push(fmtInt(c.other) + ' other chief officers');
-        var line = 'of corporate delegates are C-suite executives: ' + parts.join(', ').replace(/, ([^,]*)$/, ' and $1') + '.';
+        var breakdown = parts.join(', ').replace(/, ([^,]*)$/, ' and $1');
+        var line;
         if (c.ceoCompanies && c.companies) {
-          line += ' ' + fmtInt(c.ceoCompanies) + ' of the ' + fmtInt(c.companies) + ' issuers sending delegates bring their chief executive.';
+          line = 'of issuers sending delegates bring their chief executive, ' + fmtInt(c.ceoCompanies) + ' of ' + fmtInt(c.companies) + '. ' +
+            fmtInt(c.total) + ' of the ' + fmtInt(c.delegates) + ' corporate delegates (' + fmtPct(c.share) + ') are C-suite: ' + breakdown +
+            (c.chairs ? '; ' + fmtInt(c.chairs) + ' board chairs also attend.' : '.');
+        } else {
+          line = 'of the ' + fmtInt(c.delegates) + ' corporate delegates are C-suite executives: ' + breakdown + '.';
         }
         var tx = M + 26 + cw;
         b.caps('C-suite representation', tx, y + 6, { size: 6.4, spacing: 1, color: GOLD_DARK });
