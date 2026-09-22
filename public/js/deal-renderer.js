@@ -341,8 +341,16 @@
       '</div>';
     }
 
+    // Metal prices. A deal can carry its own closes (spotPrices), which are used when they are
+    // newer than the site's cached spot feed — that feed only refreshes monthly.
+    var spot = deal.spotPrices || {};
+    var annSpot = deal.announcementSpot || {};
+    var feedDate = goldUpdatedAt ? String(goldUpdatedAt).slice(0, 10) : null;
+    var dealGold = spot.gold && given(spot.gold.price) ? spot.gold : null;
+    var useDealGold = !!(dealGold && (!feedDate || !liveGoldPrice || (dealGold.asOf || '') > feedDate));
+
     // Gold price change since announcement
-    var goldNow = liveGoldPrice || deal.dealTimeGoldPrice;
+    var goldNow = useDealGold ? dealGold.price : (liveGoldPrice || deal.dealTimeGoldPrice);
     var goldAnn = deal.dealTimeGoldPrice;
     var goldDelta = goldNow - goldAnn;
     var goldDeltaPct = goldAnn ? (goldDelta / goldAnn) * 100 : 0;
@@ -354,7 +362,9 @@
 
     // Gold price timestamp
     var goldTimeHtml = '';
-    if (goldUpdatedAt) {
+    if (useDealGold) {
+      goldTimeHtml = '<div style="font-size:9px;color:#999;margin-top:3px">Close, ' + fmtDate(dealGold.asOf) + '</div>';
+    } else if (goldUpdatedAt) {
       var gd = new Date(goldUpdatedAt);
       var gh = gd.getHours(); var gm = gd.getMinutes();
       var gAmPm = gh >= 12 ? 'PM' : 'AM';
@@ -388,7 +398,22 @@
     var combSrc = b._mcFrom === t._mcFrom && b._asOf === t._asOf ? srcHtml(b).replace(/<br>.*<\/div>$/, '</div>')
       : '<div style="font-size:9px;color:#999;margin-top:3px">Mixed sources (see tiles)</div>';
 
-    return '<div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:16px;margin-bottom:16px">' +
+    // Silver tile, for deals where the parties pour or hold meaningful silver
+    var dealSilver = spot.silver && given(spot.silver.price) ? spot.silver : null;
+    var silverHtml = '';
+    if (dealSilver) {
+      var silverAnn = annSpot.silver;
+      var sDelta = given(silverAnn) ? dealSilver.price - silverAnn : null;
+      silverHtml = '<div style="text-align:center;padding:12px;background:#FAFBFC;border-radius:8px">' +
+        '<div style="font-size:10px;font-weight:700;color:var(--text-secondary);text-transform:uppercase;letter-spacing:0.5px">Silver Price (USD)</div>' +
+        '<div style="font-size:20px;font-weight:700;color:var(--header-mid);margin-top:4px">' + fmtCurrency(dealSilver.price, 2, 'USD') + '</div>' +
+        (sDelta !== null ? '<div style="font-size:11px;color:' + (sDelta >= 0 ? '#27AE60' : '#E74C3C') + ';margin-top:2px;font-weight:600">' +
+          (sDelta >= 0 ? '+' : '−') + fmtCurrency(Math.abs(sDelta), 2, 'USD') + ' (' + (sDelta >= 0 ? '+' : '') + (sDelta / silverAnn * 100).toFixed(1) + '%)</div>' : '') +
+        (dealSilver.asOf ? '<div style="font-size:9px;color:#999;margin-top:3px">Close, ' + fmtDate(dealSilver.asOf) + '</div>' : '') +
+      '</div>';
+    }
+
+    return '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:16px;margin-bottom:16px">' +
         '<div style="text-align:center;padding:12px;background:#FAFBFC;border-radius:8px">' +
           '<div style="font-size:10px;font-weight:700;color:var(--text-secondary);text-transform:uppercase;letter-spacing:0.5px">Acquirer MC (USD)</div>' +
           '<div style="font-size:20px;font-weight:700;color:var(--header-mid);margin-top:4px">' + fmtM(b.marketCapUsd, 'USD') + '</div>' +
@@ -408,11 +433,12 @@
           combSrc +
         '</div>' +
         '<div style="text-align:center;padding:12px;background:#FFF8E1;border-radius:8px;border:1.5px solid var(--color-gold)">' +
-          '<div style="font-size:10px;font-weight:700;color:var(--text-secondary);text-transform:uppercase;letter-spacing:0.5px">Gold Price USD (Live)</div>' +
+          '<div style="font-size:10px;font-weight:700;color:var(--text-secondary);text-transform:uppercase;letter-spacing:0.5px">Gold Price (USD)' + (useDealGold ? '' : ' (Live)') + '</div>' +
           '<div style="font-size:20px;font-weight:700;color:var(--color-gold);margin-top:4px">' + fmtCurrency(Math.round(goldNow), 0, 'USD') + '</div>' +
           goldChangeHtml +
           goldTimeHtml +
         '</div>' +
+        silverHtml +
       '</div>' +
       '<div class="spread-bar">' +
         '<div class="spread-label">Arb Spread (Per-Share Basis)</div>' +
@@ -722,6 +748,14 @@
     // Deal currency for financial metrics display
     var dc = deal.dealCurrency || (deal.bidder && deal.bidder.currency) || 'USD';
 
+    // A close carried on the deal beats the site's monthly spot cache
+    var sensSpot = (deal.spotPrices || {}).gold;
+    var sensSpotLabel = ' ◀ Live';
+    if (sensSpot && given(sensSpot.price)) {
+      liveGoldPrice = sensSpot.price;
+      if (sensSpot.asOf) sensSpotLabel = ' ◀ ' + fmtDate(sensSpot.asOf) + ' Close';
+    }
+
     var goldSteps = [3500, 3750, 4000, 4250, 4500, 4750, 5000, 5250, 5500];
 
     // Insert announcement gold price as a distinct row if not already in steps
@@ -767,8 +801,8 @@
       else if (isBase) rowClass = ' class="sens-base"';
 
       var label = '';
-      if (isLive && isBase) label = ' ◀ Live / Announcement Price';
-      else if (isLive) label = ' ◀ Live';
+      if (isLive && isBase) label = sensSpotLabel + ' / Announcement Price';
+      else if (isLive) label = sensSpotLabel;
       else if (isBase) label = ' ◀ Announcement Price';
 
       var ebBlank = eb == null || Math.round(eb) === 0;
