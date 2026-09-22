@@ -598,6 +598,61 @@
   }
 
   // =========================================================
+  // RENDER: Latest Reported Financials
+  // =========================================================
+  // Each party may carry a `financials` object of figures as reported, in that company's own
+  // reporting currency, for the period named in periodLabel. Nothing is annualised or combined:
+  // the two sides can report in different currencies and over different periods.
+  function renderFinancials(deal) {
+    var b = deal.bidder, t = deal.target;
+    var fb = b.financials, ft = t.financials;
+    if (!fb && !ft) return '';
+
+    function money(f, key) {
+      if (!f || !given(f[key])) return '—';
+      return fmtM(f[key], f.currency || 'USD') + (f[key + 'Note'] ? '<div style="font-size:10px;color:var(--text-secondary)">' + escHtml(f[key + 'Note']) + '</div>' : '');
+    }
+    function freeCF(f) {
+      if (!f) return null;
+      if (given(f.freeCF)) return f.freeCF;
+      if (given(f.operatingCF) && given(f.capex)) return f.operatingCF - f.capex;
+      return null;
+    }
+    var rows = [
+      { label: 'Revenue', cell: function(f) { return money(f, 'revenue'); } },
+      { label: 'Adjusted EBITDA', cell: function(f) { return money(f, 'adjEbitda'); } },
+      { label: 'Operating Cash Flow', cell: function(f) { return money(f, 'operatingCF'); } },
+      { label: 'Capital Expenditures', cell: function(f) { return money(f, 'capex'); } },
+      { label: 'Free Cash Flow', cell: function(f) { var v = freeCF(f); return v == null ? '—' : fmtM(v, (f && f.currency) || 'USD'); } },
+      { label: 'Net Income', cell: function(f) { return money(f, 'netIncome'); } },
+      { label: 'AISC per Ounce Sold (USD)', cell: function(f) { return f && given(f.aiscUsd) ? fmtCurrency(f.aiscUsd, 0, 'USD') + '/oz' : '—'; } },
+      { label: 'Cash & Equivalents', cell: function(f) { return money(f, 'cash'); } },
+      { label: 'Total Available Liquidity', cell: function(f) { return money(f, 'liquidity'); } },
+      { label: 'Dividend', cell: function(f) { return f && f.dividend ? escHtml(f.dividend) : '—'; } }
+    ];
+    // Drop rows neither company reports
+    rows = rows.filter(function(r) { return r.cell(fb) !== '—' || r.cell(ft) !== '—'; });
+    if (!rows.length) return '';
+
+    function head(co, f) {
+      return escHtml(co.shortName) + (f && f.periodLabel ? '<div style="font-size:10px;font-weight:500;text-transform:none;letter-spacing:0">' + escHtml(f.periodLabel) + '</div>' : '');
+    }
+    var html = '<h4 style="font-size:11px;font-weight:700;color:var(--text-secondary);text-transform:uppercase;letter-spacing:0.5px;margin:22px 0 10px;padding-top:16px;border-top:2px solid #E8EAF0">Latest Reported Financials</h4>' +
+      '<table class="pf-table"><thead><tr><th>Metric</th><th>' + head(b, fb) + '</th><th>' + head(t, ft) + '</th></tr></thead><tbody>';
+    rows.forEach(function(r) {
+      html += '<tr><td class="pf-metric">' + escHtml(r.label) + '</td><td>' + r.cell(fb) + '</td><td>' + r.cell(ft) + '</td></tr>';
+    });
+    html += '</tbody></table>';
+
+    var srcs = [];
+    [[b, fb], [t, ft]].forEach(function(pair) { if (pair[1] && pair[1].source) srcs.push(pair[0].shortName + ': ' + pair[1].source); });
+    if (srcs.length) {
+      html += '<div style="font-size:11px;color:var(--text-secondary);margin-top:8px">Figures as reported, in each company\'s reporting currency, not combined. Source — ' + escHtml(srcs.join('; ')) + '.</div>';
+    }
+    return html;
+  }
+
+  // =========================================================
   // RENDER: Pro Forma Comparison
   // =========================================================
   function renderProForma(deal) {
@@ -682,6 +737,7 @@
       }
     });
     html += '</tbody></table>';
+    html += renderFinancials(deal);
     // Source and basis notes for the figures above
     if (deal.dataNotes && deal.dataNotes.length) {
       html += '<ol style="margin:12px 0 0;padding-left:18px;font-size:11px;line-height:1.55;color:var(--text-secondary)">';
