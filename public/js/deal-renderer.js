@@ -21,8 +21,10 @@
   function fmtM(n, ccy) {
     if (n == null || isNaN(n)) return '—';
     var sym = ccySym(ccy);
-    if (Math.abs(n) >= 1000) return sym + (n / 1000).toFixed(1) + 'B';
-    return sym + Number(n).toFixed(0) + 'M';
+    var sign = n < 0 ? '−' : '';
+    var v = Math.abs(Number(n));
+    if (v >= 1000) return sign + sym + (v / 1000).toFixed(1) + 'B';
+    return sign + sym + v.toFixed(0) + 'M';
   }
   function fmtOz(n) {
     if (n == null || isNaN(n)) return '—';
@@ -605,8 +607,14 @@
   // the two sides can report in different currencies and over different periods.
   function renderFinancials(deal) {
     var b = deal.bidder, t = deal.target;
-    var fb = b.financials, ft = t.financials;
-    if (!fb && !ft) return '';
+    // Each party may carry `financials` (the last reported period) and `financialsLTM`
+    // (the rolling four quarters, with an optional `quarters` trail behind it)
+    var cols = [];
+    [b, t].forEach(function(co) {
+      if (co.financials) cols.push({ co: co, f: co.financials });
+      if (co.financialsLTM) cols.push({ co: co, f: co.financialsLTM, ltm: true });
+    });
+    if (!cols.length) return '';
 
     function money(f, key) {
       if (!f || !given(f[key])) return '—';
@@ -618,38 +626,91 @@
       if (given(f.operatingCF) && given(f.capex)) return f.operatingCF - f.capex;
       return null;
     }
+    // Market cap is in USD; a party reporting in another currency carries its own usdRate
+    function inUsd(f, v) {
+      if (v == null) return null;
+      if ((f.currency || 'USD') === 'USD') return v;
+      return given(f.usdRate) ? v / f.usdRate : null;
+    }
+    function multiple(col, key) {
+      var mc = col.co.marketCapUsd, v = given(col.f[key]) ? inUsd(col.f, col.f[key]) : null;
+      return mc && v && v > 0 ? fmtX(mc / v) : '—';
+    }
+    function yieldPct(col) {
+      var mc = col.co.marketCapUsd, v = inUsd(col.f, freeCF(col.f));
+      return mc && v != null ? fmtPct(v / mc * 100) : '—';
+    }
+
     var rows = [
-      { label: 'Revenue', cell: function(f) { return money(f, 'revenue'); } },
-      { label: 'Adjusted EBITDA', cell: function(f) { return money(f, 'adjEbitda'); } },
-      { label: 'Operating Cash Flow', cell: function(f) { return money(f, 'operatingCF'); } },
-      { label: 'Capital Expenditures', cell: function(f) { return money(f, 'capex'); } },
-      { label: 'Free Cash Flow', cell: function(f) { var v = freeCF(f); return v == null ? '—' : fmtM(v, (f && f.currency) || 'USD'); } },
-      { label: 'Net Income', cell: function(f) { return money(f, 'netIncome'); } },
-      { label: 'AISC per Ounce Sold (USD)', cell: function(f) { return f && given(f.aiscUsd) ? fmtCurrency(f.aiscUsd, 0, 'USD') + '/oz' : '—'; } },
-      { label: 'Cash & Equivalents', cell: function(f) { return money(f, 'cash'); } },
-      { label: 'Total Available Liquidity', cell: function(f) { return money(f, 'liquidity'); } },
-      { label: 'Dividend', cell: function(f) { return f && f.dividend ? escHtml(f.dividend) : '—'; } }
+      { label: 'Gold Produced', cell: function(c) { return given(c.f.productionOz) ? fmtNum(c.f.productionOz) + ' oz' : '—'; } },
+      { label: 'Gold Sold', cell: function(c) { return given(c.f.soldOz) ? fmtNum(c.f.soldOz) + ' oz' : '—'; } },
+      { label: 'Revenue', cell: function(c) { return money(c.f, 'revenue'); } },
+      { label: 'Adjusted EBITDA', cell: function(c) { return money(c.f, 'adjEbitda'); } },
+      { label: 'Operating Cash Flow', cell: function(c) { return money(c.f, 'operatingCF'); } },
+      { label: 'Capital Expenditures', cell: function(c) { return money(c.f, 'capex'); } },
+      { label: 'Free Cash Flow', cell: function(c) { var v = freeCF(c.f); return v == null ? '—' : fmtM(v, c.f.currency || 'USD'); } },
+      { label: 'Free Cash Flow before Growth Capital', cell: function(c) { return money(c.f, 'freeCFPreGrowth'); } },
+      { label: 'Net Income (Loss)', cell: function(c) { return money(c.f, 'netIncome'); } },
+      { label: 'Realized Gold Price (spot sales, USD)', cell: function(c) { return given(c.f.realizedUsd) ? fmtCurrency(c.f.realizedUsd, 0, 'USD') + '/oz' : '—'; } },
+      { label: 'AISC per Ounce Sold (USD)', cell: function(c) { return given(c.f.aiscUsd) ? fmtCurrency(c.f.aiscUsd, 0, 'USD') + '/oz' : '—'; } },
+      { label: 'Cash & Equivalents', cell: function(c) { return money(c.f, 'cash'); } },
+      { label: 'Total Available Liquidity', cell: function(c) { return money(c.f, 'liquidity'); } },
+      { label: 'Dividend', cell: function(c) { return c.f.dividend ? escHtml(c.f.dividend) : '—'; } },
+      { label: 'Market Cap / Adjusted EBITDA', cell: function(c) { return c.ltm ? multiple(c, 'adjEbitda') : '—'; } },
+      { label: 'Free Cash Flow Yield', cell: function(c) { return c.ltm ? yieldPct(c) : '—'; } }
     ];
-    // Drop rows neither company reports
-    rows = rows.filter(function(r) { return r.cell(fb) !== '—' || r.cell(ft) !== '—'; });
+    rows = rows.filter(function(r) {
+      return cols.some(function(c) { return r.cell(c) !== '—'; });
+    });
     if (!rows.length) return '';
 
-    function head(co, f) {
-      return escHtml(co.shortName) + (f && f.periodLabel ? '<div style="font-size:10px;font-weight:500;text-transform:none;letter-spacing:0">' + escHtml(f.periodLabel) + '</div>' : '');
-    }
-    var html = '<h4 style="font-size:11px;font-weight:700;color:var(--text-secondary);text-transform:uppercase;letter-spacing:0.5px;margin:22px 0 10px;padding-top:16px;border-top:2px solid #E8EAF0">Latest Reported Financials</h4>' +
-      '<table class="pf-table"><thead><tr><th>Metric</th><th>' + head(b, fb) + '</th><th>' + head(t, ft) + '</th></tr></thead><tbody>';
-    rows.forEach(function(r) {
-      html += '<tr><td class="pf-metric">' + escHtml(r.label) + '</td><td>' + r.cell(fb) + '</td><td>' + r.cell(ft) + '</td></tr>';
+    var html = '<h4 style="font-size:11px;font-weight:700;color:var(--text-secondary);text-transform:uppercase;letter-spacing:0.5px;margin:22px 0 10px;padding-top:16px;border-top:2px solid #E8EAF0">Reported Financials</h4>' +
+      '<div style="overflow-x:auto"><table class="pf-table"><thead><tr><th>Metric</th>';
+    cols.forEach(function(c) {
+      html += '<th>' + escHtml(c.co.shortName) +
+        (c.f.periodLabel ? '<div style="font-size:10px;font-weight:500;text-transform:none;letter-spacing:0">' + escHtml(c.f.periodLabel) + '</div>' : '') + '</th>';
     });
-    html += '</tbody></table>';
+    html += '</tr></thead><tbody>';
+    rows.forEach(function(r) {
+      html += '<tr><td class="pf-metric">' + escHtml(r.label) + '</td>';
+      cols.forEach(function(c) { html += '<td' + (c.ltm ? ' class="pf-combined"' : '') + '>' + r.cell(c) + '</td>'; });
+      html += '</tr>';
+    });
+    html += '</tbody></table></div>';
 
     var srcs = [];
-    [[b, fb], [t, ft]].forEach(function(pair) { if (pair[1] && pair[1].source) srcs.push(pair[0].shortName + ': ' + pair[1].source); });
+    cols.forEach(function(c) { if (c.f.source && srcs.indexOf(c.co.shortName + ': ' + c.f.source) < 0) srcs.push(c.co.shortName + ': ' + c.f.source); });
     if (srcs.length) {
-      html += '<div style="font-size:11px;color:var(--text-secondary);margin-top:8px">Figures as reported, in each company\'s reporting currency, not combined. Source — ' + escHtml(srcs.join('; ')) + '.</div>';
+      html += '<div style="font-size:11px;color:var(--text-secondary);margin-top:8px">Figures as reported, each in that company\'s reporting currency, never combined across the two. ' +
+        'Multiples use the market cap on the Deal Spread tiles' +
+        (b.financialsLTM && given(b.financialsLTM.usdRate) ? ', converting ' + escHtml(b.shortName) + ' at USD/' + escHtml(b.financialsLTM.currency || 'CAD') + ' ' + b.financialsLTM.usdRate : '') +
+        '. Source — ' + escHtml(srcs.join('; ')) + '.</div>';
     }
+    html += renderQuarterTrail(b) + renderQuarterTrail(t);
     return html;
+  }
+
+  // The four quarters behind an LTM column, so the trend is visible rather than just the total
+  function renderQuarterTrail(co) {
+    var ltm = co.financialsLTM;
+    var qs = ltm && ltm.quarters;
+    if (!qs || !qs.length) return '';
+    var ccy = ltm.currency || 'USD';
+    var html = '<h4 style="font-size:11px;font-weight:700;color:var(--text-secondary);text-transform:uppercase;letter-spacing:0.5px;margin:20px 0 8px">' +
+      escHtml(co.shortName) + ' by Quarter</h4><div style="overflow-x:auto"><table class="pf-table"><thead><tr>' +
+      '<th>Quarter</th><th>Gold Produced</th><th>Gold Sold</th><th>Revenue</th><th>Adjusted EBITDA</th><th>Operating Cash Flow</th><th>AISC (USD)</th><th>Realized (USD)</th>' +
+      '</tr></thead><tbody>';
+    qs.forEach(function(q) {
+      html += '<tr><td class="pf-metric">' + escHtml(q.label) + '</td>' +
+        '<td>' + (given(q.productionOz) ? fmtNum(q.productionOz) : '—') + '</td>' +
+        '<td>' + (given(q.soldOz) ? fmtNum(q.soldOz) : '—') + '</td>' +
+        '<td>' + (given(q.revenue) ? fmtM(q.revenue, ccy) : '—') + '</td>' +
+        '<td>' + (given(q.adjEbitda) ? fmtM(q.adjEbitda, ccy) : '—') + '</td>' +
+        '<td>' + (given(q.operatingCF) ? fmtM(q.operatingCF, ccy) : '—') + '</td>' +
+        '<td>' + (given(q.aiscUsd) ? fmtCurrency(q.aiscUsd, 0, 'USD') : '—') + '</td>' +
+        '<td>' + (given(q.realizedUsd) ? fmtCurrency(q.realizedUsd, 0, 'USD') : '—') + '</td></tr>';
+    });
+    return html + '</tbody></table></div>';
   }
 
   // =========================================================
@@ -751,18 +812,21 @@
   // RENDER: Sensitivity Analysis (controls + table + chart)
   // =========================================================
   function renderSensitivityControls(deal) {
+    prepare(deal);
+    var basis = deal.sensitivityBasis || {};
     var goldBase = deal.defaultGoldPrice;
+    var aiscBase = given(basis.aiscUsd) ? Math.round(basis.aiscUsd / 25) * 25 : deal.defaultAisc;
     return '<div class="sens-slider-group">' +
         '<div class="sens-label">Gold Price (USD/oz)</div>' +
         '<div class="sens-value" id="sens-gold-val">' + fmtCurrency(goldBase, 0, 'USD') + '</div>' +
-        '<input type="range" class="sens-range" id="sens-gold" min="3000" max="6500" step="250" value="' + goldBase + '">' +
+        '<input type="range" class="sens-range" id="sens-gold" min="3000" max="6500" step="25" value="' + goldBase + '">' +
         '<div class="sens-bounds"><span>US$3,000</span><span>US$6,500</span></div>' +
       '</div>' +
       '<div class="sens-slider-group">' +
         '<div class="sens-label">All-In Sustaining Cost (USD/oz)</div>' +
-        '<div class="sens-value" id="sens-aisc-val">' + fmtCurrency(deal.defaultAisc, 0, 'USD') + '</div>' +
-        '<input type="range" class="sens-range" id="sens-aisc" min="1000" max="2500" step="50" value="' + deal.defaultAisc + '">' +
-        '<div class="sens-bounds"><span>US$1,000</span><span>US$2,500</span></div>' +
+        '<div class="sens-value" id="sens-aisc-val">' + fmtCurrency(aiscBase, 0, 'USD') + '</div>' +
+        '<input type="range" class="sens-range" id="sens-aisc" min="750" max="2500" step="25" value="' + aiscBase + '">' +
+        '<div class="sens-bounds"><span>US$750</span><span>US$2,500</span></div>' +
       '</div>' +
       '<div class="sens-slider-group">' +
         '<div class="sens-label">Reserve Estimate Adjustment</div>' +
@@ -783,26 +847,35 @@
     document.getElementById('sens-res-val').textContent = resAdj === 0 ? 'Base Case (0%)' : (resAdj > 0 ? '+' : '') + resAdj + '%';
 
     var c = normCombined(deal.combined || {});
-    var production = c.production || c.productionHigh;
+    // A sensitivityBasis anchors the model on reported results — its EBITDA and free cash flow,
+    // the ounces actually exposed to the spot price, and the realized price behind them
+    var basis = deal.sensitivityBasis || {};
+    var useBasis = given(basis.ebitda) || given(basis.fcf);
+    var baseEbitda = useBasis ? basis.ebitda : c.ebitda2026e;
+    var baseFcf = useBasis ? basis.fcf : c.fcf2026e;
+    // `production` is the volume that follows the spot price; `annualOz` is total output, which
+    // is what reserve life and revenue per reserve ounce are measured against
+    var production = useBasis && given(basis.productionOz) ? basis.productionOz : (c.production || c.productionHigh);
+    var annualOz = (useBasis && given(basis.annualOz) ? basis.annualOz : null) || c.production || c.productionHigh || production;
     // Without an EBITDA/FCF base the price sensitivity has nothing to flex; show margins only
-    var hasBase = given(c.ebitda2026e) || given(c.fcf2026e);
-    var baseGold = deal.defaultGoldPrice;
+    var hasBase = given(baseEbitda) || given(baseFcf);
+    var baseGold = useBasis && given(basis.goldPrice) ? basis.goldPrice : deal.defaultGoldPrice;
     var reserves = c.ppReserves * (1 + resAdj / 100);
     var marketCap = c.marketCapUsd;
 
     var revenue = production * goldPrice / 1e6;
     var totalCost = production * aisc / 1e6;
-    var ebitda = given(c.ebitda2026e) ? c.ebitda2026e + (goldPrice - baseGold) * production / 1e6 : null;
-    var fcf = given(c.fcf2026e) ? c.fcf2026e + (goldPrice - baseGold) * production / 1e6 : null;
+    var ebitda = given(baseEbitda) ? baseEbitda + (goldPrice - baseGold) * production / 1e6 : null;
+    var fcf = given(baseFcf) ? baseFcf + (goldPrice - baseGold) * production / 1e6 : null;
 
     var mcPerReserveOz = marketCap * 1e6 / reserves;
-    var reserveLife = reserves / production;
+    var reserveLife = reserves / annualOz;
     var evEbitda = ebitda != null && ebitda > 0 ? marketCap / ebitda : null;
     var fcfYield = fcf != null && marketCap > 0 ? fcf / marketCap * 100 : null;
     var margin = goldPrice > 0 ? (goldPrice - aisc) / goldPrice * 100 : 0;
 
-    // Deal currency for financial metrics display
-    var dc = deal.dealCurrency || (deal.bidder && deal.bidder.currency) || 'USD';
+    // Currency of the figures in this table: the basis sets it when one is given
+    var dc = useBasis && basis.currency ? basis.currency : (deal.dealCurrency || (deal.bidder && deal.bidder.currency) || 'USD');
 
     // A close carried on the deal beats the site's monthly spot cache
     var sensSpot = (deal.spotPrices || {}).gold;
@@ -815,7 +888,9 @@
     var goldSteps = [3500, 3750, 4000, 4250, 4500, 4750, 5000, 5250, 5500];
 
     // Insert announcement gold price as a distinct row if not already in steps
-    var baseGoldRounded = Math.round(baseGold);
+    var annGold = given(deal.dealTimeGoldPrice) ? Math.round(deal.dealTimeGoldPrice) : Math.round(baseGold);
+    var basisGoldRounded = useBasis && given(basis.goldPrice) ? Math.round(basis.goldPrice) : null;
+    var baseGoldRounded = annGold;
     var baseGoldInSteps = false;
     for (var bi = 0; bi < goldSteps.length; bi++) {
       if (goldSteps[bi] === baseGoldRounded) { baseGoldInSteps = true; break; }
@@ -828,6 +903,10 @@
     // Insert live gold price as a distinct row if available
     var liveGoldRounded = liveGoldPrice ? Math.round(liveGoldPrice) : null;
     var liveGoldInSteps = false;
+    if (basisGoldRounded && goldSteps.indexOf(basisGoldRounded) < 0) {
+      goldSteps.push(basisGoldRounded);
+      goldSteps.sort(function(a, b) { return a - b; });
+    }
     if (liveGoldRounded) {
       for (var si = 0; si < goldSteps.length; si++) {
         if (goldSteps[si] === liveGoldRounded) { liveGoldInSteps = true; break; }
@@ -844,22 +923,24 @@
     var chartFcf = [];
 
     goldSteps.forEach(function(gp) {
-      var eb = given(c.ebitda2026e) ? c.ebitda2026e + (gp - baseGold) * production / 1e6 : null;
-      var fc = given(c.fcf2026e) ? c.fcf2026e + (gp - baseGold) * production / 1e6 : null;
+      var eb = given(baseEbitda) ? baseEbitda + (gp - baseGold) * production / 1e6 : null;
+      var fc = given(baseFcf) ? baseFcf + (gp - baseGold) * production / 1e6 : null;
       var mg = gp > 0 ? (gp - aisc) / gp * 100 : 0;
       var ev = eb != null && eb > 0 ? marketCap / eb : null;
       var fy = fc != null && marketCap > 0 ? fc / marketCap * 100 : null;
       var isBase = gp === baseGoldRounded;
       var isLive = liveGoldRounded && gp === liveGoldRounded;
+      var isBasis = basisGoldRounded && gp === basisGoldRounded;
 
       var rowClass = '';
-      if (isLive && !isBase) rowClass = ' class="sens-live"';
-      else if (isBase) rowClass = ' class="sens-base"';
+      if (isLive) rowClass = ' class="sens-live"';
+      else if (isBase || isBasis) rowClass = ' class="sens-base"';
 
-      var label = '';
-      if (isLive && isBase) label = sensSpotLabel + ' / Announcement Price';
-      else if (isLive) label = sensSpotLabel;
-      else if (isBase) label = ' ◀ Announcement Price';
+      var parts = [];
+      if (isLive) parts.push(sensSpotLabel.replace(' ◀ ', ''));
+      if (isBase) parts.push('Announcement Price');
+      if (isBasis) parts.push(escHtml(basis.label ? basis.label + ' Realized' : 'Realized Price'));
+      var label = parts.length ? ' ◀ ' + parts.join(' / ') : '';
 
       var ebBlank = eb == null || Math.round(eb) === 0;
 
@@ -870,7 +951,7 @@
         '<td>' + fmtPct(mg) + '</td>' +
         '<td>' + fmtX(ev) + '</td>' +
         '<td class="' + (fy >= 0 ? 'sens-positive' : 'sens-negative') + '">' + fmtPct(fy) + '</td>' +
-        '<td>' + fmtCurrency(Math.round(gp * production / reserves), 0, 'USD') + '</td>' +
+        '<td>' + fmtCurrency(Math.round(gp * annualOz / reserves), 0, 'USD') + '</td>' +
       '</tr>';
 
       chartLabels.push('US$' + (gp / 1000).toFixed(1) + 'K');
@@ -881,11 +962,11 @@
     var summaryHtml =
       '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;margin-bottom:20px">' +
         '<div style="padding:12px;background:#FAFBFC;border-radius:8px;text-align:center;border-left:3px solid var(--color-gold)">' +
-          '<div style="font-size:10px;font-weight:700;color:var(--text-secondary);text-transform:uppercase">EBITDA (' + dc + ')</div>' +
+          '<div style="font-size:10px;font-weight:700;color:var(--text-secondary);text-transform:uppercase">' + escHtml(basis.ebitdaLabel || 'EBITDA') + ' (' + dc + ')</div>' +
           '<div style="font-size:18px;font-weight:700;color:var(--header-mid)">' + (ebitda == null || Math.round(ebitda) === 0 ? '—' : fmtM(ebitda, dc)) + '</div>' +
         '</div>' +
         '<div style="padding:12px;background:#FAFBFC;border-radius:8px;text-align:center;border-left:3px solid #27AE60">' +
-          '<div style="font-size:10px;font-weight:700;color:var(--text-secondary);text-transform:uppercase">Free Cash Flow (' + dc + ')</div>' +
+          '<div style="font-size:10px;font-weight:700;color:var(--text-secondary);text-transform:uppercase">' + escHtml(basis.fcfLabel || 'Free Cash Flow') + ' (' + dc + ')</div>' +
           '<div style="font-size:18px;font-weight:700;color:var(--header-mid)">' + (fcf == null ? '—' : fmtM(fcf, dc)) + '</div>' +
         '</div>' +
         '<div style="padding:12px;background:#FAFBFC;border-radius:8px;text-align:center;border-left:3px solid #2980B9">' +
@@ -893,7 +974,7 @@
           '<div style="font-size:18px;font-weight:700;color:var(--header-mid)">' + fmtPct(margin) + '</div>' +
         '</div>' +
         '<div style="padding:12px;background:#FAFBFC;border-radius:8px;text-align:center;border-left:3px solid #8E44AD">' +
-          '<div style="font-size:10px;font-weight:700;color:var(--text-secondary);text-transform:uppercase">EV/EBITDA</div>' +
+          '<div style="font-size:10px;font-weight:700;color:var(--text-secondary);text-transform:uppercase">MC/' + escHtml(basis.ebitdaShort || 'EBITDA') + '</div>' +
           '<div style="font-size:18px;font-weight:700;color:var(--header-mid)">' + fmtX(evEbitda) + '</div>' +
         '</div>' +
         '<div style="padding:12px;background:#FAFBFC;border-radius:8px;text-align:center;border-left:3px solid #E67E22">' +
@@ -910,9 +991,12 @@
       '<div style="font-size:11px;font-weight:700;color:var(--text-secondary);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px">Gold Price Sensitivity (at AISC ' + fmtCurrency(aisc, 0, 'USD') + '/oz, Reserves ' + fmtOz(reserves) + ')</div>' +
       '<div style="overflow-x:auto">' +
       '<table class="sens-table"><thead><tr>' +
-        '<th>Gold Price</th><th>EBITDA (' + dc + ')</th><th>FCF (' + dc + ')</th><th>Margin</th><th>EV/EBITDA</th><th>FCF Yield</th><th>Revenue/Reserve oz</th>' +
+        '<th>Gold Price</th><th>' + escHtml(basis.ebitdaLabel || 'EBITDA') + ' (' + dc + ')</th><th>' + escHtml(basis.fcfLabel || 'FCF') + ' (' + dc + ')</th><th>Margin</th><th>MC/' + escHtml(basis.ebitdaShort || 'EBITDA') + '</th><th>FCF Yield</th><th>Revenue/Reserve oz</th>' +
       '</tr></thead><tbody>' + tableRows + '</tbody></table></div>';
 
+    if (useBasis && basis.note) {
+      summaryHtml = '<div style="font-size:12px;color:var(--text-secondary);background:#FAFBFC;border-radius:8px;padding:10px 12px;margin-bottom:12px"><strong>Basis:</strong> ' + escHtml(basis.note) + '</div>' + summaryHtml;
+    }
     if (!hasBase) {
       summaryHtml = '<div style="font-size:12px;color:var(--text-secondary);background:#FAFBFC;border-radius:8px;padding:10px 12px;margin-bottom:12px">' +
         'No EBITDA or free cash flow estimate is entered for this deal, so those columns are blank. Margin, MC per reserve ounce and reserve life still respond to the sliders.</div>' + summaryHtml;
