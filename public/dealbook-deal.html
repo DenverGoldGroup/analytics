@@ -185,7 +185,7 @@
 
   <div id="deal-disclaimer"></div>
 
-  <script src="/js/deal-renderer.js?v=2"></script>
+  <script src="/js/deal-renderer.js?v=3"></script>
   <script>
   (function() {
     'use strict';
@@ -347,7 +347,7 @@
       var spreadHtml = R.renderDealSpread(deal, liveGoldData);
       if (spreadHtml) {
         html += '<div class="section-card">' +
-          '<div class="section-header"><h3>Deal Spread</h3><span class="badge">' + (deal._staleLive ? 'Press Release Prices' : 'Live') + '</span></div>' +
+          '<div class="section-header"><h3>Deal Spread</h3><span class="badge">' + R.escHtml(deal._priceBadge || 'Live') + '</span></div>' +
           '<div class="section-body">' + spreadHtml + '</div>' +
         '</div>';
       }

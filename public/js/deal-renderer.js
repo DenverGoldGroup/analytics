@@ -191,18 +191,38 @@
     return { impliedPerShare: implied, spread: implied / t.stockPriceUsd - 1 };
   }
 
-  // Market figures to show. The live overlay comes from the companies table; when that table was
-  // loaded before the deal's market-data date, its prices predate the announcement, so the page
-  // uses the announcement's own figures (announcementMC, refPriceUsd) instead. Idempotent.
+  // Market figures to show, most recent first:
+  //   1. a last close entered on the deal (lastPriceUsd + lastPriceAsOf), when newer than the
+  //      companies table; market cap = that price × the deal's share count
+  //   2. the companies table overlay (marketCapUsd, stockPriceUsd, dated marketDataAsOf)
+  // If what's left predates the deal's market-data date it predates the announcement, so the
+  // announcement's own figures (announcementMC, refPriceUsd) are used instead. Idempotent.
   function prepare(deal) {
     if (!deal || deal._prepared) return deal;
     deal._prepared = true;
     var b = deal.bidder || {}, t = deal.target || {};
-    var asOf = b.marketDataAsOf || t.marketDataAsOf;
-    deal._liveAsOf = asOf || null;
-    deal._staleLive = !!(asOf && deal.marketDataDate && String(asOf).slice(0, 10) < deal.marketDataDate);
-    [b, t].forEach(function(p) {
-      p._mcFrom = 'live';
+    var parties = [b, t];
+    parties.forEach(function(p) {
+      var tableDate = p.marketDataAsOf ? String(p.marketDataAsOf).slice(0, 10) : null;
+      var useClose = given(p.lastPriceUsd) && p.lastPriceAsOf && (!tableDate || p.lastPriceAsOf > tableDate || !given(p.stockPriceUsd));
+      if (useClose) {
+        p.liveStockPriceUsd = p.stockPriceUsd;
+        p.stockPriceUsd = p.lastPriceUsd;
+        if (given(p.sharesOutstanding)) {
+          p.liveMarketCapUsd = p.marketCapUsd;
+          p.marketCapUsd = p.lastPriceUsd * p.sharesOutstanding;
+          delete p.marketCapDisplay;
+        }
+        p._asOf = p.lastPriceAsOf;
+        p._mcFrom = 'close';
+      } else {
+        p._asOf = tableDate;
+        p._mcFrom = 'live';
+      }
+    });
+    deal._liveAsOf = b._asOf || t._asOf || null;
+    deal._staleLive = parties.some(function(p) { return p._asOf && deal.marketDataDate && p._asOf < deal.marketDataDate; });
+    parties.forEach(function(p) {
       var useRef = deal._staleLive || !given(p.marketCapUsd);
       if (useRef && given(p.announcementMC)) {
         p.liveMarketCapUsd = p.marketCapUsd;
@@ -216,6 +236,9 @@
         p._priceFrom = 'announcement';
       }
     });
+    var closeDates = parties.filter(function(p) { return p._mcFrom === 'close'; }).map(function(p) { return p._asOf; });
+    deal._priceBadge = deal._staleLive ? 'Press Release Prices'
+      : closeDates.length ? 'Close ' + fmtDate(closeDates.sort()[closeDates.length - 1]) : 'Live';
     if (deal.combined && given(b.marketCapUsd) && given(t.marketCapUsd)) deal.combined.marketCapUsd = b.marketCapUsd + t.marketCapUsd;
     return deal;
   }
@@ -314,7 +337,7 @@
       var color = delta >= 0 ? '#27AE60' : '#E74C3C';
       var sign = delta >= 0 ? '+' : '';
       return '<div style="font-size:11px;color:' + color + ';margin-top:2px;font-weight:600">' +
-        sign + fmtM(delta, 'USD') + ' (' + sign + pct.toFixed(1) + '%)' +
+        (delta >= 0 ? '+' : '−') + fmtM(Math.abs(delta), 'USD') + ' (' + sign + pct.toFixed(1) + '%)' +
       '</div>';
     }
 
@@ -326,7 +349,7 @@
     var goldColor = goldDelta >= 0 ? '#27AE60' : '#E74C3C';
     var goldSign = goldDelta >= 0 ? '+' : '';
     var goldChangeHtml = goldAnn ? '<div style="font-size:11px;color:' + goldColor + ';margin-top:2px;font-weight:600">' +
-      goldSign + fmtCurrency(Math.round(goldDelta), 0, 'USD') + ' (' + goldSign + goldDeltaPct.toFixed(1) + '%)' +
+      (goldDelta >= 0 ? '+' : '−') + fmtCurrency(Math.abs(Math.round(goldDelta)), 0, 'USD') + ' (' + goldSign + goldDeltaPct.toFixed(1) + '%)' +
       '</div>' : '';
 
     // Gold price timestamp
@@ -343,7 +366,7 @@
 
     // Company data date: when the companies table was last loaded (sent by the API),
     // falling back to end of day yesterday for callers that don't supply it
-    var asOf = liveAsOf;
+    var asOf = b._mcFrom === 'live' ? b._asOf : t._mcFrom === 'live' ? t._asOf : liveAsOf;
     var eodLabel;
     if (asOf) {
       var ad = new Date(asOf);
@@ -356,8 +379,13 @@
     var eodHtml = '<div style="font-size:9px;color:#999;margin-top:3px">' + eodLabel + '</div>';
     // Each tile says where its figure came from: the announcement, or the companies table and its date
     var annHtml = '<div style="font-size:9px;color:#999;margin-top:3px">Press release' + (deal.marketDataDate ? ', ' + fmtDate(deal.marketDataDate) : '') + '</div>';
-    function srcHtml(p) { return p._mcFrom === 'announcement' ? annHtml : eodHtml; }
-    var combSrc = b._mcFrom === t._mcFrom ? srcHtml(b)
+    function srcHtml(p) {
+      if (p._mcFrom === 'announcement') return annHtml;
+      if (p._mcFrom === 'close') return '<div style="font-size:9px;color:#999;margin-top:3px">Close, ' + fmtDate(p._asOf) +
+        (p.lastPriceNote ? '<br>' + escHtml(p.lastPriceNote) : '') + '</div>';
+      return eodHtml;
+    }
+    var combSrc = b._mcFrom === t._mcFrom && b._asOf === t._asOf ? srcHtml(b).replace(/<br>.*<\/div>$/, '</div>')
       : '<div style="font-size:9px;color:#999;margin-top:3px">Mixed sources (see tiles)</div>';
 
     return '<div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:16px;margin-bottom:16px">' +

@@ -526,7 +526,7 @@
     <p class="disclaimer-copyright">&copy; 2026 by The Denver Gold Group, Inc. All rights reserved. Distribution and republication is encouraged provided that no part of this publication is modified in any form or by any means without the prior written permission of the copyright holder.</p>
   </div>
 
-  <script src="/js/deal-renderer.js?v=2"></script>
+  <script src="/js/deal-renderer.js?v=3"></script>
   <script>
   (function() {
     'use strict';
@@ -894,7 +894,7 @@
       if (spreadHtml) {
         document.getElementById('deal-spread-section').style.display = '';
         document.getElementById('deal-spread-body').innerHTML = spreadHtml;
-        document.getElementById('deal-spread-badge').textContent = DEAL._staleLive ? 'Press Release Prices' : 'Live';
+        document.getElementById('deal-spread-badge').textContent = DEAL._priceBadge || 'Live';
       }
 
       document.getElementById('term-sheet-body').innerHTML = R.renderTermSheet(DEAL);
