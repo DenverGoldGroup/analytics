@@ -351,7 +351,7 @@
 
         <!-- Deal Spread -->
         <div id="deal-spread-section" class="section-card" style="display:none">
-          <div class="section-header"><h3>Deal Spread</h3><span class="badge">Live</span></div>
+          <div class="section-header"><h3>Deal Spread</h3><span class="badge" id="deal-spread-badge">Live</span></div>
           <div class="section-body" id="deal-spread-body"></div>
         </div>
 
@@ -526,7 +526,7 @@
     <p class="disclaimer-copyright">&copy; 2026 by The Denver Gold Group, Inc. All rights reserved. Distribution and republication is encouraged provided that no part of this publication is modified in any form or by any means without the prior written permission of the copyright holder.</p>
   </div>
 
-  <script src="/js/deal-renderer.js?v=1"></script>
+  <script src="/js/deal-renderer.js?v=2"></script>
   <script>
   (function() {
     'use strict';
@@ -883,6 +883,7 @@
     var sensChart = null;
 
     function renderAll() {
+      delete DEAL._prepared; // re-derive display figures after the company picks change
       document.getElementById('deal-banner').innerHTML = R.renderBanner(DEAL);
       document.getElementById('deal-links').innerHTML = R.renderLinks(DEAL);
       document.getElementById('quick-stats').innerHTML = R.renderQuickStats(DEAL);
@@ -893,6 +894,7 @@
       if (spreadHtml) {
         document.getElementById('deal-spread-section').style.display = '';
         document.getElementById('deal-spread-body').innerHTML = spreadHtml;
+        document.getElementById('deal-spread-badge').textContent = DEAL._staleLive ? 'Press Release Prices' : 'Live';
       }
 
       document.getElementById('term-sheet-body').innerHTML = R.renderTermSheet(DEAL);
@@ -978,6 +980,7 @@
           '<td style="font-size:11px;color:var(--text-secondary)">' + updated + '</td>' +
           '<td class="cd-actions">' +
             '<button class="btn-sm" onclick="openDealEditor(\'' + d.id + '\')">Edit</button>' +
+            '<button class="btn-sm" onclick="previewDeal(\'' + d.id + '\')" title="Open the deal page as dealbook readers see it">Preview</button>' +
             '<button class="btn-sm" onclick="togglePublish(\'' + d.id + '\',' + !d.is_announced + ')">' + (d.is_announced ? 'Unpublish' : 'Publish') + '</button>' +
             '<button class="btn-sm danger" onclick="deleteDeal(\'' + d.id + '\')">Delete</button>' +
           '</td>' +
@@ -1115,6 +1118,7 @@
           deF('ms-' + i + '-label', 'Label', m.label) +
           deF('ms-' + i + '-detail', 'Detail', m.detail) +
           deF('ms-' + i + '-status', 'Status', m.status) +
+          deF('ms-' + i + '-dateText', 'Shown As (e.g. Nov 2026)', m.dateText) +
           '<button class="de-btn-rm" onclick="removeDeRow(\'ms\',' + i + ')">&#10005;</button>' +
         '</div>';
       });
@@ -1131,6 +1135,8 @@
           deF(prefix + '-' + i + '-region', 'Region', a.region) +
           deF(prefix + '-' + i + '-owner', 'Owner', a.owner) +
           deF(prefix + '-' + i + '-prod', 'Production', a.production, 'number') +
+          deF(prefix + '-' + i + '-prodText', 'Production (as text)', a.productionText) +
+          deF(prefix + '-' + i + '-prodLabel', 'Production Caption', a.productionLabel) +
           '<button class="de-btn-rm" onclick="removeDeRow(\'' + prefix + '\',' + i + ')">&#10005;</button>' +
         '</div>';
       });
@@ -1326,6 +1332,20 @@
         '</div>' +
       '</div>', true);
 
+      // 10b. Announcement details from the press release
+      html += deSection('announce', 'Announcement Details (from the press release)', '<div class="de-grid">' +
+        deF('tm-impliedValuePerShare', 'Implied Value per Target Share', tm.impliedValuePerShare, 'number') +
+        deF('tm-transactionValueM', 'Transaction Value ($M)', tm.transactionValueM, 'number') +
+        deF('tm-premiumSpotPct', 'Premium to Last Close (%)', tm.premiumSpotPct, 'number') +
+        deF('tm-premiumVwapPct', 'Premium to VWAP (%)', tm.premiumVwapPct, 'number') +
+        deF('tm-premiumVwapLabel', 'VWAP Label (e.g. 20-day VWAP)', tm.premiumVwapLabel) +
+        deF('tm-premiumAsOf', 'Premium Measured As At', tm.premiumAsOf, 'date') +
+        deF('tm-existingStakePct', 'Acquirer Existing Stake in Target (%)', tm.existingStakePct, 'number') +
+        deF('tm-targetBreakFeePayer', 'Target Break Fee Payable By', tm.targetBreakFeePayer) +
+      '</div>' +
+      '<div class="de-field" style="margin-top:10px"><label>Source &amp; Basis Notes (one per line, shown under the Pro Forma table)</label>' +
+        '<textarea id="de-dataNotes" rows="5">' + R.escHtml((dd.dataNotes || []).join('\n')) + '</textarea></div>', true);
+
       // 11. Milestones
       html += deSection('milestones', 'Milestones', deMilestoneRows(dd.milestones), true);
 
@@ -1341,6 +1361,7 @@
       // Save bar
       html += '<div class="de-save-bar">' +
         '<button class="btn-sm" onclick="closeDealEditor()">Cancel</button>' +
+        '<button class="btn-sm" onclick="previewDealEdits()" title="Open the deal page with these edits, without saving">Preview Unsaved Changes</button>' +
         '<button class="btn-gold" id="de-save-btn" onclick="saveDealEdits()">Save All Changes</button>' +
       '</div>' +
       '<div id="de-message" style="font-size:12px;margin-top:8px;text-align:center"></div>';
@@ -1353,6 +1374,29 @@
       var cdContent = document.getElementById('cd-content');
       cdContent.parentNode.insertBefore(panel, cdContent.nextSibling);
       panel.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    };
+
+    // Open the deal page layout in a new tab. window.open (without noopener) gives the new tab a
+    // copy of this tab's sessionStorage, so the admin token — and any unsaved draft — go with it.
+    function openDealPage(slug, draftData) {
+      try {
+        if (draftData) sessionStorage.setItem('deal_preview', JSON.stringify({ slug: slug, deal_data: draftData }));
+        else sessionStorage.removeItem('deal_preview');
+      } catch (e) { /* storage full or blocked: the saved version still opens */ }
+      window.open('/dealbook-deal?slug=' + encodeURIComponent(slug) + (draftData ? '&draft=1' : ''), '_blank');
+    }
+
+    window.previewDeal = function(id) {
+      var d = findSavedDeal(id);
+      if (d) openDealPage(d.slug, null);
+    };
+
+    window.previewDealEdits = function() {
+      var d = findSavedDeal(deEditId);
+      if (!d) return;
+      var data = collectDealEdits(d.deal_data || {});
+      data.title = data.title || d.title;
+      openDealPage(d.slug, data);
     };
 
     window.closeDealEditor = function() {
@@ -1394,6 +1438,7 @@
         deF('ms-' + idx + '-label', 'Label', '') +
         deF('ms-' + idx + '-detail', 'Detail', '') +
         deF('ms-' + idx + '-status', 'Status', 'upcoming') +
+        deF('ms-' + idx + '-dateText', 'Shown As (e.g. Nov 2026)', '') +
         '<button class="de-btn-rm" onclick="removeDeRow(\'ms\',' + idx + ')">&#10005;</button>';
       list.appendChild(row);
     };
@@ -1409,6 +1454,8 @@
         deF(prefix + '-' + idx + '-region', 'Region', '') +
         deF(prefix + '-' + idx + '-owner', 'Owner', '') +
         deF(prefix + '-' + idx + '-prod', 'Production', '', 'number') +
+        deF(prefix + '-' + idx + '-prodText', 'Production (as text)', '') +
+        deF(prefix + '-' + idx + '-prodLabel', 'Production Caption', '') +
         '<button class="de-btn-rm" onclick="removeDeRow(\'' + prefix + '\',' + idx + ')">&#10005;</button>';
       list.appendChild(row);
     };
@@ -1448,7 +1495,10 @@
         var date = deVal('ms-' + idx + '-date');
         var label = deVal('ms-' + idx + '-label');
         if (date || label) {
-          arr.push({ date: date, label: label, detail: deVal('ms-' + idx + '-detail'), status: deVal('ms-' + idx + '-status') || 'upcoming' });
+          var msItem = { date: date, label: label, detail: deVal('ms-' + idx + '-detail'), status: deVal('ms-' + idx + '-status') || 'upcoming' };
+          var dateText = deVal('ms-' + idx + '-dateText');
+          if (dateText) msItem.dateText = dateText;
+          arr.push(msItem);
         }
       }
       return arr;
@@ -1466,6 +1516,10 @@
           var item = { name: name, region: deVal(prefix + '-' + idx + '-region'), production: deNum(prefix + '-' + idx + '-prod') };
           var owner = deVal(prefix + '-' + idx + '-owner');
           if (owner) item.owner = owner;
+          var prodText = deVal(prefix + '-' + idx + '-prodText');
+          if (prodText) item.productionText = prodText;
+          var prodLabel = deVal(prefix + '-' + idx + '-prodLabel');
+          if (prodLabel) item.productionLabel = prodLabel;
           arr.push(item);
         }
       }
@@ -1485,22 +1539,24 @@
       return arr;
     }
 
-    window.saveDealEdits = async function() {
-      if (!deEditId) return;
-
-      // Find original deal for fields we don't edit
-      var origDeal = null;
+    function findSavedDeal(id) {
       for (var i = 0; i < savedDeals.length; i++) {
-        if (savedDeals[i].id === deEditId) { origDeal = savedDeals[i]; break; }
+        if (savedDeals[i].id === id) return savedDeals[i];
       }
-      if (!origDeal) return;
-      var origData = origDeal.deal_data || {};
+      return null;
+    }
 
-      var btn = document.getElementById('de-save-btn');
-      btn.disabled = true;
-      btn.textContent = 'Saving...';
+    // Copy fields the editor has no input for (press-release details, notes, advisers…)
+    // from the saved deal, so a save never drops them
+    function keepUnedited(updated, orig) {
+      if (!orig) return;
+      Object.keys(orig).forEach(function(k) {
+        if (!(k in updated)) updated[k] = orig[k];
+      });
+    }
 
-      // Build updated deal_data
+    // Build deal_data from the editor form
+    function collectDealEdits(origData) {
       var updatedData = {
         title: deVal('title'),
         subtitle: deVal('subtitle') || null,
@@ -1633,11 +1689,37 @@
         conditions: collectConditions()
       };
 
-      // Preserve any extra fields from original data not covered by the editor
-      var extraKeys = ['advisers', 'synergies', 'currencyNote'];
-      extraKeys.forEach(function(k) {
-        if (origData[k] != null && updatedData[k] == null) updatedData[k] = origData[k];
+      // Announcement details (press-release fields)
+      var tmx = updatedData.terms;
+      tmx.impliedValuePerShare = deNum('tm-impliedValuePerShare');
+      tmx.transactionValueM = deNum('tm-transactionValueM');
+      tmx.premiumSpotPct = deNum('tm-premiumSpotPct');
+      tmx.premiumVwapPct = deNum('tm-premiumVwapPct');
+      tmx.premiumVwapLabel = deVal('tm-premiumVwapLabel') || null;
+      tmx.premiumAsOf = deVal('tm-premiumAsOf') || null;
+      tmx.existingStakePct = deNum('tm-existingStakePct');
+      tmx.targetBreakFeePayer = deVal('tm-targetBreakFeePayer') || null;
+      updatedData.dataNotes = deVal('dataNotes').split('\n').map(function(x) { return x.trim(); }).filter(Boolean);
+
+      // Keep every field the form doesn't cover, at the top level and inside each group
+      keepUnedited(updatedData, origData);
+      ['bidder', 'target', 'terms', 'proForma', 'combined', 'votingSupport', 'links'].forEach(function(g) {
+        if (updatedData[g] && origData[g]) keepUnedited(updatedData[g], origData[g]);
       });
+      return updatedData;
+    }
+
+    window.saveDealEdits = async function() {
+      if (!deEditId) return;
+      var origDeal = findSavedDeal(deEditId);
+      if (!origDeal) return;
+      var origData = origDeal.deal_data || {};
+
+      var btn = document.getElementById('de-save-btn');
+      btn.disabled = true;
+      btn.textContent = 'Saving...';
+
+      var updatedData = collectDealEdits(origData);
 
       try {
         var res = await fetch('/api/deals', {

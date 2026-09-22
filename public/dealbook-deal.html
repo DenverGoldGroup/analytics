@@ -185,7 +185,7 @@
 
   <div id="deal-disclaimer"></div>
 
-  <script src="/js/deal-renderer.js?v=1"></script>
+  <script src="/js/deal-renderer.js?v=2"></script>
   <script>
   (function() {
     'use strict';
@@ -208,7 +208,17 @@
 
     // Extract slug from URL: /deals/some-slug
     var pathParts = window.location.pathname.split('/').filter(function(p) { return p; });
-    var slug = pathParts.length >= 2 && pathParts[0] === 'deals' ? pathParts[1] : null;
+    var qs = new URLSearchParams(window.location.search);
+    // /deals/<slug> on the dealbook host; /dealbook-deal?slug=<slug> for admin previews elsewhere
+    var slug = pathParts.length >= 2 && pathParts[0] === 'deals' ? pathParts[1] : qs.get('slug');
+    // Admin "Preview Unsaved Changes": the editor leaves its draft in sessionStorage
+    var draft = null;
+    if (qs.get('draft') === '1') {
+      try {
+        var saved = JSON.parse(sessionStorage.getItem('deal_preview') || 'null');
+        if (saved && saved.slug === slug && saved.deal_data) draft = saved.deal_data;
+      } catch (e) { /* no draft: show the saved version */ }
+    }
     if (!slug) {
       document.getElementById('deal-content').innerHTML = '<div class="dd-error"><h3>Invalid URL</h3><p>No deal slug found in the URL.</p></div>';
       return;
@@ -281,6 +291,16 @@
         }
 
         var deal = data.deal.deal_data;
+        if (draft && deal) {
+          // Use the unsaved edits, keeping the live company figures the API added to the saved deal
+          ['marketCapUsd', 'stockPriceUsd', 'marketDataAsOf', 'productionLow', 'productionHigh', 'reserves', 'resources'].forEach(function(k) {
+            ['bidder', 'target'].forEach(function(role) {
+              if (deal[role] && deal[role][k] != null && draft[role]) draft[role][k] = deal[role][k];
+            });
+          });
+          if (deal.combined && draft.combined) draft.combined.marketCapUsd = deal.combined.marketCapUsd;
+          deal = draft;
+        }
         if (!deal) {
           document.getElementById('deal-content').innerHTML = '<div class="dd-error"><h3>Invalid Deal Data</h3><p>Deal data could not be loaded.</p></div>';
           return;
@@ -289,8 +309,19 @@
         // Overlay live stock data from companies table onto deal object
         await applyLiveCompanyData(deal);
 
-        document.title = data.deal.title + ' — M&A Deal Book';
-        document.getElementById('deal-title').textContent = data.deal.title;
+        var shownTitle = (draft && draft.title) || data.deal.title;
+        document.title = shownTitle + ' — M&A Deal Book';
+        document.getElementById('deal-title').textContent = shownTitle;
+        // Tell admins when what they see isn't what dealbook readers see
+        var previewNote = draft ? 'Preview of unsaved changes: close this tab and save in the editor to keep them.'
+          : !data.deal.is_announced ? 'Preview: this deal is not published, so dealbook readers can\'t see it yet.' : '';
+        if (previewNote) {
+          var bar = document.createElement('div');
+          bar.style.cssText = 'background:#FFF8E1;border:1.5px solid var(--color-gold);color:#5D4300;border-radius:8px;padding:10px 14px;margin:0 0 16px;font-size:13px;font-weight:600';
+          bar.textContent = previewNote;
+          var dc = document.getElementById('deal-content');
+          dc.parentNode.insertBefore(bar, dc);
+        }
         document.getElementById('deal-subtitle').textContent = deal.subtitle || data.deal.title;
 
         renderDeal(deal);
@@ -316,7 +347,7 @@
       var spreadHtml = R.renderDealSpread(deal, liveGoldData);
       if (spreadHtml) {
         html += '<div class="section-card">' +
-          '<div class="section-header"><h3>Deal Spread</h3><span class="badge">Live</span></div>' +
+          '<div class="section-header"><h3>Deal Spread</h3><span class="badge">' + (deal._staleLive ? 'Press Release Prices' : 'Live') + '</span></div>' +
           '<div class="section-body">' + spreadHtml + '</div>' +
         '</div>';
       }

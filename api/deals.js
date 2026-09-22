@@ -89,7 +89,7 @@ async function enrichDealData(sb, dealData, bidderName, targetName) {
   try {
     var names = [bidderName, targetName];
     var { data: companies } = await sb.from('companies')
-      .select('company_name, market_cap_usd, stock_price_usd, production_low, production_high, reserves, resources')
+      .select('company_name, market_cap_usd, stock_price_usd, production_low, production_high, reserves, resources, updated_at')
       .in('company_name', names);
     if (!companies || companies.length === 0) return dealData;
 
@@ -107,6 +107,8 @@ async function enrichDealData(sb, dealData, bidderName, targetName) {
       }
       var sp = parseFloat(comp.stock_price_usd);
       if (!isNaN(sp) && sp > 0) party.stockPriceUsd = sp;
+      // When the live figures were loaded, so the page doesn't label them with today's date
+      if (comp.updated_at) party.marketDataAsOf = comp.updated_at;
       var pl = parseFloat(comp.production_low);
       if (!isNaN(pl) && pl > 0) party.productionLow = pl;
       var ph = parseFloat(comp.production_high);
