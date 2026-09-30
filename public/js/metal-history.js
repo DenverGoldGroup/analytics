@@ -100,6 +100,14 @@
     NAMES: ['Gold', 'Silver', 'Platinum', 'Palladium', 'Copper'],
     UNITS: ['/oz', '/oz', '/oz', '/oz', '/lb'],
     DATA_THROUGH: '2026-09-16',   // last week in the price file
+    // Macro comparators for the briefings' market table, from FRED (fetched 2026-09-30):
+    // [US$ in C$ (DEXCAUS), US$ in A$ (1/DEXUSAL), BLS PPI gold ores (WPU102406, index)]
+    // MACRO_SEP = September average (FX: business days to Sep 25, 2026; PPI: the latest month, August 2026).
+    // MACRO_ANN = the 12 months to September (PPI 2026: Oct 2025–Aug 2026, 11 months).
+    MACRO_NAMES: ['US dollar in Canadian dollars', 'US dollar in Australian dollars', 'Producer price index, gold ores'],
+    MACRO_SEP: { 2024: [1.3546, 1.4773, 504.43], 2025: [1.3834, 1.5158, 728.78], 2026: [1.3936, 1.4014, 874.926] },
+    MACRO_ANN: { 2025: [1.3985, 1.5540, 609.955], 2026: [1.3869, 1.4463, 926.292] },
+    MACRO_NOTE: 'Exchange rates: Federal Reserve H.10 averages, September 2026 to the 25th. PPI gold ores: BLS index (FRED WPU102406), latest month August 2026, 12-month column October to August.',
     PARTIAL_SEP: 2026             // September of this year is still a part-month average
   };
   if (typeof module !== 'undefined' && module.exports) module.exports = api;

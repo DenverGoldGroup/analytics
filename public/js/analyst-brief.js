@@ -836,35 +836,51 @@
     return !!(metal && month >= 7 && month <= 9 && metal.SEP[evt.year] && metal.SEP[evt.year - 1]);
   };
 
-  sections.market = function(b, evt, metal, y) {
+  sections.market = function(b, evt, metal, y, opts) {
     var doc = b.doc, yr = evt.year;
     y = b.sectionTitle('Market backdrop', y, 'metal prices into the forum');
     var order = [0, 1, 4, 2, 3]; // gold, silver, copper, platinum, palladium
-    var mrows = order.map(function(idx) {
-      var sepNow = metal.SEP[yr][idx], sepPrev = metal.SEP[yr - 1][idx];
-      var annNow = metal.ANN[yr] ? metal.ANN[yr][idx] : null, annPrev = metal.ANN[yr - 1] ? metal.ANN[yr - 1][idx] : null;
-      return { name: metal.NAMES[idx], unit: metal.UNITS[idx], now: sepNow, prev: sepPrev,
+    var row = function(name, sepNow, sepPrev, annNow, annPrev, fmt, neutral) {
+      return { name: name, now: sepNow, prev: sepPrev, fmt: fmt, neutral: neutral,
         sepYoY: sepNow != null && sepPrev ? sepNow / sepPrev - 1 : null, annYoY: annNow != null && annPrev ? annNow / annPrev - 1 : null };
+    };
+    var mrows = order.map(function(idx) {
+      var unit = metal.UNITS[idx];
+      return row(metal.NAMES[idx], metal.SEP[yr][idx], metal.SEP[yr - 1][idx], metal.ANN[yr] ? metal.ANN[yr][idx] : null,
+        metal.ANN[yr - 1] ? metal.ANN[yr - 1][idx] : null, function(v) { return fmtPrice(v, unit); });
     });
+    // Currency and cost comparators: the US dollar against the two big mining currencies, and the
+    // producer price index for gold ores. Exchange-rate moves are shown without a good/bad colour.
+    var hasMacro = metal.MACRO_SEP && metal.MACRO_SEP[yr] && metal.MACRO_SEP[yr - 1];
+    if (hasMacro) {
+      var mf = [function(v) { return v == null ? '—' : 'C$' + v.toFixed(4); }, function(v) { return v == null ? '—' : 'A$' + v.toFixed(4); },
+        function(v) { return v == null ? '—' : v.toFixed(1); }];
+      metal.MACRO_NAMES.forEach(function(name, i) {
+        mrows.push(row(name, metal.MACRO_SEP[yr][i], metal.MACRO_SEP[yr - 1][i], metal.MACRO_ANN[yr] ? metal.MACRO_ANN[yr][i] : null,
+          metal.MACRO_ANN[yr - 1] ? metal.MACRO_ANN[yr - 1][i] : null, mf[i], i < 2));
+      });
+    }
     var partial = metal.PARTIAL_SEP === yr;
     var chg = function(key) {
       return function(d, r, cx, cy, cw, rh) {
         var v = r[key];
-        d.font('bold').fontSize(8.2).fillColor(v == null ? MUTED : (v >= 0 ? UP : DOWN))
+        d.font('bold').fontSize(8.2).fillColor(v == null ? MUTED : (r.neutral ? INK : (v >= 0 ? UP : DOWN)))
           .text(fmtSigned(v), cx + 5, cy + rh / 2 - 4.7, { width: cw - 10, align: 'right', lineBreak: false });
       };
     };
+    var rowH = opts && opts.rowH || 14;
     y = b.table([
-      { label: 'Metal', w: 120, font: 'bold', get: function(r) { return r.name; } },
-      { label: 'September ' + (yr - 1), w: 100, align: 'right', get: function(r) { return fmtPrice(r.prev, r.unit); } },
-      { label: 'September ' + yr + (partial ? ' †' : ''), w: 100, align: 'right', font: 'bold', get: function(r) { return fmtPrice(r.now, r.unit); } },
-      { label: 'Change', w: 100, align: 'right', get: function() { return ''; }, draw: chg('sepYoY') },
-      { label: '12 months to September', w: 120, align: 'right', get: function() { return ''; }, draw: chg('annYoY') }
-    ], mrows, M, y, { rowH: 14 });
+      { label: 'Series', w: 150, font: 'bold', get: function(r) { return r.name; } },
+      { label: 'September ' + (yr - 1), w: 95, align: 'right', get: function(r) { return r.fmt(r.prev); } },
+      { label: 'September ' + yr + (partial ? ' †' : ''), w: 95, align: 'right', font: 'bold', get: function(r) { return r.fmt(r.now); } },
+      { label: 'Change', w: 90, align: 'right', get: function() { return ''; }, draw: chg('sepYoY') },
+      { label: '12 months to September', w: 110, align: 'right', get: function() { return ''; }, draw: chg('annYoY') }
+    ], mrows, M, y, { rowH: rowH });
     doc.font('italic').fontSize(7).fillColor(MUTED)
       .text('Monthly averages; the last column compares the October–September year with the one before. Copper is the LME cash price. ' +
-        (partial ? '† Part month, through ' + fmtDate(parseDate(metal.DATA_THROUGH)) + '.' : ''), M, y + 5, { width: CONTENT_W, lineBreak: false });
-    return y + 18;
+        (partial ? '† Part month, through ' + fmtDate(parseDate(metal.DATA_THROUGH)) + '. ' : '') + (hasMacro && metal.MACRO_NOTE ? metal.MACRO_NOTE : ''),
+        M, y + 5, { width: CONTENT_W, lineGap: 1 });
+    return doc.y + 4;
   };
 
   // Webcast performance: the RWP score, its four REEI components, and the score by issuer stage.
@@ -960,11 +976,11 @@
     var hasMetal = sections.marketFits(evt, metal);
     // A sparser page gets more air between sections
     var n = (s.holdings ? 1 : 0) + (s.audience ? 1 : 0) + (s.meetings ? 1 : 0) + (hasMetal ? 1 : 0);
-    var gapY = n >= 4 ? 16 : 26;
+    var gapY = n >= 4 ? 12 : 26;
     if (s.holdings) y = sections.holdings(b, s, evt, y) + gapY;
     if (s.audience) y = sections.audience(b, s, y) + gapY;
     if (s.meetings) y = sections.meetings(b, s, evt, y) + gapY;
-    if (hasMetal) y = sections.market(b, evt, metal, y);
+    if (hasMetal) y = sections.market(b, evt, metal, y, { rowH: n >= 4 ? 13 : 14 });
     // When a section is missing the page has room to spare: use it to say who stands behind the forum
     if (PAGE_H - 48 - y > 96) sections.about(b, evt, y + gapY);
     b.footer(2, asOf);
