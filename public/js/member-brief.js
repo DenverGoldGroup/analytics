@@ -41,7 +41,7 @@
       (days ? 'Over ' + ['one', 'two', 'three', 'four', 'five'][days - 1] + ' days, ' : '') +
       F.int(s.n) + ' issuers with an aggregate market capitalization of ' + F.usdWords(s.mcap) + ' took part' + split +
       (a ? ', before an audience of ' + F.int(a.total) + ' from ' + F.int(a.countries.length) + ' countries' +
-        (s.buyside ? ' that included ' + F.int(s.buyside.value) + ' buy-side investors' : '') : '') + '.';
+        (s.buyside ? ', ' + F.int(s.buyside.value) + ' of them buy-side' : '') : '') + '.';
     var second = h && h.ratio != null
       ? 'Investors who attended hold ' + F.usdWords(h.held) + ' of participating issuers’ shares, ' + F.pct(h.ratio) +
         ' of aggregate event market cap' + (h.priorRatio != null ? ', against ' + F.pct(h.priorRatio) + ' last year.' : '.')

@@ -675,7 +675,7 @@
         n: versus(s.holdings.ratio, s.holdings.priorRatio, function(r) { return fmtPct(r); }), c: tone(s.holdings.ratio, s.holdings.priorRatio) } : null;
       case 'meetings': return s.meetings ? { v: fmtInt(s.meetings.shownTotal), l: (s.meetings.projected ? 'Proj. accepted meetings' : (s.meetings.informal ? 'One-on-one meetings' : 'Accepted meetings')),
         n: versus(s.meetings.shownTotal, s.meetings.priorFinal, fmtInt) || s.meetings.mean.toFixed(1) + ' per issuer', c: tone(s.meetings.shownTotal, s.meetings.priorFinal) } : null;
-      case 'buyside': return s.buyside ? { v: fmtInt(s.buyside.value), l: (s.buyside.projected ? 'Proj. buy-side' : 'Buy-side investors'),
+      case 'buyside': return s.buyside ? { v: fmtInt(s.buyside.value), l: (s.buyside.projected ? 'Proj. buy-side' : 'Buy-side'),
         n: versus(s.buyside.value, s.buyside.prior, fmtInt), c: tone(s.buyside.value, s.buyside.prior) } : null;
       case 'attendees': return s.audience ? { v: fmtInt(s.audience.total), l: (s.audience.projected ? 'Proj. attendees' : 'Attendees'),
         n: versus(s.audience.total, s.audience.prior, fmtInt) || (s.audience.countries.length ? 'from ' + s.audience.countries.length + ' countries' : null),
@@ -774,7 +774,7 @@
       return top;
     };
     b.caps('Attendees by country', M, y, { color: GOLD_DARK });
-    b.caps('Buy-side investors by country', M + colW + 24, y, { color: GOLD_DARK });
+    b.caps('Buy-side by country', M + colW + 24, y, { color: GOLD_DARK });
     var y1 = b.barList(fold(a.countries), M, y + 13, colW, { labelW: 132, valueW: 62, rowH: 15.5 });
     var y2 = b.barList(fold(a.buyCountries), M + colW + 24, y + 13, colW, { labelW: 132, valueW: 62, rowH: 15.5 });
     return Math.max(y1, y2);
