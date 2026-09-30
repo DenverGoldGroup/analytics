@@ -392,7 +392,7 @@
           <label title="Leave blank to use the site's projection. When set, every audience group is scaled pro-rata to this total.">Projected attendees on site (override)<input type="number" id="ab-site-total" min="0" class="ab-input"></label>
           <label>Last year's buy-side<input type="number" id="ab-buyside-prior" min="0" class="ab-input"></label>
           <label title="Final on-site attendance last year, for the attendees tile in the Member Post-Show Briefing.">Last year's attendance<input type="number" id="ab-attendees-prior" min="0" class="ab-input"></label>
-          <label title="Leave blank to use the total from the Member Meetings upload.">Current confirmed meetings<input type="number" id="ab-meetings-current" min="0" class="ab-input"><span id="ab-meetings-uploaded" style="display:block;font-size:10px;color:#999;margin-top:2px"></span></label>
+          <label title="Accepted meetings from the meeting system, each meeting counted once (Meetmax acceptances). Leave blank to use the Member Meetings upload, which counts a meeting once per issuer taking part.">Accepted meetings (Meetmax total)<input type="number" id="ab-meetings-current" min="0" class="ab-input"><span id="ab-meetings-uploaded" style="display:block;font-size:10px;color:#999;margin-top:2px"></span></label>
           <label>Last year's final 1x1 meetings<input type="number" id="ab-meetings-prior" min="0" class="ab-input"></label>
           <label>Last year's shareholder representation (%)<input type="number" id="ab-holdings-prior" min="0" max="100" step="0.1" class="ab-input"></label>
           <label>Investors with confirmed 1x1s<input type="number" id="ab-investors" min="0" class="ab-input"></label>
@@ -1262,7 +1262,7 @@
           loadScriptOnce('https://cdn.jsdelivr.net/npm/pdfkit@0.15.0/js/pdfkit.standalone.js'),
           loadScriptOnce('/js/metal-history.js?v=1'),
           // analyst-brief.js reads AttendeeProjection as it loads, so this one must be in first
-          loadScriptOnce('/js/attendee-projection.js?v=2').then(function() { return loadScriptOnce('/js/analyst-brief.js?v=15'); })
+          loadScriptOnce('/js/attendee-projection.js?v=2').then(function() { return loadScriptOnce('/js/analyst-brief.js?v=16'); })
             .then(function() { return loadScriptOnce('/js/member-brief.js?v=1'); }),
         ]).catch(function(err) { _abLibs = null; throw err; });
       }
