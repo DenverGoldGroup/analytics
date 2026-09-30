@@ -1497,6 +1497,7 @@ module.exports = async function handler(req, res) {
           meetings_current: optInt(bi.meetings_current),
           attendees_projected_total: optInt(bi.attendees_projected_total),
           attendees_prior: optInt(bi.attendees_prior),
+          informal_factor: Number(bi.informal_factor) > 0 ? Number(bi.informal_factor) : null,
           investor_meetings_source: bi.investor_meetings_source ? String(bi.investor_meetings_source).slice(0, 200) : null,
           updated_at: new Date().toISOString()
         }, { onConflict: 'event_code' });

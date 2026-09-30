@@ -399,6 +399,7 @@
           <label>&hellip;from how many firms<input type="number" id="ab-investor-firms" min="0" class="ab-input"></label>
           <label title="From the Total Confirmed Meeting Counts file. Only used for the average per investor.">Investors' confirmed meetings, summed (per-investor average only)<input type="number" id="ab-investor-meetings" min="0" class="ab-input"></label>
           <label title="Applied to current meetings and investor requests until the event starts. Never printed.">Meetings projection multiplier (internal)<input type="number" id="ab-factor" min="1" step="0.05" class="ab-input"></label>
+          <label title="Applied to the accepted total once the event has started: the estimate of informal meetings held outside the meeting system, e.g. 1.18 for 18%. Never printed.">Informal meetings multiplier (internal, after the event)<input type="number" id="ab-informal" min="1" step="0.01" class="ab-input"></label>
         </div>
         <div style="margin-top:10px;font-size:11px;color:#555">
           Fill the two investor fields from the <strong>Total Confirmed Meeting Counts</strong> export:
@@ -1261,7 +1262,7 @@
           loadScriptOnce('https://cdn.jsdelivr.net/npm/pdfkit@0.15.0/js/pdfkit.standalone.js'),
           loadScriptOnce('/js/metal-history.js?v=1'),
           // analyst-brief.js reads AttendeeProjection as it loads, so this one must be in first
-          loadScriptOnce('/js/attendee-projection.js?v=2').then(function() { return loadScriptOnce('/js/analyst-brief.js?v=14'); })
+          loadScriptOnce('/js/attendee-projection.js?v=2').then(function() { return loadScriptOnce('/js/analyst-brief.js?v=15'); })
             .then(function() { return loadScriptOnce('/js/member-brief.js?v=1'); }),
         ]).catch(function(err) { _abLibs = null; throw err; });
       }
@@ -1279,7 +1280,7 @@
       var eventCode = document.getElementById('ab-event').value;
       var ids = { 'ab-buyside': 'buyside_projected', 'ab-buyside-prior': 'buyside_prior', 'ab-meetings-prior': 'meetings_prior_final', 'ab-factor': 'projection_factor',
         'ab-investors': 'investors_with_meetings', 'ab-investor-firms': 'investor_firms', 'ab-investor-meetings': 'investor_meetings_total',
-        'ab-site-total': 'attendees_projected_total', 'ab-meetings-current': 'meetings_current', 'ab-attendees-prior': 'attendees_prior' };
+        'ab-site-total': 'attendees_projected_total', 'ab-meetings-current': 'meetings_current', 'ab-attendees-prior': 'attendees_prior', 'ab-informal': 'informal_factor' };
       _abInvestorSource = null;
       document.getElementById('ab-investor-note').textContent = '';
       Object.keys(ids).forEach(function(id) { document.getElementById(id).value = ''; });
@@ -1312,6 +1313,7 @@
         investor_meetings_total: num('ab-investor-meetings'),
         attendees_projected_total: num('ab-site-total'),
         attendees_prior: num('ab-attendees-prior'),
+        informal_factor: num('ab-informal'),
         meetings_current: num('ab-meetings-current'),
         investor_meetings_source: _abInvestorSource
       };
@@ -1427,7 +1429,8 @@
         var used = [];
         if (s.meetings) {
           used.push('meetings ' + s.meetings.total.toLocaleString('en-US') + (s.meetings.baseEntered ? ' (entered)' : ' (from upload)') +
-            (s.meetings.projected ? ' \u00d7 ' + s.meetings.factor + ' = ' + s.meetings.shownTotal.toLocaleString('en-US') + ' projected' : ''));
+            (s.meetings.projected ? ' \u00d7 ' + s.meetings.factor + ' = ' + s.meetings.shownTotal.toLocaleString('en-US') + ' projected' :
+             s.meetings.informal ? ' \u00d7 ' + s.meetings.factor + ' = ' + s.meetings.shownTotal.toLocaleString('en-US') + ' incl. informal' : ''));
         }
         if (s.audience) used.push('audience ' + s.audience.total.toLocaleString('en-US') + (s.audience.projected ? ' projected' : ''));
         if (s.buyside) used.push('buy-side ' + s.buyside.value.toLocaleString('en-US'));

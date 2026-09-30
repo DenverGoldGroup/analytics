@@ -329,8 +329,10 @@
       var totalMeet = members.reduce(function(s, t) { return s + (Number(t.meeting_count) || 0); }, 0);
       var active = members.filter(function(t) { return (Number(t.meeting_count) || 0) > 0; });
       // Before the forum, bookings are still building: totals are shown projected to the final
-      // tally. The multiplier is an internal input and is never printed.
-      var factor = upcoming ? (Number(inputs.projection_factor) > 0 ? Number(inputs.projection_factor) : 1.4) : 1;
+      // tally. Afterwards, an estimate of informal meetings held outside the meeting system is added to
+      // the accepted total. Both multipliers are internal inputs and are never printed.
+      var informal = !upcoming && Number(inputs.informal_factor) > 0 ? Number(inputs.informal_factor) : 1;
+      var factor = upcoming ? (Number(inputs.projection_factor) > 0 ? Number(inputs.projection_factor) : 1.4) : informal;
 
       // Meetings held by roster issuers' host accounts; host accounts not on the roster are left out
       var issuersMeeting = {}, issuerMeetings = 0;
@@ -351,7 +353,7 @@
 
       meetings = {
         total: base, uploadTotal: totalMeet, baseEntered: !!entered,
-        hosts: active.length, factor: factor, projected: factor !== 1,
+        hosts: active.length, factor: factor, projected: upcoming && factor !== 1, informal: informal !== 1,
         shownTotal: Math.round(base * factor),
         mean: active.length ? base * factor / active.length : 0,
         priorFinal: Number(inputs.meetings_prior_final) || null,
@@ -595,7 +597,7 @@
       case 'mcap': return { v: fmtUsd(s.mcap), l: 'Aggregate MC', n: versus(s.mcap, s.priorMcap, fmtUsd), c: tone(s.mcap, s.priorMcap) };
       case 'holdings': return s.holdings ? { v: fmtPct(s.holdings.ratio), l: 'Shareholding',
         n: versus(s.holdings.ratio, s.holdings.priorRatio, function(r) { return fmtPct(r); }), c: tone(s.holdings.ratio, s.holdings.priorRatio) } : null;
-      case 'meetings': return s.meetings ? { v: fmtInt(s.meetings.shownTotal), l: (s.meetings.projected ? 'Proj. accepted meetings' : 'Accepted meetings'),
+      case 'meetings': return s.meetings ? { v: fmtInt(s.meetings.shownTotal), l: (s.meetings.projected ? 'Proj. accepted meetings' : (s.meetings.informal ? 'One-on-one meetings' : 'Accepted meetings')),
         n: versus(s.meetings.shownTotal, s.meetings.priorFinal, fmtInt) || s.meetings.mean.toFixed(1) + ' per issuer', c: tone(s.meetings.shownTotal, s.meetings.priorFinal) } : null;
       case 'buyside': return s.buyside ? { v: fmtInt(s.buyside.value), l: (s.buyside.projected ? 'Proj. buy-side' : 'Buy-side investors'),
         n: versus(s.buyside.value, s.buyside.prior, fmtInt), c: tone(s.buyside.value, s.buyside.prior) } : null;
@@ -744,6 +746,7 @@
     y += 60;
     doc.font('italic').fontSize(7).fillColor(MUTED)
       .text((m.projected ? 'Scheduling is still open: the total is a Denver Gold Group projection of the final tally, based on confirmed bookings to date. ' : '') +
+        (m.informal ? 'Includes Denver Gold Group’s estimate of informal meetings held outside the meeting system. ' : '') +
         'Source: Denver Gold Group meeting system.', M, y, { width: CONTENT_W, lineBreak: false });
     return y + 11;
   };
