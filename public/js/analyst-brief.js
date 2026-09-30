@@ -970,7 +970,7 @@
       ['Readable transcripts', 'Natural-language transcripts that read as prose while preserving every fact and the substance of what was said.'],
       ['Premium captioning', 'More precise captions on the video, with mining, financial and company terms rendered correctly.'],
       ['Summaries', 'A concise summary of each presentation, so a reader can decide in a minute whether to watch.'],
-      ['Key moments', 'The moments that matter, as chapters embedded in the video so viewers jump straight to them.']
+      ['Key moments', 'The moments that matter, built with a custom mining taxonomy and embedded as video chapters to jump straight to.']
     ];
     var gap = 8, tw = (CONTENT_W - gap * 3) / 4, th = 78;
     items.forEach(function(it, i) {
@@ -978,7 +978,7 @@
       doc.roundedRect(x, y, tw, th, 3).fill(TINT);
       doc.rect(x, y, tw, 2.2).fill(GOLD);
       doc.font('serif').fontSize(11).fillColor(INK).text(it[0], x + 9, y + 11, { width: tw - 18, lineBreak: false });
-      doc.font('regular').fontSize(7.6).fillColor(TEXT).text(it[1], x + 9, y + 28, { width: tw - 18, lineGap: 1.4, height: th - 32, ellipsis: true });
+      doc.font('regular').fontSize(7.6).fillColor(TEXT).text(it[1], x + 9, y + 28, { width: tw - 18, lineGap: 1.2, height: th - 30, ellipsis: true });
     });
     return y + th;
   };
