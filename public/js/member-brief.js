@@ -21,11 +21,12 @@
     var days = null;
     var start = F.parseDate(evt.start_date), end = F.parseDate(evt.end_date);
     if (start && end) days = Math.round((end - start) / 864e5) + 1;
-    var first = 'Thank you for presenting at ' + nth + evt.event_name + '. ' +
+    var split = s.meetingsOnly ? ', ' + F.int(s.presenters) + ' of them presenting and ' + F.int(s.meetingsOnly) + ' taking one-on-one meetings only' : '';
+    var first = 'Thank you for taking part in ' + nth + evt.event_name + '. ' +
       (days ? 'Over ' + ['one', 'two', 'three', 'four', 'five'][days - 1] + ' days, ' : '') +
-      F.int(s.n) + ' issuers with an aggregate market capitalization of ' + F.usdWords(s.mcap) + ' presented' +
-      (a ? ' to ' + F.int(a.total) + ' attendees from ' + F.int(a.countries.length) + ' countries' +
-        (s.buyside ? ', including ' + F.int(s.buyside.value) + ' buy-side investors' : '') : '') + '.';
+      F.int(s.n) + ' issuers with an aggregate market capitalization of ' + F.usdWords(s.mcap) + ' took part' + split +
+      (a ? ', before an audience of ' + F.int(a.total) + ' from ' + F.int(a.countries.length) + ' countries' +
+        (s.buyside ? ' that included ' + F.int(s.buyside.value) + ' buy-side investors' : '') : '') + '.';
     var second = h && h.ratio != null
       ? 'Investors who attended hold ' + F.usdWords(h.held) + ' of participating issuers’ shares, ' + F.pct(h.ratio) +
         ' of aggregate event market cap' + (h.priorRatio != null ? ', against ' + F.pct(h.priorRatio) + ' last year.' : '.')
@@ -64,7 +65,7 @@
     var n = (s.holdings ? 1 : 0) + 1 + (hasMetal ? 1 : 0);
     var gapY = n >= 3 ? 16 : 26;
     if (s.holdings) y = S.holdings(b, s, evt, y) + gapY;
-    y = S.roster(b, s, y, { title: 'Your peers on stage', compact: true, rowH: 17 });
+    y = S.roster(b, s, y, { title: 'Your peers at the forum', compact: true, rowH: 17 });
     if (hasMetal) y = S.market(b, evt, metal, y) + gapY;
     if (ST.PAGE_H - 48 - y > 70) S.about(b, evt, y);
     b.footer(2, asOf);

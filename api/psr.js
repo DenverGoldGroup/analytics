@@ -744,7 +744,7 @@ module.exports = async function handler(req, res) {
 
         var bResults = await Promise.all([
           sb.from('event_participations')
-            .select('event_code, company_name, ticker, primary_stock_exchange, company_status, primary_mineral, primary_country, primary_region, market_cap_usd, production_high, reserves')
+            .select('event_code, company_name, ticker, primary_stock_exchange, company_status, primary_mineral, primary_country, primary_region, market_cap_usd, production_high, reserves, presentation_type, presentation_date, presentation_location')
             .in('event_code', [eventCode, bPrior]),
           sb.from('psr_top_meetings').select('*').eq('event_code', eventCode).order('rank'),
           sb.from('psr_member_holdings').select('*').eq('event_code', eventCode).order('sort_order'),

@@ -169,6 +169,11 @@
       return Object.keys(seen).length;
     }
     var top = cur.slice().sort(function(a, b) { return (Number(b.market_cap_usd) || 0) - (Number(a.market_cap_usd) || 0); });
+    // Accepted issuers either present or take one-on-one meetings only; a presentation slot tells them apart
+    var presents = function(c) { return !!(c.presentation_date || (c.presentation_location && String(c.presentation_location).trim()) || (c.presentation_type && String(c.presentation_type).trim())); };
+    var hasSlots = cur.some(presents);
+    var presenters = hasSlots ? cur.filter(presents).length : null;
+    var meetingsOnly = hasSlots ? cur.length - presenters : null;
 
     // Attendees: only usable when the rows carry a classification
     var att = (data.attendees || []).filter(function(a) { return a.type; });
@@ -283,10 +288,11 @@
           companyIds[key] = 1;
           if (a.job_title && executiveLevel(a.job_title) === 'ceo') ceoCompanies[key] = 1;
         });
-        var titled = people;
+        // The denominator is every corporate delegate, the same count as the attendee mix; a delegate
+        // with no job title on record simply isn't counted as C-suite
         csuite = {
-          delegates: titled.length, ceo: ceo, cfo: cfo, other: otherChief, chairs: chairs, mds: mds, total: ceo + cfo + otherChief,
-          share: (ceo + cfo + otherChief) / titled.length,
+          delegates: delegates.length, ceo: ceo, cfo: cfo, other: otherChief, chairs: chairs, mds: mds, total: ceo + cfo + otherChief,
+          share: (ceo + cfo + otherChief) / delegates.length,
           ceoCompanies: Object.keys(ceoCompanies).length, companies: Object.keys(companyIds).length,
           // Denominator for CEO attendance: every presenting issuer, the same count used across the briefing
           issuers: hasCompany ? cur.length : Object.keys(companyIds).length
@@ -401,6 +407,7 @@
       byMineral: foldTail(groupBy(cur, 'primary_mineral'), 7),
       byCountry: foldTail(groupBy(cur, 'primary_country'), 9),
       byExchange: foldTail(groupBy(cur, exchangeKey), 9),
+      presenters: presenters, meetingsOnly: meetingsOnly,
       top: top, audience: audience, meetings: meetings, holdings: holdings, buyside: buyside, upcoming: upcoming
     };
   }
@@ -593,7 +600,8 @@
     var versus = function(now, prior, fmtFn) { return prior ? fmtSigned(now / prior - 1) + ' vs ' + fmtFn(prior) + ' in ' + py : null; };
     var tone = function(now, prior) { return !prior ? MUTED : (now >= prior ? UP : DOWN); };
     switch (key) {
-      case 'issuers': return { v: fmtInt(s.n), l: 'Issuers presenting', n: versus(s.n, s.priorN, fmtInt), c: tone(s.n, s.priorN) };
+      case 'issuers': return { v: fmtInt(s.n), l: 'Participating issuers', n: versus(s.n, s.priorN, fmtInt) ||
+        (s.meetingsOnly ? fmtInt(s.presenters) + ' presenting, ' + fmtInt(s.meetingsOnly) + ' meetings only' : null), c: tone(s.n, s.priorN) };
       case 'mcap': return { v: fmtUsd(s.mcap), l: 'Aggregate MC', n: versus(s.mcap, s.priorMcap, fmtUsd), c: tone(s.mcap, s.priorMcap) };
       case 'holdings': return s.holdings ? { v: fmtPct(s.holdings.ratio), l: 'Shareholding',
         n: versus(s.holdings.ratio, s.holdings.priorRatio, function(r) { return fmtPct(r); }), c: tone(s.holdings.ratio, s.holdings.priorRatio) } : null;
@@ -614,7 +622,7 @@
     opts = opts || {};
     var colW = (CONTENT_W - 24) / 2, x2 = M + colW + 24, rowH = opts.rowH || 19;
     var secondary = function(it) { return fmtUsd(it.mcap); };
-    y = b.sectionTitle(opts.title || 'Who is presenting', y, 'issuers and aggregate market cap');
+    y = b.sectionTitle(opts.title || (opts.upcoming ? 'Who is taking part' : 'Who took part'), y, 'issuers and aggregate market cap');
     b.caps('By stage of development', M, y, { color: GOLD_DARK });
     b.caps('By primary metal', x2, y, { color: GOLD_DARK });
     var yL = b.barList(s.byStatus, M, y + 13, colW, { labelW: 138, valueW: 70, rowH: rowH, secondary: secondary });
@@ -806,7 +814,9 @@
 
     var nth = evt.event_type === 'MFA' ? 'the ' + ordinal(evt.year - 1988) + ' annual ' : '';
     var lede = fmtInt(s.n) + ' mining issuers with an aggregate market capitalization of ' + fmtUsdWords(s.mcap) +
-      (upcoming ? ' will present at ' : ' presented at ') + nth + evt.event_name + '.';
+      (upcoming ? ' will take part in ' : ' took part in ') + nth + evt.event_name +
+      (s.meetingsOnly ? ': ' + fmtInt(s.presenters) + (upcoming ? ' will present' : ' presented') + ' and ' + fmtInt(s.meetingsOnly) +
+        (upcoming ? ' will take' : ' took') + ' one-on-one meetings only.' : '.');
     if (s.holdings && s.holdings.ratio != null) {
       lede += ' Investors ' + (s.audience && s.audience.checkedIn ? 'who attended the forum hold ' : 'registered for the forum hold ') + fmtUsdWords(s.holdings.held) + ' of those issuers’ shares, ' +
         fmtPct(s.holdings.ratio) + ' of aggregate event market cap' +
@@ -821,7 +831,7 @@
     var tiles = ['issuers', 'mcap', 'holdings', 'meetings', 'buyside', 'countries']
       .map(function(k) { return sections.tile(s, evt, k); }).filter(Boolean);
     y = sections.kpiRow(b, tiles, y);
-    sections.roster(b, s, y);
+    sections.roster(b, s, y, { upcoming: upcoming });
     b.footer(1, asOf);
   }
 
