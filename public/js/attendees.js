@@ -10,8 +10,8 @@ var CHART_COLORS = [
 function attBuySellMult(cfg) {
   return AttendeeProjection.buySellMult(cfg && cfg.eventStartDate);
 }
-function attProjFactor(a, buySellMult) { return AttendeeProjection.factor(a, buySellMult); }
-function attProjectedCount(list, buySellMult) { return AttendeeProjection.projectedCount(list, buySellMult); }
+function attProjFactor(a, buySellMult) { return AttendeeProjection.factor(a, buySellMult, window._attMode); }
+function attProjectedCount(list, buySellMult) { return AttendeeProjection.projectedCount(list, buySellMult, window._attMode); }
 
 function renderAttendees(attendees, cfg) {
   if (!attendees || attendees.length === 0) {
@@ -20,9 +20,18 @@ function renderAttendees(attendees, cfg) {
 
   var all = attendees;
 
-  var delegates = all.filter(function(a) { return a.type === 'Delegate'; });
-  var participants = all.filter(function(a) { return a.type === 'Participant'; });
-  var speakers = all.filter(function(a) { return a.type === 'Speaker'; });
+  // Once check-ins are reported, the counts are actuals: only Buy-Side participants are lifted (+3.5%,
+  // for on-site colleagues who were not badged). Before that, the standing pre-event projection applies.
+  window._attMode = AttendeeProjection.checkedIn(all, cfg && cfg.eventStartDate) ? 'checked-in' : 'projected';
+
+  // Staff stay in the total but are reported as "Other", not as participants
+  var staff = all.filter(AttendeeProjection.isStaff);
+  var delegates = all.filter(function(a) { return a.type === 'Delegate' && !AttendeeProjection.isStaff(a); });
+  var participants = all.filter(function(a) { return a.type === 'Participant' && !AttendeeProjection.isStaff(a); });
+  var speakers = all.filter(function(a) { return a.type === 'Speaker' && !AttendeeProjection.isStaff(a); });
+  var other = all.filter(function(a) {
+    return AttendeeProjection.isStaff(a) || (a.type !== 'Delegate' && a.type !== 'Participant' && a.type !== 'Speaker');
+  });
   var buyside = participants.filter(function(a) { return a.category === 'Buy-Side'; });
 
   // Time-phased Buy/Sell-Side multiplier: 1.11 until the Friday before the event, then 1.035
@@ -30,16 +39,27 @@ function renderAttendees(attendees, cfg) {
 
   var html = '';
 
-  // Summary stats — projected to event start date (Buy/Sell-Side inflated, Delegates -2%)
+  // Summary stats. The total is the sum of the four groups shown, so the boxes always reconcile.
+  var delegatesN = attProjectedCount(delegates, buySellMult);
+  var participantsN = attProjectedCount(participants, buySellMult);
+  var speakersN = attProjectedCount(speakers, buySellMult);
+  var otherN = attProjectedCount(other, buySellMult);
+  var totalN = delegatesN + participantsN + speakersN + otherN;
   html += '<div class="summary-grid">';
-  html += summaryBox('Total Attendees', attProjectedCount(all, buySellMult), cfg.keyColor);
-  html += summaryBox('Delegates', attProjectedCount(delegates, buySellMult), '#27AE60');
-  html += summaryBox('Participants', attProjectedCount(participants, buySellMult), '#2980B9');
+  html += summaryBox('Total Attendees', totalN, cfg.keyColor);
+  html += summaryBox('Delegates', delegatesN, '#27AE60');
+  html += summaryBox('Participants', participantsN, '#2980B9');
   html += summaryBox('Buy-Side', attProjectedCount(buyside, buySellMult), '#9B59B6');
+  if (speakersN) html += summaryBox('Speakers', speakersN, '#E67E22');
+  if (otherN) html += summaryBox('Other (incl. staff)', otherN, '#7F8C8D');
   html += summaryBox('Countries', new Set(all.map(function(a) { return a.country; }).filter(Boolean)).size, '#E67E22');
   var presentationCompanies = new Set(delegates.map(function(a) { return (a.company || '').toLowerCase().trim(); }).filter(Boolean));
   html += summaryBox('Presentations', presentationCompanies.size, '#7F8C8D');
   html += '</div>';
+  if (window._attMode === 'checked-in') {
+    html += '<div style="font-size:11px;color:#7F8C8D;margin:-14px 0 20px 4px">Checked-in attendance. Buy-Side is lifted 3.5% for on-site colleagues who were not badged' +
+      (staff.length ? '; ' + staff.length + ' staff are counted in Other' : '') + '.</div>';
+  }
 
   // Row 1: three pie charts
   html += '<div class="section-title">Composition</div>';
@@ -74,7 +94,7 @@ function renderAttendees(attendees, cfg) {
 
   // Store data for chart init
   window._attChartData = {
-    all: all, delegates: delegates, participants: participants,
+    all: all, delegates: delegates, participants: participants, speakers: speakers, other: other,
     buyside: buyside, countrySorted: countrySorted, regionSorted: regionSorted
   };
 
@@ -92,9 +112,8 @@ function initAttendeesCharts(cfg) {
     { label: 'Delegate', count: d.delegates.length, color: '#27AE60' },
     { label: 'Participant', count: d.participants.length, color: '#2980B9' }
   ];
-  if (d.all.filter(function(a) { return a.type === 'Speaker'; }).length > 0) {
-    typeData.push({ label: 'Speaker', count: d.all.filter(function(a) { return a.type === 'Speaker'; }).length, color: '#E67E22' });
-  }
+  if (d.speakers.length > 0) typeData.push({ label: 'Speaker', count: d.speakers.length, color: '#E67E22' });
+  if (d.other.length > 0) typeData.push({ label: 'Other', count: d.other.length, color: '#7F8C8D' });
   var typeTotal = typeData.reduce(function(s, x) { return s + x.count; }, 0);
   _createChart('att-chart-type', {
     type: 'doughnut',
