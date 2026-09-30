@@ -371,17 +371,34 @@
       };
     }
 
-    // Shareholder representation
+    // Shareholder representation. The tier table gives totals; medians come from the roster's market caps,
+    // bucketed by the bounds written in each tier's label ("$2 billion to $10 billion", "Under $50 million").
     var holdings = null;
     if (data.holdings && data.holdings.length) {
+      var caps = cur.map(function(c) { return Number(c.market_cap_usd) || 0; }).filter(function(v) { return v > 0; });
+      var median = function(list) {
+        if (!list.length) return null;
+        var a = list.slice().sort(function(x, y) { return x - y; }), m = a.length >> 1;
+        return a.length % 2 ? a[m] : (a[m - 1] + a[m]) / 2;
+      };
+      var bounds = function(label) {
+        var nums = [], re = /\$?\s*([\d.]+)\s*(billion|million|B|M)\b/gi, x;
+        while ((x = re.exec(label))) nums.push(parseFloat(x[1]) * (/^b/i.test(x[2]) ? 1e9 : 1e6));
+        if (/under|below|less than/i.test(label) && nums.length === 1) return [0, nums[0]];
+        if (/over|above|more than/i.test(label) && nums.length === 1) return [nums[0], Infinity];
+        return nums.length >= 2 ? [Math.min(nums[0], nums[1]), Math.max(nums[0], nums[1])] : null;
+      };
       var rows = data.holdings.map(function(h) {
         var mc = Number(h.total_mc) || 0, held = Number(h.attendee_holdings) || 0;
-        return { label: h.mc_range, members: Number(h.members) || 0, mc: mc, avg: Number(h.average_mc) || 0, held: held, ratio: mc ? held / mc : null };
+        var b = bounds(String(h.mc_range || ''));
+        var med = b ? median(caps.filter(function(v) { return v >= b[0] && v < b[1]; })) : null;
+        return { label: h.mc_range, members: Number(h.members) || 0, mc: mc, avg: Number(h.average_mc) || 0, median: med, held: held, ratio: mc ? held / mc : null };
       });
       var tMc = rows.reduce(function(s, r) { return s + r.mc; }, 0);
       var tHeld = rows.reduce(function(s, r) { return s + r.held; }, 0);
       var tMembers = rows.reduce(function(s, r) { return s + r.members; }, 0);
       holdings = { rows: rows, mc: tMc, held: tHeld, members: tMembers, ratio: tMc ? tHeld / tMc : null, avg: tMembers ? tMc / tMembers : 0,
+        median: median(caps), hasMedian: rows.some(function(r) { return r.median != null; }),
         priorRatio: inputs.holdings_ratio_prior != null ? Number(inputs.holdings_ratio_prior) : null };
     }
 
@@ -648,22 +665,25 @@
         fmtUsd(h.held) + ' of ' + fmtUsd(h.mc) + ' across ' + fmtInt(h.members) + ' issuers.', M + bigW + 14, y + 2, { width: CONTENT_W - bigW - 14, lineGap: 2.2 });
     y += 40;
     var maxRatio = h.rows.reduce(function(m, r) { return Math.max(m, r.ratio || 0); }, 0) || 1;
-    var tierRows = h.rows.concat([{ __total: true, label: 'All participating issuers', members: h.members, mc: h.mc, avg: h.avg, held: h.held, ratio: h.ratio }]);
-    y = b.table([
-      { label: 'Market-cap tier', w: 178, get: function(r) { return r.label; } },
+    var tierRows = h.rows.concat([{ __total: true, label: 'All participating issuers', members: h.members, mc: h.mc, avg: h.avg, median: h.median, held: h.held, ratio: h.ratio }]);
+    var cols = [
+      { label: 'Market-cap tier', w: h.hasMedian ? 150 : 178, get: function(r) { return r.label; } },
       { label: 'Issuers', w: 62, align: 'right', get: function(r) { return fmtInt(r.members); } },
       { label: 'Market cap', w: 66, align: 'right', get: function(r) { return fmtUsd(r.mc); } },
-      { label: 'Average', w: 56, align: 'right', get: function(r) { return fmtUsd(r.avg); } },
-      { label: 'Attendee holdings', w: 98, align: 'right', font: 'bold', get: function(r) { return fmtUsd(r.held); } },
-      { label: 'Share held', w: 80, get: function() { return ''; }, draw: function(d, r, cx, cy, cw, rh) {
+      { label: 'Average', w: h.hasMedian ? 52 : 56, align: 'right', get: function(r) { return fmtUsd(r.avg); } }];
+    if (h.hasMedian) cols.push({ label: 'Median', w: 52, align: 'right', get: function(r) { return r.median != null ? fmtUsd(r.median) : '—'; } });
+    cols.push(
+      { label: 'Attendee holdings', w: h.hasMedian ? 84 : 98, align: 'right', font: 'bold', get: function(r) { return fmtUsd(r.held); } },
+      { label: 'Share held', w: h.hasMedian ? 74 : 80, get: function() { return ''; }, draw: function(d, r, cx, cy, cw, rh) {
         var bw = cw - 38;
         d.roundedRect(cx + 5, cy + rh / 2 - 3, bw, 6, 1.5).fill(r.__total ? '#DDD2B4' : TRACK);
         d.roundedRect(cx + 5, cy + rh / 2 - 3, Math.max(bw * (r.ratio || 0) / maxRatio, 1.5), 6, 1.5).fill(r.__total ? INK : GOLD);
         d.font('bold').fontSize(8.2).fillColor(INK).text(fmtPct(r.ratio), cx + bw + 8, cy + rh / 2 - 4.7, { width: 27, align: 'right', lineBreak: false });
-      } }
-    ], tierRows, M, y, { rowH: 16 });
+      } });
+    y = b.table(cols, tierRows, M, y, { rowH: 16 });
     doc.font('italic').fontSize(7.2).fillColor(MUTED)
-      .text('Attendee holdings: the value of shares in participating issuers held by investment firms ' + (s.audience && s.audience.checkedIn ? 'that attended the forum' : 'registered for the forum') + '. Source: Denver Gold Group.', M, y + 5, { width: CONTENT_W });
+      .text('Attendee holdings: the value of shares in participating issuers held by investment firms ' + (s.audience && s.audience.checkedIn ? 'that attended the forum' : 'registered for the forum') +
+        (h.hasMedian ? '. Median market cap from the event roster' : '') + '. Source: Denver Gold Group.', M, y + 5, { width: CONTENT_W });
     return y + 16;
   };
 
