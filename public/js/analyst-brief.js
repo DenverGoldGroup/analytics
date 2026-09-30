@@ -961,7 +961,7 @@
   // What is new in the presentation recordings this year: four features, each a tile
   sections.recordings = function(b, evt, y) {
     var doc = b.doc;
-    y = b.sectionTitle('New this year: presentation recordings', y, 'first in the industry');
+    y = b.sectionTitle('New this year: webcast enhancements', y, 'first in the industry');
     doc.font('regular').fontSize(9.2).fillColor(TEXT)
       .text('Every ' + evt.event_name + ' presentation webcast is released with four new features, the first of their kind at an industry investor forum:',
         M, y, { width: CONTENT_W, lineGap: 2.2 });
