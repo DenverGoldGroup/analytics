@@ -376,20 +376,22 @@
 
       <!-- Analyst Briefing PDF -->
       <div class="upload-section" style="border:2px solid #E8DDBF">
-        <h3>Analyst Briefing (PDF)</h3>
-        <div class="desc">Generate a fresh two-page, Denver Gold Group and event-branded briefing for sell-side analysts: companies and market cap, shareholder representation, the audience and its C-suite presence, 1x1 meetings and the metals backdrop. Built from the data loaded at this moment, so upload the latest attendees, meetings and holdings first.</div>
+        <h3>Briefings (PDF)</h3>
+        <div class="desc">Generate a fresh two-page, Denver Gold Group and event-branded briefing from the data loaded at this moment, so upload the latest attendees, meetings and holdings first. The <strong>Analyst Briefing</strong> is for sell-side analysts: issuers and market cap, shareholder representation, the audience and its C-suite presence, 1x1 meetings and the metals backdrop. The <strong>Member Post-Show Briefing</strong> is for presenting issuers after the forum: the same figures, led by who was in the room, what they own and the meetings held.</div>
         <div class="upload-row">
           <div style="min-width:110px">
             <select id="ab-event" onchange="loadBriefInputs()" style="width:100%;padding:8px 12px;font-size:12px;font-family:inherit;border:2px solid #E0E0E0;border-radius:6px;background:#fff">
               <option value="">Loading events...</option>
             </select>
           </div>
-          <button class="btn btn-gold" id="ab-generate-btn" onclick="generateAnalystBrief()">Generate &amp; Download PDF</button>
+          <button class="btn btn-gold" id="ab-generate-btn" onclick="generateBrief('analyst')">Analyst Briefing PDF</button>
+          <button class="btn btn-gold" id="mb-generate-btn" onclick="generateBrief('member')">Member Post-Show Briefing PDF</button>
         </div>
         <div id="ab-inputs" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:10px;margin-top:12px;font-size:11px;color:#555">
           <label title="Only used when no attendee data is loaded; otherwise the briefing projects buy-side from the attendee upload, as the attendees page does.">Projected buy-side (fallback)<input type="number" id="ab-buyside" min="0" class="ab-input"></label>
           <label title="Leave blank to use the site's projection. When set, every audience group is scaled pro-rata to this total.">Projected attendees on site (override)<input type="number" id="ab-site-total" min="0" class="ab-input"></label>
           <label>Last year's buy-side<input type="number" id="ab-buyside-prior" min="0" class="ab-input"></label>
+          <label title="Final on-site attendance last year, for the attendees tile in the Member Post-Show Briefing.">Last year's attendance<input type="number" id="ab-attendees-prior" min="0" class="ab-input"></label>
           <label title="Leave blank to use the total from the Member Meetings upload.">Current confirmed meetings<input type="number" id="ab-meetings-current" min="0" class="ab-input"><span id="ab-meetings-uploaded" style="display:block;font-size:10px;color:#999;margin-top:2px"></span></label>
           <label>Last year's final 1x1 meetings<input type="number" id="ab-meetings-prior" min="0" class="ab-input"></label>
           <label>Last year's shareholder representation (%)<input type="number" id="ab-holdings-prior" min="0" max="100" step="0.1" class="ab-input"></label>
@@ -1259,7 +1261,8 @@
           loadScriptOnce('https://cdn.jsdelivr.net/npm/pdfkit@0.15.0/js/pdfkit.standalone.js'),
           loadScriptOnce('/js/metal-history.js?v=1'),
           // analyst-brief.js reads AttendeeProjection as it loads, so this one must be in first
-          loadScriptOnce('/js/attendee-projection.js?v=2').then(function() { return loadScriptOnce('/js/analyst-brief.js?v=13'); }),
+          loadScriptOnce('/js/attendee-projection.js?v=2').then(function() { return loadScriptOnce('/js/analyst-brief.js?v=14'); })
+            .then(function() { return loadScriptOnce('/js/member-brief.js?v=1'); }),
         ]).catch(function(err) { _abLibs = null; throw err; });
       }
       return _abLibs;
@@ -1276,7 +1279,7 @@
       var eventCode = document.getElementById('ab-event').value;
       var ids = { 'ab-buyside': 'buyside_projected', 'ab-buyside-prior': 'buyside_prior', 'ab-meetings-prior': 'meetings_prior_final', 'ab-factor': 'projection_factor',
         'ab-investors': 'investors_with_meetings', 'ab-investor-firms': 'investor_firms', 'ab-investor-meetings': 'investor_meetings_total',
-        'ab-site-total': 'attendees_projected_total', 'ab-meetings-current': 'meetings_current' };
+        'ab-site-total': 'attendees_projected_total', 'ab-meetings-current': 'meetings_current', 'ab-attendees-prior': 'attendees_prior' };
       _abInvestorSource = null;
       document.getElementById('ab-investor-note').textContent = '';
       Object.keys(ids).forEach(function(id) { document.getElementById(id).value = ''; });
@@ -1308,6 +1311,7 @@
         investors_with_meetings: num('ab-investors'), investor_firms: num('ab-investor-firms'),
         investor_meetings_total: num('ab-investor-meetings'),
         attendees_projected_total: num('ab-site-total'),
+        attendees_prior: num('ab-attendees-prior'),
         meetings_current: num('ab-meetings-current'),
         investor_meetings_source: _abInvestorSource
       };
@@ -1341,16 +1345,18 @@
       }
     }
 
-    async function generateAnalystBrief() {
+    // kind: 'analyst' (sell-side analysts) or 'member' (presenting issuers, after the forum)
+    async function generateBrief(kind) {
+      var isMember = kind === 'member';
       var eventCode = document.getElementById('ab-event').value;
       var progressEl = document.getElementById('ab-progress');
       var fillEl = document.getElementById('ab-progress-fill');
       var textEl = document.getElementById('ab-progress-text');
       var resultEl = document.getElementById('ab-result');
-      var btn = document.getElementById('ab-generate-btn');
+      var btns = [document.getElementById('ab-generate-btn'), document.getElementById('mb-generate-btn')];
       if (!eventCode) { alert('Select an event.'); return; }
 
-      btn.disabled = true;
+      btns.forEach(function(x) { x.disabled = true; });
       progressEl.style.display = 'block';
       resultEl.style.display = 'none';
       fillEl.style.width = '15%';
@@ -1388,7 +1394,7 @@
         textEl.textContent = 'Typesetting the PDF...';
         var blob = await new Promise(function(resolve, reject) {
           try {
-            var doc = AnalystBrief.generate(PDFDocument, data, assets, window.METAL_HISTORY);
+            var doc = (isMember ? MemberBrief : AnalystBrief).generate(PDFDocument, data, assets, window.METAL_HISTORY);
             var chunks = [];
             doc.on('data', function(c) { chunks.push(c); });
             doc.on('end', function() { resolve(new Blob(chunks, { type: 'application/pdf' })); });
@@ -1399,7 +1405,7 @@
         var now = new Date();
         var stamp = now.getFullYear() + '-' + String(now.getMonth() + 1).padStart(2, '0') + '-' + String(now.getDate()).padStart(2, '0') +
           '-' + String(now.getHours()).padStart(2, '0') + String(now.getMinutes()).padStart(2, '0') + String(now.getSeconds()).padStart(2, '0');
-        var fileName = eventCode + '-Analyst-Briefing-' + stamp + '.pdf';
+        var fileName = eventCode + (isMember ? '-Member-Post-Show-Briefing-' : '-Analyst-Briefing-') + stamp + '.pdf';
         var url = URL.createObjectURL(blob);
         var a = document.createElement('a');
         a.href = url; a.download = fileName;
@@ -1413,6 +1419,8 @@
         if (!s.audience) gaps.push('the audience and C-suite section (attendee upload has no classifications)');
         else if (!s.audience.csuite) gaps.push('the C-suite note (no delegate job titles)');
         if (!s.meetings) gaps.push('1x1 meetings (no member meetings uploaded)');
+        if (isMember && s.upcoming) gaps.push('note: the forum has not started, so the member briefing shows projections rather than results');
+        if (isMember && s.audience && !s.audience.prior) gaps.push("last year's attendance comparison (enter last year's attendance)");
         fillEl.style.width = '100%';
         textEl.textContent = 'Done!';
         resultEl.className = 'upload-result ' + (gaps.length ? 'error' : 'success');
@@ -1432,7 +1440,7 @@
         resultEl.style.display = 'block';
         textEl.textContent = 'Failed';
       }
-      btn.disabled = false;
+      btns.forEach(function(x) { x.disabled = false; });
     }
 
     // ── Member Holdings upload ───────────────────────────
