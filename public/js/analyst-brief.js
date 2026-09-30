@@ -946,6 +946,8 @@
   sections.partners = function(b, partners, y, opts) {
     var doc = b.doc, names = (partners || []).map(function(p) { return typeof p === 'string' ? p : p.sponsor_name; }).filter(Boolean);
     if (!names.length) return y;
+    // Alphabetical, whatever order they were entered in
+    names.sort(function(a, c) { return a.toLowerCase().localeCompare(c.toLowerCase()); });
     opts = opts || {};
     y = b.sectionTitle(opts.title || 'Event partners', y, opts.kicker || 'the firms that make the Forum more affordable and attractive to investors');
     var cols = 4, rowH = 14, colW = CONTENT_W / cols, rows = Math.ceil(names.length / cols);

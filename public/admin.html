@@ -1270,7 +1270,7 @@
           loadScriptOnce('https://cdn.jsdelivr.net/npm/pdfkit@0.15.0/js/pdfkit.standalone.js'),
           loadScriptOnce('/js/metal-history.js?v=3'),
           // analyst-brief.js reads AttendeeProjection as it loads, so this one must be in first
-          loadScriptOnce('/js/attendee-projection.js?v=2').then(function() { return loadScriptOnce('/js/analyst-brief.js?v=26'); })
+          loadScriptOnce('/js/attendee-projection.js?v=2').then(function() { return loadScriptOnce('/js/analyst-brief.js?v=27'); })
             .then(function() { return loadScriptOnce('/js/member-brief.js?v=5'); }),
         ]).catch(function(err) { _abLibs = null; throw err; });
       }
