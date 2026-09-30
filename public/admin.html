@@ -401,6 +401,14 @@
           <label title="Applied to current meetings and investor requests until the event starts. Never printed.">Meetings projection multiplier (internal)<input type="number" id="ab-factor" min="1" step="0.05" class="ab-input"></label>
           <label title="Applied to the accepted total once the event has started: the estimate of informal meetings held outside the meeting system, e.g. 1.18 for 18%. Never printed.">Informal meetings multiplier (internal, after the event)<input type="number" id="ab-informal" min="1" step="0.01" class="ab-input"></label>
         </div>
+        <div style="margin-top:12px;font-size:11px;color:#555">
+          <strong>Webcast performance (Member briefing, page 3).</strong> Paste the webcast platform's per-status table (Status, Total Views, Average Views, Total Duration, Average Duration) for this year and for last year's full year. Only indices are printed, never the counts.
+          <div style="display:grid;grid-template-columns:1fr 1fr 170px;gap:10px;margin-top:6px">
+            <label>This year's table<textarea id="ab-webcast-current" rows="4" class="ab-input" style="font-family:monospace;font-size:10px;white-space:pre"></textarea></label>
+            <label>Last year's table (full year)<textarea id="ab-webcast-prior" rows="4" class="ab-input" style="font-family:monospace;font-size:10px;white-space:pre"></textarea></label>
+            <label title="Share of last year's twelve-month views that had accrued at the same point after its forum. Internal; never printed.">Last year's same-point share (%)<input type="number" id="ab-webcast-share" min="1" max="100" step="1" class="ab-input"></label>
+          </div>
+        </div>
         <div style="margin-top:10px;font-size:11px;color:#555">
           Fill the two investor fields from the <strong>Total Confirmed Meeting Counts</strong> export:
           <input type="file" id="ab-investor-file" accept=".xlsx,.xls,.csv" onchange="readInvestorMeetingFile(this)" style="font-size:11px;margin-left:6px">
@@ -1262,8 +1270,8 @@
           loadScriptOnce('https://cdn.jsdelivr.net/npm/pdfkit@0.15.0/js/pdfkit.standalone.js'),
           loadScriptOnce('/js/metal-history.js?v=1'),
           // analyst-brief.js reads AttendeeProjection as it loads, so this one must be in first
-          loadScriptOnce('/js/attendee-projection.js?v=2').then(function() { return loadScriptOnce('/js/analyst-brief.js?v=18'); })
-            .then(function() { return loadScriptOnce('/js/member-brief.js?v=2'); }),
+          loadScriptOnce('/js/attendee-projection.js?v=2').then(function() { return loadScriptOnce('/js/analyst-brief.js?v=19'); })
+            .then(function() { return loadScriptOnce('/js/member-brief.js?v=3'); }),
         ]).catch(function(err) { _abLibs = null; throw err; });
       }
       return _abLibs;
@@ -1285,6 +1293,7 @@
       document.getElementById('ab-investor-note').textContent = '';
       Object.keys(ids).forEach(function(id) { document.getElementById(id).value = ''; });
       document.getElementById('ab-holdings-prior').value = '';
+      ['ab-webcast-current', 'ab-webcast-prior', 'ab-webcast-share'].forEach(function(id) { document.getElementById(id).value = ''; });
       if (!eventCode) return;
       try {
         var r = await fetch('/api/psr?action=brief-inputs&event_code=' + encodeURIComponent(eventCode), { headers: { 'Authorization': 'Bearer ' + adminToken } });
@@ -1299,6 +1308,10 @@
         if (_abInvestorSource) document.getElementById('ab-investor-note').textContent = 'Last filled from ' + _abInvestorSource;
         if (inp.holdings_ratio_prior != null) document.getElementById('ab-holdings-prior').value = Math.round(Number(inp.holdings_ratio_prior) * 1000) / 10;
         if (!document.getElementById('ab-factor').value) document.getElementById('ab-factor').value = 1.4;
+        var ws = inp.webcast_stats || {};
+        document.getElementById('ab-webcast-current').value = ws.current_text || '';
+        document.getElementById('ab-webcast-prior').value = ws.prior_text || '';
+        document.getElementById('ab-webcast-share').value = ws.same_time_share ? Math.round(ws.same_time_share * 100) : '';
       } catch (err) { console.error('Brief inputs error:', err); }
     }
     function readBriefInputs() {
@@ -1314,6 +1327,12 @@
         attendees_projected_total: num('ab-site-total'),
         attendees_prior: num('ab-attendees-prior'),
         informal_factor: num('ab-informal'),
+        webcast_stats: (function() {
+          var cur = document.getElementById('ab-webcast-current').value.trim(), pri = document.getElementById('ab-webcast-prior').value.trim();
+          if (!cur || !pri) return null;
+          var share = num('ab-webcast-share');
+          return { current_text: cur, prior_text: pri, same_time_share: share ? share / 100 : null, source: 'pasted on /admin, ' + new Date().toISOString().slice(0, 10) };
+        })(),
         meetings_current: num('ab-meetings-current'),
         investor_meetings_source: _abInvestorSource
       };
@@ -1423,6 +1442,7 @@
         if (!s.meetings) gaps.push('1x1 meetings (no member meetings uploaded)');
         if (isMember && s.upcoming) gaps.push('note: the forum has not started, so the member briefing shows projections rather than results');
         if (isMember && s.audience && !s.audience.prior) gaps.push("last year's attendance comparison (enter last year's attendance)");
+        if (isMember && !s.webcast) gaps.push('webcast performance page (paste both webcast tables)');
         fillEl.style.width = '100%';
         textEl.textContent = 'Done!';
         resultEl.className = 'upload-result ' + (gaps.length ? 'error' : 'success');

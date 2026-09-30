@@ -55,7 +55,7 @@
       var rows = Math.floor((ST.PAGE_H - 52 - y - 13) / 15.5);
       if (rows >= 3) S.audienceCountries(b, s, y, Math.min(rows, 8));
     }
-    b.footer(1, asOf);
+    b.footer(1, asOf, s.webcast ? 3 : 2);
   }
 
   function pageTwo(b, data, s, metal, asOf) {
@@ -67,8 +67,15 @@
     if (s.holdings) y = S.holdings(b, s, evt, y) + gapY;
     y = S.roster(b, s, y, { title: 'Your peers at the forum', compact: true, rowH: 17 });
     if (hasMetal) y = S.market(b, evt, metal, y) + gapY;
-    if (ST.PAGE_H - 48 - y > 70) S.about(b, evt, y);
-    b.footer(2, asOf);
+    if (!s.webcast && ST.PAGE_H - 48 - y > 70) S.about(b, evt, y);
+    b.footer(2, asOf, s.webcast ? 3 : 2);
+  }
+
+  function pageThree(b, data, s, asOf) {
+    var y = S.runningHead(b, data, KICKER);
+    y = S.webcast(b, s, y);
+    S.about(b, data.event, y + 26);
+    b.footer(3, asOf, 3);
   }
 
   function generate(PDFDocument, data, assets, metal) {
@@ -91,6 +98,10 @@
     pageOne(b, data, s, assets, asOf);
     doc.addPage({ size: 'LETTER', margin: 0 });
     pageTwo(b, data, s, metal, asOf);
+    if (s.webcast) {
+      doc.addPage({ size: 'LETTER', margin: 0 });
+      pageThree(b, data, s, asOf);
+    }
     return doc;
   }
 

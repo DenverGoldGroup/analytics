@@ -1498,6 +1498,12 @@ module.exports = async function handler(req, res) {
           attendees_projected_total: optInt(bi.attendees_projected_total),
           attendees_prior: optInt(bi.attendees_prior),
           informal_factor: Number(bi.informal_factor) > 0 ? Number(bi.informal_factor) : null,
+          webcast_stats: bi.webcast_stats && typeof bi.webcast_stats === 'object' ? {
+            current_text: String(bi.webcast_stats.current_text || '').slice(0, 4000),
+            prior_text: String(bi.webcast_stats.prior_text || '').slice(0, 4000),
+            same_time_share: Number(bi.webcast_stats.same_time_share) > 0 ? Number(bi.webcast_stats.same_time_share) : null,
+            source: bi.webcast_stats.source ? String(bi.webcast_stats.source).slice(0, 200) : null
+          } : null,
           investor_meetings_source: bi.investor_meetings_source ? String(bi.investor_meetings_source).slice(0, 200) : null,
           updated_at: new Date().toISOString()
         }, { onConflict: 'event_code' });

@@ -402,6 +402,37 @@
         priorRatio: inputs.holdings_ratio_prior != null ? Number(inputs.holdings_ratio_prior) : null };
     }
 
+    // Webcast performance: REEI (Reach, Engagement, Efficiency, Impact) indexed to last year at the same
+    // point after its forum, combined into one Relative Webcast Performance score. Built from the two
+    // platform tables pasted on /admin; only indices are ever printed, never the view counts.
+    var webcast = null;
+    if (inputs.webcast_stats && inputs.webcast_stats.current_text && inputs.webcast_stats.prior_text) {
+      var ws = inputs.webcast_stats;
+      var curW = parseWebcastTable(ws.current_text), priW = parseWebcastTable(ws.prior_text);
+      var share = Number(ws.same_time_share) > 0 && Number(ws.same_time_share) <= 1 ? Number(ws.same_time_share) : 1;
+      var find = function(list, st) { return list.filter(function(r) { return r.status === st; })[0]; };
+      var idx = function(a, b) { return a != null && b ? a / b * 100 : null; };
+      var score = function(c, p) {
+        if (!c || !p || !c.views || !p.views || !c.webcasts || !p.webcasts) return null;
+        var r = { reach: idx(c.views, p.views * share), engagement: idx(c.avg_seconds, p.avg_seconds),
+          efficiency: idx(c.views / c.webcasts, p.views * share / p.webcasts), impact: idx(c.seconds, p.seconds * share) };
+        var parts = [r.reach, r.engagement, r.efficiency, r.impact].filter(function(v) { return v != null; });
+        r.rwp = parts.length ? parts.reduce(function(t, v) { return t + v; }, 0) / parts.length : null;
+        r.webcasts = c.webcasts; r.priorWebcasts = p.webcasts;
+        return r;
+      };
+      var all = score(find(curW, 'All'), find(priW, 'All'));
+      if (all) {
+        var byStatus = curW.filter(function(r) { return r.status !== 'All'; }).map(function(r) {
+          var sc = score(r, find(priW, r.status));
+          return sc ? { label: STATUS_LABELS[r.status] || r.status, status: r.status, score: sc } : null;
+        }).filter(function(x) { return x && x.score.webcasts >= 5 && x.score.priorWebcasts >= 5; })
+          .sort(function(a, b) { return b.score.rwp - a.score.rwp; });
+        webcast = { all: all, byStatus: byStatus, webcasts: all.webcasts, priorWebcasts: all.priorWebcasts,
+          estimated: share < 1, priorYear: (data.event && data.event.year ? data.event.year : new Date().getFullYear()) - 1 };
+      }
+    }
+
     // Buy-side headline: before the forum, the admin's projected pre-registration; afterwards, the count
     var buyside = null;
     if (audience) {
@@ -424,9 +455,29 @@
       byMineral: foldTail(groupBy(cur, 'primary_mineral'), 7),
       byCountry: foldTail(groupBy(cur, 'primary_country'), 9),
       byExchange: foldTail(groupBy(cur, exchangeKey), 9),
-      presenters: presenters, meetingsOnly: meetingsOnly,
+      presenters: presenters, meetingsOnly: meetingsOnly, webcast: webcast,
       top: top, audience: audience, meetings: meetings, holdings: holdings, buyside: buyside, upcoming: upcoming
     };
+  }
+
+  // "1181h 28m 41s" -> seconds; "10m 0s" -> seconds
+  function durationSeconds(s) {
+    var t = 0, re = /(\d+)\s*([hms])/g, m, any = false;
+    while ((m = re.exec(String(s || '')))) { any = true; t += parseInt(m[1], 10) * { h: 3600, m: 60, s: 1 }[m[2]]; }
+    return any ? t : null;
+  }
+  // The webcast platform's per-status table, pasted as tab-separated text with a header row:
+  // Status, Total Views, Average Views, Total Duration, Average Duration. Webcasts = views / average views.
+  function parseWebcastTable(text) {
+    var rows = [];
+    String(text || '').split(/\r?\n/).slice(1).forEach(function(line) {
+      var p = line.split('\t').map(function(x) { return x.trim(); });
+      if (p.length < 5 || !p[0]) return;
+      var views = parseInt(p[1].replace(/,/g, ''), 10) || 0, avg = parseInt(p[2].replace(/,/g, ''), 10) || 0;
+      rows.push({ status: p[0], views: views, avg_views: avg || null, seconds: durationSeconds(p[3]) || 0,
+        avg_seconds: durationSeconds(p[4]), webcasts: avg ? Math.round(views / avg) : 0 });
+    });
+    return rows;
   }
 
   // 'ceo' = chief executive, president, managing director, founder or executive chair;
@@ -473,7 +524,7 @@
     return y + 31;
   };
 
-  Brief.prototype.footer = function(pageNo, asOf) {
+  Brief.prototype.footer = function(pageNo, asOf, pages) {
     var doc = this.doc, y = PAGE_H - 40;
     doc.moveTo(M, y).lineTo(PAGE_W - M, y).lineWidth(0.75).strokeColor(GOLD).stroke();
     doc.font('regular').fontSize(6.8).fillColor(MUTED)
@@ -483,7 +534,7 @@
     doc.font('bold').fontSize(6.8).fillColor(TEXT)
       .text('Data as of ' + fmtDate(asOf), PAGE_W - M - 115, y + 7, { width: 115, align: 'right', lineBreak: false });
     doc.font('regular').fontSize(6.8).fillColor(MUTED)
-      .text('Page ' + pageNo + ' of 2', PAGE_W - M - 115, y + 16.5, { width: 115, align: 'right', lineBreak: false });
+      .text('Page ' + pageNo + ' of ' + (pages || 2), PAGE_W - M - 115, y + 16.5, { width: 115, align: 'right', lineBreak: false });
   };
 
   // Horizontal bar list: label · bar · value (· secondary)
@@ -814,6 +865,54 @@
       .text('Monthly averages; the last column compares the October–September year with the one before. Copper is the LME cash price. ' +
         (partial ? '† Part month, through ' + fmtDate(parseDate(metal.DATA_THROUGH)) + '.' : ''), M, y + 5, { width: CONTENT_W, lineBreak: false });
     return y + 18;
+  };
+
+  // Webcast performance: the RWP score, its four REEI components, and the score by issuer stage.
+  // Indices only; the underlying view counts are never printed.
+  sections.webcast = function(b, s, y) {
+    var doc = b.doc, w = s.webcast, all = w.all;
+    var fmtIdx = function(v) { return v == null ? '—' : String(Math.round(v)); };
+    var tone = function(v) { return v == null ? MUTED : (v >= 100 ? UP : DOWN); };
+    y = b.sectionTitle('Webcast performance', y, 'relative to ' + w.priorYear + ' at the same point after its forum');
+    // The headline score
+    doc.font('serif').fontSize(38).fillColor(all.rwp >= 100 ? GOLD_DARK : DOWN).text(fmtIdx(all.rwp), M, y - 4, { lineBreak: false });
+    var bigW = doc.widthOfString(fmtIdx(all.rwp));
+    doc.font('regular').fontSize(9.6).fillColor(TEXT)
+      .text('Relative Webcast Performance (RWP) across ' + fmtInt(w.webcasts) + ' presentation webcasts, against ' + fmtInt(w.priorWebcasts) +
+        ' in ' + w.priorYear + '. RWP averages four REEI indices, each scored against ' + w.priorYear + ' at the same point after its forum (= 100): ' +
+        'Reach (views), Engagement (watch time per view), Efficiency (views per webcast) and Impact (total watch time).',
+        M + bigW + 14, y + 2, { width: CONTENT_W - bigW - 14, lineGap: 2.2 });
+    y += 46;
+    var comps = [['Reach', all.reach, 'views'], ['Engagement', all.engagement, 'watch time per view'], ['Efficiency', all.efficiency, 'views per webcast'], ['Impact', all.impact, 'total watch time']];
+    var gap = 8, tw = (CONTENT_W - gap * 3) / 4;
+    comps.forEach(function(c, i) {
+      var x = M + i * (tw + gap);
+      doc.roundedRect(x, y, tw, 74, 3).fill(TINT);
+      doc.rect(x, y, tw, 2.2).fill(c[1] == null ? MUTED : (c[1] >= 100 ? GOLD : DOWN));
+      doc.font('serif').fontSize(22).fillColor(tone(c[1])).text(fmtIdx(c[1]), x + 9, y + 11, { lineBreak: false });
+      b.caps(c[0], x + 9, y + 40, { size: 6.4, spacing: 0.8, color: TEXT });
+      doc.font('regular').fontSize(7.2).fillColor(MUTED).text(c[2] + ', ' + w.priorYear + ' = 100', x + 9, y + 52, { width: tw - 16, lineBreak: false });
+    });
+    y += 74 + 14;
+    if (w.byStatus.length) {
+      var col = function(label, key) {
+        return { label: label, w: 62, align: 'right', get: function() { return ''; }, draw: function(d, r, cx, cy, cw, rh) {
+          var v = r.score[key];
+          d.font(key === 'rwp' ? 'bold' : 'regular').fontSize(8.2).fillColor(tone(v)).text(fmtIdx(v), cx + 5, cy + rh / 2 - 4.7, { width: cw - 10, align: 'right', lineBreak: false });
+        } };
+      };
+      y = b.table([
+        { label: 'By stage of development', w: 168, get: function(r) { return r.label; } },
+        { label: 'Webcasts', w: 62, align: 'right', get: function(r) { return fmtInt(r.score.webcasts); } },
+        col('Reach', 'reach'), col('Engagement', 'engagement'), col('Efficiency', 'efficiency'), col('Impact', 'impact'), col('RWP', 'rwp')
+      ], w.byStatus, M, y, { rowH: 15 });
+      y += 5;
+    }
+    doc.font('italic').fontSize(7).fillColor(MUTED)
+      .text('Green: at or above ' + w.priorYear + '; red: below. ' + (w.estimated ? w.priorYear + '’s same-point result is a Denver Gold Group estimate from its twelve-month total. ' : '') +
+        'Stages with fewer than five webcasts in either year are not scored separately. Recordings are still being released, so ' + (w.priorYear + 1) + ' figures will rise. Source: webcast platform statistics.',
+        M, y, { width: CONTENT_W, lineGap: 1.2 });
+    return doc.y;
   };
 
   sections.about = function(b, evt, y) {
