@@ -345,9 +345,34 @@
       members.forEach(function(t) {
         if (!(Number(t.meeting_count) > 0)) return;
         var c = findCompany(t.entity_name || t.company_name);
-        if (c) { issuersMeeting[c.company_name] = 1; issuerMeetings += Number(t.meeting_count); }
+        if (c) {
+          if (!issuersMeeting[c.company_name]) issuersMeeting[c.company_name] = { company: c, meetings: 0 };
+          issuersMeeting[c.company_name].meetings += Number(t.meeting_count);
+          issuerMeetings += Number(t.meeting_count);
+        }
       });
       var nIssuers = Object.keys(issuersMeeting).length;
+
+      // Average meetings per issuer by a roster field (stage of development, primary metal): the
+      // issuers' own counts, groups of fewer than three issuers folded into Other, best average first
+      var averagesBy = function(key, labelFn) {
+        var map = {}, order = [];
+        Object.keys(issuersMeeting).forEach(function(n) {
+          var r = issuersMeeting[n], k = r.company[key] || 'Other';
+          if (!map[k]) { map[k] = { key: k, label: labelFn ? labelFn(k) : k, issuers: 0, meetings: 0 }; order.push(k); }
+          map[k].issuers++;
+          map[k].meetings += r.meetings;
+        });
+        var kept = [], other = { key: 'Other', label: 'Other', issuers: 0, meetings: 0 };
+        order.forEach(function(k) {
+          var g = map[k];
+          if (k !== 'Other' && g.issuers >= 3) kept.push(g); else { other.issuers += g.issuers; other.meetings += g.meetings; }
+        });
+        kept.sort(function(a, b) { return b.meetings / b.issuers - a.meetings / a.issuers; });
+        if (other.issuers) kept.push(other);
+        kept.forEach(function(g) { g.avg = g.meetings * factor / g.issuers; });
+        return kept;
+      };
       var nInvestors = Number(inputs.investors_with_meetings) || 0;
       var investorMeetings = Number(inputs.investor_meetings_total) || 0;
 
@@ -365,6 +390,8 @@
         priorFinal: Number(inputs.meetings_prior_final) || null,
         issuersWithMeetings: nIssuers,
         perIssuer: nIssuers ? issuerMeetings * factor / nIssuers : null,
+        byStatus: averagesBy('company_status', function(k) { return STATUS_LABELS[k] || k; }),
+        byMineral: averagesBy('primary_mineral'),
         perInvestor: nInvestors && investorMeetings ? investorMeetings * factor / nInvestors : null,
         investors: Number(inputs.investors_with_meetings) || null,
         investorFirms: Number(inputs.investor_firms) || null
@@ -593,7 +620,7 @@
         doc.font('bold').fontSize(8.3).fillColor(INK).text(fmtPct(it.count / totalCount), vx, ry + 2, { width: valueW, align: 'right', lineBreak: false });
         return;
       }
-      doc.font('bold').fontSize(8.3).fillColor(INK).text(fmtInt(it.count), vx, ry + 2, { width: 24, align: 'right', lineBreak: false });
+      doc.font('bold').fontSize(8.3).fillColor(INK).text((opts.fmtValue || fmtInt)(it.count), vx, ry + 2, { width: 24, align: 'right', lineBreak: false });
       var second = opts.secondary ? opts.secondary(it) : fmtPct(it.count / totalCount);
       doc.font('regular').fontSize(7.8).fillColor(MUTED).text(second, vx + 28, ry + 2.4, { width: valueW - 28, align: 'right', lineBreak: false });
     });
@@ -783,8 +810,9 @@
     var colW = (CONTENT_W - 24) / 2;
     b.caps(a.mixLabel, M, y, { color: GOLD_DARK });
     b.caps('Buy-side by type', M + colW + 24, y, { color: GOLD_DARK });
-    var y1 = b.barList(a.mix, M, y + 13, colW, { labelW: 132, valueW: 62, rowH: 15.5 });
-    var y2 = b.barList(a.buySubs, M + colW + 24, y + 13, colW, { labelW: 132, valueW: 62, rowH: 15.5, shareOnly: a.projected });
+    var rowH = opts.rowH || 15.5;
+    var y1 = b.barList(a.mix, M, y + 13, colW, { labelW: 132, valueW: 62, rowH: rowH });
+    var y2 = b.barList(a.buySubs, M + colW + 24, y + 13, colW, { labelW: 132, valueW: 62, rowH: rowH, shareOnly: a.projected });
     y = Math.max(y1, y2) + 2;
     if (a.projected) {
       doc.font('italic').fontSize(7).fillColor(MUTED)
@@ -814,6 +842,21 @@
     b.caps('Buy-side by country', M + colW + 24, y, { color: GOLD_DARK });
     var y1 = b.barList(fold(a.countries), M, y + 13, colW, { labelW: 132, valueW: 62, rowH: 15.5 });
     var y2 = b.barList(fold(a.buyCountries), M + colW + 24, y + 13, colW, { labelW: 132, valueW: 62, rowH: 15.5 });
+    return Math.max(y1, y2);
+  };
+
+  // Average one-on-one meetings per issuer: by stage of development on the left, by primary metal on the right
+  sections.meetingsByGroup = function(b, s, y, maxRows) {
+    var m = s.meetings, colW = (CONTENT_W - 24) / 2;
+    var word = m.projected ? ', projected' : '';
+    // Value is the average; the grey figure beside it is the number of issuers in the group
+    var opts = { labelW: 132, valueW: 62, rowH: 14, fmtValue: function(v) { return v.toFixed(1); },
+      secondary: function(it) { return fmtInt(it.issuers); } };
+    var rows = function(list) { return list.slice(0, maxRows).map(function(g) { return { label: g.label, count: g.avg, issuers: g.issuers }; }); };
+    b.caps('Average meetings by stage' + word + ' (issuers)', M, y, { color: GOLD_DARK });
+    b.caps('Average meetings by primary metal' + word + ' (issuers)', M + colW + 24, y, { color: GOLD_DARK });
+    var y1 = b.barList(rows(m.byStatus), M, y + 13, colW, opts);
+    var y2 = b.barList(rows(m.byMineral), M + colW + 24, y + 13, colW, opts);
     return Math.max(y1, y2);
   };
 

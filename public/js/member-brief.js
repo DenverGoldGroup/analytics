@@ -63,12 +63,12 @@
       .map(function(k) { return S.tile(s, evt, k); }).filter(Boolean);
     if (tiles.length < 5) tiles.push(S.tile(s, evt, 'mcap'));
     y = S.kpiRow(b, tiles, y);
-    if (s.audience) y = S.audience(b, s, y, { title: 'Who was in the room' }) + 16;
-    if (s.meetings) y = S.meetings(b, s, evt, y) + 12;
-    // Use what is left of the page for where the audience came from, as many rows as fit
-    if (s.audience) {
-      var rows = Math.floor((ST.PAGE_H - 52 - y - 13) / 15.5);
-      if (rows >= 3) S.audienceCountries(b, s, y, Math.min(rows, 8));
+    if (s.audience) y = S.audience(b, s, y, { title: 'Who was in the room', rowH: 14.5 }) + 8;
+    if (s.meetings) y = S.meetings(b, s, evt, y) + 6;
+    // Use what is left of the page for the average meetings by stage and by metal, as many rows as fit
+    if (s.meetings && s.meetings.byStatus.length) {
+      var rows = Math.floor((ST.PAGE_H - 46 - y - 13) / 14);
+      if (rows >= 3) S.meetingsByGroup(b, s, y, Math.min(rows, 8));
     }
     b.footer(1, asOf, pages);
   }
