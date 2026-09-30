@@ -408,6 +408,11 @@
             <label>Last year's table (full year)<textarea id="ab-webcast-prior" rows="4" class="ab-input" style="font-family:monospace;font-size:10px;white-space:pre"></textarea></label>
             <label title="Share of last year's twelve-month views that had accrued at the same point after its forum. Internal; never printed.">Last year's same-point share (%)<input type="number" id="ab-webcast-share" min="1" max="100" step="1" class="ab-input"></label>
           </div>
+          <div style="margin-top:8px"><strong>MiningForum.live views</strong>, one month per line as <code>YYYY-MM: views</code>. Printed as a rate per 30 days (the current month counts its days to date), so give last year the forum month and the month after.</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr 170px;gap:10px;margin-top:6px">
+            <label>This year<textarea id="ab-site-current" rows="2" class="ab-input" placeholder="2026-09: 20231" style="font-family:monospace;font-size:10px;white-space:pre"></textarea></label>
+            <label>Last year<textarea id="ab-site-prior" rows="2" class="ab-input" placeholder="2025-09: 19042&#10;2025-10: 6041" style="font-family:monospace;font-size:10px;white-space:pre"></textarea></label>
+          </div>
         </div>
         <div style="margin-top:10px;font-size:11px;color:#555">
           Fill the two investor fields from the <strong>Total Confirmed Meeting Counts</strong> export:
@@ -1270,8 +1275,8 @@
           loadScriptOnce('https://cdn.jsdelivr.net/npm/pdfkit@0.15.0/js/pdfkit.standalone.js'),
           loadScriptOnce('/js/metal-history.js?v=3'),
           // analyst-brief.js reads AttendeeProjection as it loads, so this one must be in first
-          loadScriptOnce('/js/attendee-projection.js?v=2').then(function() { return loadScriptOnce('/js/analyst-brief.js?v=27'); })
-            .then(function() { return loadScriptOnce('/js/member-brief.js?v=5'); }),
+          loadScriptOnce('/js/attendee-projection.js?v=2').then(function() { return loadScriptOnce('/js/analyst-brief.js?v=28'); })
+            .then(function() { return loadScriptOnce('/js/member-brief.js?v=6'); }),
         ]).catch(function(err) { _abLibs = null; throw err; });
       }
       return _abLibs;
@@ -1293,7 +1298,7 @@
       document.getElementById('ab-investor-note').textContent = '';
       Object.keys(ids).forEach(function(id) { document.getElementById(id).value = ''; });
       document.getElementById('ab-holdings-prior').value = '';
-      ['ab-webcast-current', 'ab-webcast-prior', 'ab-webcast-share'].forEach(function(id) { document.getElementById(id).value = ''; });
+      ['ab-webcast-current', 'ab-webcast-prior', 'ab-webcast-share', 'ab-site-current', 'ab-site-prior'].forEach(function(id) { document.getElementById(id).value = ''; });
       if (!eventCode) return;
       try {
         var r = await fetch('/api/psr?action=brief-inputs&event_code=' + encodeURIComponent(eventCode), { headers: { 'Authorization': 'Bearer ' + adminToken } });
@@ -1312,6 +1317,9 @@
         document.getElementById('ab-webcast-current').value = ws.current_text || '';
         document.getElementById('ab-webcast-prior').value = ws.prior_text || '';
         document.getElementById('ab-webcast-share').value = ws.same_time_share ? Math.round(ws.same_time_share * 100) : '';
+        var sv = inp.site_views || {};
+        document.getElementById('ab-site-current').value = sv.current_text || '';
+        document.getElementById('ab-site-prior').value = sv.prior_text || '';
       } catch (err) { console.error('Brief inputs error:', err); }
     }
     function readBriefInputs() {
@@ -1332,6 +1340,10 @@
           if (!cur || !pri) return null;
           var share = num('ab-webcast-share');
           return { current_text: cur, prior_text: pri, same_time_share: share ? share / 100 : null, source: 'pasted on /admin, ' + new Date().toISOString().slice(0, 10) };
+        })(),
+        site_views: (function() {
+          var cur = document.getElementById('ab-site-current').value.trim(), pri = document.getElementById('ab-site-prior').value.trim();
+          return cur && pri ? { current_text: cur, prior_text: pri } : null;
         })(),
         meetings_current: num('ab-meetings-current'),
         investor_meetings_source: _abInvestorSource

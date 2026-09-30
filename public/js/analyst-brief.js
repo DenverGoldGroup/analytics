@@ -433,6 +433,25 @@
       }
     }
 
+    // MiningForum.live, the webcast site: views by month, compared as a rate per 30 days so that last
+    // year's forum month and the month after can be set against this year's months to date. The current
+    // month counts only the days elapsed at generation.
+    var site = null;
+    if (inputs.site_views && inputs.site_views.current_text && inputs.site_views.prior_text) {
+      var asOfDate = asOf ? new Date(asOf) : (data.generated_at ? new Date(data.generated_at) : new Date());
+      var tally = function(text) {
+        var views = 0, days = 0, months = parseSiteViews(text);
+        months.forEach(function(m) {
+          var last = new Date(Date.UTC(m.year, m.month, 0)).getUTCDate();
+          var d = (m.year === asOfDate.getUTCFullYear() && m.month === asOfDate.getUTCMonth() + 1) ? Math.min(asOfDate.getUTCDate(), last) : last;
+          views += m.views; days += d;
+        });
+        return days ? { views: views, days: days, rate: views / days * 30, months: months } : null;
+      };
+      var siteCur = tally(inputs.site_views.current_text), sitePri = tally(inputs.site_views.prior_text);
+      if (siteCur && sitePri && sitePri.rate) site = { current: siteCur, prior: sitePri, yoy: siteCur.rate / sitePri.rate - 1 };
+    }
+
     // Buy-side headline: before the forum, the admin's projected pre-registration; afterwards, the count
     var buyside = null;
     if (audience) {
@@ -455,9 +474,27 @@
       byMineral: foldTail(groupBy(cur, 'primary_mineral'), 7),
       byCountry: foldTail(groupBy(cur, 'primary_country'), 9),
       byExchange: foldTail(groupBy(cur, exchangeKey), 9),
-      presenters: presenters, meetingsOnly: meetingsOnly, webcast: webcast,
+      presenters: presenters, meetingsOnly: meetingsOnly, webcast: webcast, site: site,
       top: top, audience: audience, meetings: meetings, holdings: holdings, buyside: buyside, upcoming: upcoming
     };
+  }
+
+  // Site views pasted one month per line, "YYYY-MM: views" (any separator; thousands commas allowed)
+  function parseSiteViews(text) {
+    var out = [];
+    String(text || '').split(/\r?\n/).forEach(function(line) {
+      var m = /(\d{4})-(\d{1,2})\D+([\d,]+)/.exec(line);
+      if (m) out.push({ year: +m[1], month: +m[2], views: parseInt(m[3].replace(/,/g, ''), 10) });
+    });
+    return out.sort(function(a, b) { return a.year - b.year || a.month - b.month; });
+  }
+  var MONTHS = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+  // "September 2025" or "September–October 2025"
+  function monthSpan(months) {
+    if (!months.length) return '';
+    var a = months[0], z = months[months.length - 1];
+    if (a === z) return MONTHS[a.month - 1] + ' ' + a.year;
+    return MONTHS[a.month - 1] + (a.year === z.year ? '' : ' ' + a.year) + '–' + MONTHS[z.month - 1] + ' ' + z.year;
   }
 
   // "1181h 28m 41s" -> seconds; "10m 0s" -> seconds
@@ -909,7 +946,18 @@
       b.caps(c[0], x + 9, y + 40, { size: 6.4, spacing: 0.8, color: TEXT });
       doc.font('regular').fontSize(7.2).fillColor(MUTED).text(c[2] + ', ' + w.priorYear + ' = 100', x + 9, y + 52, { width: tw - 16, lineBreak: false });
     });
-    y += 74 + 14;
+    y += 74 + 10;
+    // The webcast site itself, as a rate per 30 days so unequal spans compare
+    if (s.site) {
+      var st = s.site;
+      doc.font('bold').fontSize(8.4).fillColor(INK).text('MiningForum.live', M, y, { link: 'https://www.miningforum.live', continued: true, width: CONTENT_W })
+        .font('regular').fillColor(TEXT).text(', the forum’s webcast site, had ' + fmtInt(st.current.views) + ' views in ' + monthSpan(st.current.months) +
+          ': ' + fmtInt(Math.round(st.current.rate)) + ' per 30 days, against ' + fmtInt(Math.round(st.prior.rate)) + ' per 30 days across ' +
+          monthSpan(st.prior.months) + ' (', { link: null, continued: true })
+        .font('bold').fillColor(st.yoy >= 0 ? UP : DOWN).text(fmtSigned(st.yoy), { continued: true })
+        .font('regular').fillColor(TEXT).text(').', { continued: false });
+      y = doc.y + 8;
+    }
     if (w.byStatus.length) {
       var col = function(label, key) {
         return { label: label, w: 62, align: 'right', get: function() { return ''; }, draw: function(d, r, cx, cy, cw, rh) {
@@ -926,7 +974,8 @@
     }
     doc.font('italic').fontSize(7).fillColor(MUTED)
       .text('Green: at or above ' + w.priorYear + '; red: below. ' + (w.estimated ? w.priorYear + '’s same-point result is a Denver Gold Group estimate from its twelve-month total. ' : '') +
-        'Stages with fewer than five webcasts in either year are not scored separately. Recordings are still being released, so ' + (w.priorYear + 1) + ' figures will rise. Source: webcast platform statistics.',
+        'Stages with fewer than five webcasts in either year are not scored separately. Recordings are still being released, so ' + (w.priorYear + 1) + ' figures will rise. Source: webcast platform statistics. ' +
+        (s.site ? 'Site views are a rate per 30 days over the months shown, the current month to date; last year’s span the forum month and the month after. Source: MiningForum.live analytics.' : ''),
         M, y, { width: CONTENT_W, lineGap: 1.2 });
     return doc.y;
   };
@@ -963,11 +1012,7 @@
   // What is new in the presentation recordings this year: four features, each a tile
   sections.recordings = function(b, evt, y) {
     var doc = b.doc;
-    y = b.sectionTitle('New this year: webcast enhancements', y, 'first in the industry');
-    doc.font('regular').fontSize(9.2).fillColor(TEXT)
-      .text('Every ' + evt.event_name + ' presentation webcast is released with four new features, the first of their kind at an industry investor forum:',
-        M, y, { width: CONTENT_W, lineGap: 2.2 });
-    y = doc.y + 8;
+    y = b.sectionTitle('New this year: webcast enhancements', y, 'on every presentation webcast, a first for industry investor forums');
     var items = [
       ['Readable transcripts', 'Natural-language transcripts that read as prose while preserving every fact and the substance of what was said.'],
       ['Premium captioning', 'More precise captions on the video, with mining, financial and company terms rendered correctly.'],

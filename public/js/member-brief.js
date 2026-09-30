@@ -92,9 +92,9 @@
   function pageThree(b, data, s, assets, asOf) {
     var evt = data.event;
     var y = S.runningHead(b, data, KICKER);
-    if (s.webcast) y = S.webcast(b, s, y) + 18;
-    y = S.recordings(b, evt, y) + 18;
-    y = S.about(b, evt, y) + 18;
+    if (s.webcast) y = S.webcast(b, s, y) + 14;
+    y = S.recordings(b, evt, y) + 14;
+    y = S.about(b, evt, y) + 14;
     var forums = nextForums(evt.year);
     if (forums.length) {
       // Anchor the cards to the foot of the page when there is room to spare

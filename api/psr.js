@@ -1506,6 +1506,10 @@ module.exports = async function handler(req, res) {
             same_time_share: Number(bi.webcast_stats.same_time_share) > 0 ? Number(bi.webcast_stats.same_time_share) : null,
             source: bi.webcast_stats.source ? String(bi.webcast_stats.source).slice(0, 200) : null
           } : null,
+          site_views: bi.site_views && typeof bi.site_views === 'object' ? {
+            current_text: String(bi.site_views.current_text || '').slice(0, 2000),
+            prior_text: String(bi.site_views.prior_text || '').slice(0, 2000)
+          } : null,
           investor_meetings_source: bi.investor_meetings_source ? String(bi.investor_meetings_source).slice(0, 200) : null,
           updated_at: new Date().toISOString()
         }, { onConflict: 'event_code' });
