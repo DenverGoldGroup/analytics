@@ -947,7 +947,7 @@
     var doc = b.doc, names = (partners || []).map(function(p) { return typeof p === 'string' ? p : p.sponsor_name; }).filter(Boolean);
     if (!names.length) return y;
     opts = opts || {};
-    y = b.sectionTitle(opts.title || 'Event partners', y, opts.kicker || 'the firms that supported the forum');
+    y = b.sectionTitle(opts.title || 'Event partners', y, opts.kicker || 'the firms that make the Forum more affordable and attractive to investors');
     var cols = 4, rowH = 14, colW = CONTENT_W / cols, rows = Math.ceil(names.length / cols);
     doc.rect(M, y - 2, CONTENT_W, rows * rowH + 8).fill(TINT);
     doc.rect(M, y - 2, CONTENT_W, 2.2).fill(GOLD);
