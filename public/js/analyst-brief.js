@@ -642,7 +642,7 @@
     doc.rect(0, 0, PAGE_W, 30).fill(INK);
     doc.rect(0, 30, PAGE_W, 2).fill(GOLD);
     b.caps(data.event.event_name, M, 11.5, { size: 7.2, spacing: 1.8, color: '#FFFFFF' });
-    b.caps(kicker, PAGE_W - M - 190, 11.5, { size: 7.2, spacing: 1.8, color: GOLD, width: 190, align: 'right' });
+    b.caps(kicker, PAGE_W - M - 300, 11.5, { size: 7.2, spacing: 1.8, color: GOLD, width: 300, align: 'right' });
     return 46;
   };
 
@@ -932,13 +932,79 @@
   };
 
   sections.about = function(b, evt, y) {
+    var doc = b.doc;
     y = b.sectionTitle('About the forum', y);
-    b.doc.font('regular').fontSize(9.2).fillColor(TEXT)
+    doc.font('regular').fontSize(9.2).fillColor(TEXT)
       .text(evt.event_name + ' is organized by the Denver Gold Group, a not-for-profit association of the mining industry. ' +
         'It takes no commissions, deal flow or advisory fees from the issuers or investors that take part, ' +
-        'and presenting issuers are scheduled on equal terms, by seniority.', M, y, { width: CONTENT_W, lineGap: 2.2 });
-    return b.doc.y;
+        'and presenting issuers are scheduled on equal terms, by seniority. ', M, y, { width: CONTENT_W, lineGap: 2.2, continued: true })
+      .font('bold').fillColor(GOLD_DARK).text('denvergold.org', { link: 'https://www.denvergold.org', underline: false, continued: false });
+    return doc.y;
   };
+
+  // Event partners: the firms that sponsored or supported the forum, as a name grid in four columns
+  sections.partners = function(b, partners, y, opts) {
+    var doc = b.doc, names = (partners || []).map(function(p) { return typeof p === 'string' ? p : p.sponsor_name; }).filter(Boolean);
+    if (!names.length) return y;
+    opts = opts || {};
+    y = b.sectionTitle(opts.title || 'Event partners', y, opts.kicker || 'the firms that supported the forum');
+    var cols = 4, rowH = 14, colW = CONTENT_W / cols, rows = Math.ceil(names.length / cols);
+    doc.rect(M, y - 2, CONTENT_W, rows * rowH + 8).fill(TINT);
+    doc.rect(M, y - 2, CONTENT_W, 2.2).fill(GOLD);
+    names.forEach(function(n, i) {
+      var c = i % cols, r = Math.floor(i / cols);
+      doc.font('bold').fontSize(8.4).fillColor(TEXT).text(n, M + 9 + c * colW, y + 6 + r * rowH, { width: colW - 14, lineBreak: false, ellipsis: true });
+    });
+    return y + rows * rowH + 6;
+  };
+
+  // What is new in the presentation recordings this year: four features, each a tile
+  sections.recordings = function(b, evt, y) {
+    var doc = b.doc;
+    y = b.sectionTitle('New this year: presentation recordings', y, 'first in the industry');
+    doc.font('regular').fontSize(9.2).fillColor(TEXT)
+      .text('Every ' + evt.event_name + ' presentation webcast is released with four new features, the first of their kind at an industry investor forum:',
+        M, y, { width: CONTENT_W, lineGap: 2.2 });
+    y = doc.y + 8;
+    var items = [
+      ['Readable transcripts', 'Natural-language transcripts that read as prose while preserving every fact and the substance of what was said.'],
+      ['Premium captioning', 'More precise captions on the video, with mining, financial and company terms rendered correctly.'],
+      ['Summaries', 'A concise summary of each presentation, so a reader can decide in a minute whether to watch.'],
+      ['Key moments', 'The moments that matter, as chapters embedded in the video so viewers jump straight to them.']
+    ];
+    var gap = 8, tw = (CONTENT_W - gap * 3) / 4, th = 78;
+    items.forEach(function(it, i) {
+      var x = M + i * (tw + gap);
+      doc.roundedRect(x, y, tw, th, 3).fill(TINT);
+      doc.rect(x, y, tw, 2.2).fill(GOLD);
+      doc.font('serif').fontSize(11).fillColor(INK).text(it[0], x + 9, y + 11, { width: tw - 18, lineBreak: false });
+      doc.font('regular').fontSize(7.6).fillColor(TEXT).text(it[1], x + 9, y + 28, { width: tw - 18, lineGap: 1.4, height: th - 32, ellipsis: true });
+    });
+    return y + th;
+  };
+
+  // The forums to come: one card per forum with its logo, dates and venue
+  sections.nextForums = function(b, forums, assets, y, opts) {
+    var doc = b.doc;
+    forums = (forums || []).filter(Boolean);
+    if (!forums.length) return y;
+    opts = opts || {};
+    y = b.sectionTitle(opts.title || 'Join us in ' + forums[0].year, y, opts.kicker || 'the Denver Gold Group forums to come');
+    // Logo across the top of each card, the words beneath it
+    var gap = 10, cw = (CONTENT_W - gap * (forums.length - 1)) / forums.length, ch = sections.nextForums.CARD_H, logoH = 54;
+    forums.forEach(function(f, i) {
+      var x = M + i * (cw + gap), tx = x + 10, tw = cw - 20;
+      doc.roundedRect(x, y, cw, ch, 3).fill(TINT);
+      doc.rect(x, y, cw, 2.2).fill(GOLD);
+      var logo = assets && assets.logos && assets.logos[f.code.toLowerCase()];
+      if (logo) doc.image(logo, x + 10, y + 10, { fit: [tw, logoH], align: 'center', valign: 'center' });
+      b.caps(f.event_name, tx, y + logoH + 20, { size: 6.4, spacing: 0.9, color: GOLD_DARK, width: tw });
+      doc.font('serif').fontSize(11).fillColor(INK).text(f.dates, tx, y + logoH + 32, { width: tw, lineBreak: false });
+      doc.font('regular').fontSize(8).fillColor(TEXT).text([f.venue, f.city].filter(Boolean).join('\n'), tx, y + logoH + 47, { width: tw, lineGap: 1 });
+    });
+    return y + ch;
+  };
+  sections.nextForums.CARD_H = 122;
 
   // ── Pages ────────────────────────────────────────────
   function pageOne(b, data, s, assets, asOf) {

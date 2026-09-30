@@ -377,7 +377,7 @@
       <!-- Analyst Briefing PDF -->
       <div class="upload-section" style="border:2px solid #E8DDBF">
         <h3>Briefings (PDF)</h3>
-        <div class="desc">Generate a fresh two-page, Denver Gold Group and event-branded briefing from the data loaded at this moment, so upload the latest attendees, meetings and holdings first. The <strong>Analyst Briefing</strong> is for sell-side analysts: issuers and market cap, shareholder representation, the audience and its C-suite presence, 1x1 meetings and the metals backdrop. The <strong>Member Post-Show Briefing</strong> is for presenting issuers after the forum: the same figures, led by who was in the room, what they own and the meetings held.</div>
+        <div class="desc">Generate a fresh two-page, Denver Gold Group and event-branded briefing from the data loaded at this moment, so upload the latest attendees, meetings and holdings first. The <strong>Analyst Briefing</strong> is for sell-side analysts: issuers and market cap, shareholder representation, the audience and its C-suite presence, 1x1 meetings and the metals backdrop. The <strong>Member and Partner Post-Show Briefing</strong> is for presenting issuers and event partners after the forum: the same figures, led by who was in the room, what they own and the meetings held, plus the event partners, webcast performance and the forums to come. Partners come from the PSR sponsors table for the event.</div>
         <div class="upload-row">
           <div style="min-width:110px">
             <select id="ab-event" onchange="loadBriefInputs()" style="width:100%;padding:8px 12px;font-size:12px;font-family:inherit;border:2px solid #E0E0E0;border-radius:6px;background:#fff">
@@ -385,13 +385,13 @@
             </select>
           </div>
           <button class="btn btn-gold" id="ab-generate-btn" onclick="generateBrief('analyst')">Analyst Briefing PDF</button>
-          <button class="btn btn-gold" id="mb-generate-btn" onclick="generateBrief('member')">Member Post-Show Briefing PDF</button>
+          <button class="btn btn-gold" id="mb-generate-btn" onclick="generateBrief('member')">Member &amp; Partner Post-Show Briefing PDF</button>
         </div>
         <div id="ab-inputs" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:10px;margin-top:12px;font-size:11px;color:#555">
           <label title="Only used when no attendee data is loaded; otherwise the briefing projects buy-side from the attendee upload, as the attendees page does.">Projected buy-side (fallback)<input type="number" id="ab-buyside" min="0" class="ab-input"></label>
           <label title="Leave blank to use the site's projection. When set, every audience group is scaled pro-rata to this total.">Projected attendees on site (override)<input type="number" id="ab-site-total" min="0" class="ab-input"></label>
           <label>Last year's buy-side<input type="number" id="ab-buyside-prior" min="0" class="ab-input"></label>
-          <label title="Final on-site attendance last year, for the attendees tile in the Member Post-Show Briefing.">Last year's attendance<input type="number" id="ab-attendees-prior" min="0" class="ab-input"></label>
+          <label title="Final on-site attendance last year, for the attendees tile in the Member and Partner Post-Show Briefing.">Last year's attendance<input type="number" id="ab-attendees-prior" min="0" class="ab-input"></label>
           <label title="Accepted meetings from the meeting system, each meeting counted once (Meetmax acceptances). Leave blank to use the Member Meetings upload, which counts a meeting once per issuer taking part.">Accepted meetings (Meetmax total)<input type="number" id="ab-meetings-current" min="0" class="ab-input"><span id="ab-meetings-uploaded" style="display:block;font-size:10px;color:#999;margin-top:2px"></span></label>
           <label>Last year's final 1x1 meetings<input type="number" id="ab-meetings-prior" min="0" class="ab-input"></label>
           <label>Last year's shareholder representation (%)<input type="number" id="ab-holdings-prior" min="0" max="100" step="0.1" class="ab-input"></label>
@@ -1270,8 +1270,8 @@
           loadScriptOnce('https://cdn.jsdelivr.net/npm/pdfkit@0.15.0/js/pdfkit.standalone.js'),
           loadScriptOnce('/js/metal-history.js?v=3'),
           // analyst-brief.js reads AttendeeProjection as it loads, so this one must be in first
-          loadScriptOnce('/js/attendee-projection.js?v=2').then(function() { return loadScriptOnce('/js/analyst-brief.js?v=21'); })
-            .then(function() { return loadScriptOnce('/js/member-brief.js?v=3'); }),
+          loadScriptOnce('/js/attendee-projection.js?v=2').then(function() { return loadScriptOnce('/js/analyst-brief.js?v=22'); })
+            .then(function() { return loadScriptOnce('/js/member-brief.js?v=4'); }),
         ]).catch(function(err) { _abLibs = null; throw err; });
       }
       return _abLibs;
@@ -1410,6 +1410,12 @@
           fonts: { regular: loaded[1], bold: loaded[2], black: loaded[3], light: loaded[4], italic: loaded[5], serif: loaded[6] },
           logos: { event: loaded[7], dgg: loaded[8] }
         };
+        if (isMember) {
+          // The member briefing ends with the forums to come, each with its logo
+          var coming = MemberBrief.nextForums(data.event.year);
+          var comingLogos = await Promise.all(coming.map(function(f) { return fetchBinary('/logos/' + f.code + '-logo.png', true); }));
+          coming.forEach(function(f, i) { if (comingLogos[i]) assets.logos[f.code] = comingLogos[i]; });
+        }
 
         fillEl.style.width = '70%';
         textEl.textContent = 'Typesetting the PDF...';
@@ -1426,7 +1432,7 @@
         var now = new Date();
         var stamp = now.getFullYear() + '-' + String(now.getMonth() + 1).padStart(2, '0') + '-' + String(now.getDate()).padStart(2, '0') +
           '-' + String(now.getHours()).padStart(2, '0') + String(now.getMinutes()).padStart(2, '0') + String(now.getSeconds()).padStart(2, '0');
-        var fileName = eventCode + (isMember ? '-Member-Post-Show-Briefing-' : '-Analyst-Briefing-') + stamp + '.pdf';
+        var fileName = eventCode + (isMember ? '-Member-Partner-Post-Show-Briefing-' : '-Analyst-Briefing-') + stamp + '.pdf';
         var url = URL.createObjectURL(blob);
         var a = document.createElement('a');
         a.href = url; a.download = fileName;

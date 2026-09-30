@@ -749,7 +749,8 @@ module.exports = async function handler(req, res) {
           sb.from('psr_top_meetings').select('*').eq('event_code', eventCode).order('rank'),
           sb.from('psr_member_holdings').select('*').eq('event_code', eventCode).order('sort_order'),
           sb.from('psr_meetings').select('section, metric, value_current, value_prior').eq('event_code', eventCode),
-          sb.from('psr_brief_inputs').select('*').eq('event_code', eventCode).maybeSingle()
+          sb.from('psr_brief_inputs').select('*').eq('event_code', eventCode).maybeSingle(),
+          sb.from('psr_sponsors').select('sponsor_name, sort_order').eq('event_code', eventCode).order('sort_order')
         ]);
 
         // Attendees, paged past the 1,000-row response cap
@@ -777,6 +778,7 @@ module.exports = async function handler(req, res) {
           holdings: bResults[2].data || [],
           meetings: bResults[3].data || [],
           inputs: bResults[4].data || null,
+          partners: (bResults[5].data || []).map(function(r) { return r.sponsor_name; }),
           attendees: bAtt
         });
       }
