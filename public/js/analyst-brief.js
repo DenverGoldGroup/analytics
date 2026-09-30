@@ -838,7 +838,7 @@
 
   sections.market = function(b, evt, metal, y, opts) {
     var doc = b.doc, yr = evt.year;
-    y = b.sectionTitle('Market backdrop', y, 'metal prices into the forum');
+    y = b.sectionTitle('Market backdrop', y, metal.MACRO_SEP ? 'metals, currencies and gold equities into the forum' : 'metal prices into the forum');
     var order = [0, 1, 4, 2, 3]; // gold, silver, copper, platinum, palladium
     var row = function(name, sepNow, sepPrev, annNow, annPrev, fmt, neutral) {
       return { name: name, now: sepNow, prev: sepPrev, fmt: fmt, neutral: neutral,
@@ -849,15 +849,15 @@
       return row(metal.NAMES[idx], metal.SEP[yr][idx], metal.SEP[yr - 1][idx], metal.ANN[yr] ? metal.ANN[yr][idx] : null,
         metal.ANN[yr - 1] ? metal.ANN[yr - 1][idx] : null, function(v) { return fmtPrice(v, unit); });
     });
-    // Currency and cost comparators: the US dollar against the two big mining currencies, and the
-    // producer price index for gold ores. Exchange-rate moves are shown without a good/bad colour.
+    // Comparators: the US dollar against the two big mining currencies, and the gold-equity index.
+    // Exchange-rate moves are shown without a good/bad colour.
     var hasMacro = metal.MACRO_SEP && metal.MACRO_SEP[yr] && metal.MACRO_SEP[yr - 1];
     if (hasMacro) {
       var mf = [function(v) { return v == null ? '—' : 'C$' + v.toFixed(4); }, function(v) { return v == null ? '—' : 'A$' + v.toFixed(4); },
-        function(v) { return v == null ? '—' : v.toFixed(1); }];
+        function(v) { return v == null ? '—' : v.toLocaleString('en-US', { maximumFractionDigits: 0 }); }];
       metal.MACRO_NAMES.forEach(function(name, i) {
         mrows.push(row(name, metal.MACRO_SEP[yr][i], metal.MACRO_SEP[yr - 1][i], metal.MACRO_ANN[yr] ? metal.MACRO_ANN[yr][i] : null,
-          metal.MACRO_ANN[yr - 1] ? metal.MACRO_ANN[yr - 1][i] : null, mf[i], i < 2));
+          metal.MACRO_ANN[yr - 1] ? metal.MACRO_ANN[yr - 1][i] : null, mf[i] || mf[2], i < 2));
       });
     }
     var partial = metal.PARTIAL_SEP === yr;
