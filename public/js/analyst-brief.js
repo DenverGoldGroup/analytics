@@ -875,7 +875,7 @@
 
   sections.market = function(b, evt, metal, y, opts) {
     var doc = b.doc, yr = evt.year;
-    y = b.sectionTitle('Market backdrop', y, metal.MACRO_SEP ? 'metals, currencies and gold equities into the forum' : 'metal prices into the forum');
+    y = b.sectionTitle('Market backdrop', y, metal.MACRO_SEP ? 'metals and currencies into the forum' : 'metal prices into the forum');
     var order = [0, 1, 4, 2, 3]; // gold, silver, copper, platinum, palladium
     var row = function(name, sepNow, sepPrev, annNow, annPrev, fmt, neutral) {
       return { name: name, now: sepNow, prev: sepPrev, fmt: fmt, neutral: neutral,
@@ -886,8 +886,7 @@
       return row(metal.NAMES[idx], metal.SEP[yr][idx], metal.SEP[yr - 1][idx], metal.ANN[yr] ? metal.ANN[yr][idx] : null,
         metal.ANN[yr - 1] ? metal.ANN[yr - 1][idx] : null, function(v) { return fmtPrice(v, unit); });
     });
-    // Comparators: the US dollar against the two big mining currencies, and the gold-equity index.
-    // Exchange-rate moves are shown without a good/bad colour.
+    // Comparators: the US dollar against the two big mining currencies, shown without a good/bad colour.
     var hasMacro = metal.MACRO_SEP && metal.MACRO_SEP[yr] && metal.MACRO_SEP[yr - 1];
     if (hasMacro) {
       var mf = [function(v) { return v == null ? '—' : 'C$' + v.toFixed(4); }, function(v) { return v == null ? '—' : 'A$' + v.toFixed(4); },

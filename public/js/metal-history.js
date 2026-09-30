@@ -100,14 +100,13 @@
     NAMES: ['Gold', 'Silver', 'Platinum', 'Palladium', 'Copper'],
     UNITS: ['/oz', '/oz', '/oz', '/oz', '/lb'],
     DATA_THROUGH: '2026-09-16',   // last week in the price file
-    // Macro comparators for the briefings' market table (fetched 2026-09-30):
-    // [US$ in C$ (FRED DEXCAUS), US$ in A$ (1/FRED DEXUSAL), NYSE Arca Gold BUGS index (^HUI, Yahoo Finance daily closes)]
+    // Macro comparators for the briefings' market table, from FRED (fetched 2026-09-30):
+    // [US$ in C$ (DEXCAUS), US$ in A$ (1/DEXUSAL)]
     // MACRO_SEP = September average (business days to Sep 25, 2026). MACRO_ANN = the 12 months to September.
-    MACRO_NAMES: ['US dollar in Canadian dollars', 'US dollar in Australian dollars', 'NYSE Arca Gold BUGS index'],
-    MACRO_SEP: { 2024: [1.3546, 1.4773, 317.38], 2025: [1.3834, 1.5158, 565.22], 2026: [1.3936, 1.4014, 806.59] },
-    MACRO_ANN: { 2025: [1.3985, 1.5540, 379.18], 2026: [1.3869, 1.4463, 737.46] },
-    MACRO_NOTE: 'Exchange rates: Federal Reserve H.10 averages, September 2026 to the 25th. ' +
-      'Gold BUGS: NYSE Arca index of unhedged gold producers, average daily close, September 2026 to the 25th.',
+    MACRO_NAMES: ['US dollar in Canadian dollars', 'US dollar in Australian dollars'],
+    MACRO_SEP: { 2024: [1.3546, 1.4773], 2025: [1.3834, 1.5158], 2026: [1.3936, 1.4014] },
+    MACRO_ANN: { 2025: [1.3985, 1.5540], 2026: [1.3869, 1.4463] },
+    MACRO_NOTE: 'Exchange rates: Federal Reserve H.10 averages, September 2026 to the 25th.',
     PARTIAL_SEP: 2026             // September of this year is still a part-month average
   };
   if (typeof module !== 'undefined' && module.exports) module.exports = api;
