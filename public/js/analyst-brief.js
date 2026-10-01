@@ -476,7 +476,7 @@
       }
     }
 
-    // MiningForum.live, the webcast site: views by month, compared as a rate per 30 days so that last
+    // MiningForum.live, the forums' news and analysis outlet (presentations are hosted on americas.miningforum.com): views by month, compared as a rate per 30 days so that last
     // year's forum month and the month after can be set against this year's months to date. The current
     // month counts only the days elapsed at generation.
     var site = null;
@@ -1035,11 +1035,11 @@
       doc.font('regular').fontSize(7.2).fillColor(MUTED).text(c[2] + ', ' + w.priorYear + ' = 100', x + 9, y + 49, { width: tw - 16, lineBreak: false });
     });
     y += 70 + 10;
-    // The webcast site itself, as a rate per 30 days so unequal spans compare
+    // The news and analysis outlet, as a rate per 30 days so unequal spans compare
     if (s.site) {
       var st = s.site;
       doc.font('bold').fontSize(8.4).fillColor(INK).text('MiningForum.live', M, y, { link: 'https://www.miningforum.live', continued: true, width: CONTENT_W })
-        .font('regular').fillColor(TEXT).text(', the forum’s webcast site, had ' + fmtInt(st.current.views) + ' views in ' + monthSpan(st.current.months) +
+        .font('regular').fillColor(TEXT).text(', the Mining Forum news and analysis outlet, had ' + fmtInt(st.current.views) + ' views in ' + monthSpan(st.current.months) +
           ': ' + fmtInt(Math.round(st.current.rate)) + ' per 30 days, against ' + fmtInt(Math.round(st.prior.rate)) + ' per 30 days across ' +
           monthSpan(st.prior.months) + ' (', { link: null, continued: true })
         .font('bold').fillColor(st.yoy >= 0 ? UP : DOWN).text(fmtSigned(st.yoy), { continued: true })

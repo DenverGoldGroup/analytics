@@ -408,7 +408,7 @@
             <label>Last year's table (full year)<textarea id="ab-webcast-prior" rows="4" class="ab-input" style="font-family:monospace;font-size:10px;white-space:pre"></textarea></label>
             <label title="Share of last year's twelve-month views that had accrued at the same point after its forum. Internal; never printed.">Last year's same-point share (%)<input type="number" id="ab-webcast-share" min="1" max="100" step="1" class="ab-input"></label>
           </div>
-          <div style="margin-top:8px"><strong>MiningForum.live views</strong>, one month per line as <code>YYYY-MM: views</code>. Printed as a rate per 30 days (the current month counts its days to date), so give last year the forum month and the month after.</div>
+          <div style="margin-top:8px"><strong>MiningForum.live views</strong> (the news and analysis outlet, not the presentation site), one month per line as <code>YYYY-MM: views</code>. Printed as a rate per 30 days (the current month counts its days to date), so give last year the forum month and the month after.</div>
           <div style="display:grid;grid-template-columns:1fr 1fr 170px;gap:10px;margin-top:6px">
             <label>This year<textarea id="ab-site-current" rows="2" class="ab-input" placeholder="2026-09: 20231" style="font-family:monospace;font-size:10px;white-space:pre"></textarea></label>
             <label>Last year<textarea id="ab-site-prior" rows="2" class="ab-input" placeholder="2025-09: 19042&#10;2025-10: 6041" style="font-family:monospace;font-size:10px;white-space:pre"></textarea></label>
@@ -1276,7 +1276,7 @@
           loadScriptOnce('/js/metal-history.js?v=4'),
           // analyst-brief.js reads DGGMark and AttendeeProjection as it loads, so those two must be in first
           loadScriptOnce('/js/dgg-mark.js?v=1').then(function() { return loadScriptOnce('/js/attendee-projection.js?v=2'); })
-            .then(function() { return loadScriptOnce('/js/analyst-brief.js?v=32'); })
+            .then(function() { return loadScriptOnce('/js/analyst-brief.js?v=33'); })
             .then(function() { return loadScriptOnce('/js/member-brief.js?v=9'); }),
         ]).catch(function(err) { _abLibs = null; throw err; });
       }
