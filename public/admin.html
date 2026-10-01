@@ -1274,9 +1274,10 @@
         _abLibs = Promise.all([
           loadScriptOnce('https://cdn.jsdelivr.net/npm/pdfkit@0.15.0/js/pdfkit.standalone.js'),
           loadScriptOnce('/js/metal-history.js?v=4'),
-          // analyst-brief.js reads AttendeeProjection as it loads, so this one must be in first
-          loadScriptOnce('/js/attendee-projection.js?v=2').then(function() { return loadScriptOnce('/js/analyst-brief.js?v=30'); })
-            .then(function() { return loadScriptOnce('/js/member-brief.js?v=7'); }),
+          // analyst-brief.js reads DGGMark and AttendeeProjection as it loads, so those two must be in first
+          loadScriptOnce('/js/dgg-mark.js?v=1').then(function() { return loadScriptOnce('/js/attendee-projection.js?v=2'); })
+            .then(function() { return loadScriptOnce('/js/analyst-brief.js?v=31'); })
+            .then(function() { return loadScriptOnce('/js/member-brief.js?v=8'); }),
         ]).catch(function(err) { _abLibs = null; throw err; });
       }
       return _abLibs;
@@ -1415,11 +1416,11 @@
         var loaded = await Promise.all([
           loadBriefLibs(),
           fetchBinary('/fonts/Lato-Regular.ttf'), fetchBinary('/fonts/Lato-Bold.ttf'), fetchBinary('/fonts/Lato-Black.ttf'),
-          fetchBinary('/fonts/Lato-Light.ttf'), fetchBinary('/fonts/Lato-Italic.ttf'), fetchBinary('/fonts/BreeSerif-Regular.ttf'),
+          fetchBinary('/fonts/Lato-Light.ttf'), fetchBinary('/fonts/Lato-Italic.ttf'), fetchBinary('/fonts/BebasNeue-Regular.ttf'),
           fetchBinary('/logos/' + eventCode.toLowerCase() + '-logo.png', true), fetchBinary('/logos/dgg-logo.png', true)
         ]);
         var assets = {
-          fonts: { regular: loaded[1], bold: loaded[2], black: loaded[3], light: loaded[4], italic: loaded[5], serif: loaded[6] },
+          fonts: { regular: loaded[1], bold: loaded[2], black: loaded[3], light: loaded[4], italic: loaded[5], display: loaded[6] },
           logos: { event: loaded[7], dgg: loaded[8] }
         };
         if (isMember) {

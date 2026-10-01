@@ -9,17 +9,31 @@
   var Projection = (typeof module !== 'undefined' && module.exports)
     ? require('./attendee-projection.js') : root.AttendeeProjection;
 
+  // The Denver Gold Group lockup, drawn as vectors (dgg-mark.js); loaded before this file
+  var DGG = (typeof module !== 'undefined' && module.exports) ? require('./dgg-mark.js') : root.DGGMark;
+
   // ── Brand ────────────────────────────────────────────
-  var INK = '#0B0B0B';
-  var GOLD = '#C4993B';
-  var GOLD_DARK = '#8F6E22';
-  var TEXT = '#2B2B2B';
-  var MUTED = '#77736A';
-  var RULE = '#E2DDD0';
-  var TINT = '#F8F5EE';
-  var TRACK = '#EFEAE0';
+  // DGG Brand Guidelines, edition 1 (2026), section 07 "DGG on forum material": DGG appears once, in the
+  // header band; the forum's colour owns the body. Mining Forum Americas: orange accent, ink, dark cards.
+  // Orange is a graphic colour only (rules, bars, borders) — it never carries text on white.
+  var INK = '#0B0708';
+  var BAND = '#1B1416';        // the DGG header band
+  var CARD = '#1C1517';        // dark cards and the running head
+  var ACCENT = '#F9A51A';      // MFA orange
+  var ACCENT_DEEP = '#E8892A'; // the lead bar in a list
+  var TEXT = '#0B0708';
+  var MUTED = '#4A4644';       // grey 700: captions, footers
+  var RULE = '#C9C5C2';        // thin neutral rules
+  var TINT = '#FBF8F3';        // paper: light panels
+  var TRACK = '#E9E5E0';       // sand: table banding, bar tracks
   var UP = '#1E7B45';
   var DOWN = '#B03A2E';
+  // The forums' grounds, for the "forums to come" cards (guidelines 07.1)
+  var FORUM = {
+    mfa: { fill: '#0B0708', eyebrow: '#F9A51A', text: '#FFFFFF', sub: '#EDE6DD' },
+    mfe: { grad: ['#F0443A', '#DA291C', '#A81E14'], eyebrow: '#FFFFFF', text: '#FFFFFF', sub: '#FFE9E6' },
+    mfau: { grad: ['#03592D', '#048442', '#0AA552'], eyebrow: '#FDB71C', text: '#FFFFFF', sub: '#E6F4EC' }
+  };
 
   var PAGE_W = 612, PAGE_H = 792, M = 36;
   var CONTENT_W = PAGE_W - M * 2;
@@ -63,15 +77,17 @@
     var p = String(s || '').slice(0, 10).split('-');
     return p.length === 3 ? new Date(Date.UTC(+p[0], +p[1] - 1, +p[2])) : null;
   }
+  // House style (brand guidelines 09): "19–22 September 2027", day first, en dash, no comma
   function fmtDate(d) {
-    return MONTHS[d.getUTCMonth()] + ' ' + d.getUTCDate() + ', ' + d.getUTCFullYear();
+    return d.getUTCDate() + ' ' + MONTHS[d.getUTCMonth()] + ' ' + d.getUTCFullYear();
   }
   function fmtDateRange(a, b) {
     if (!a) return '';
     if (!b || a.getTime() === b.getTime()) return fmtDate(a);
     if (a.getUTCMonth() === b.getUTCMonth() && a.getUTCFullYear() === b.getUTCFullYear()) {
-      return MONTHS[a.getUTCMonth()] + ' ' + a.getUTCDate() + '–' + b.getUTCDate() + ', ' + a.getUTCFullYear();
+      return a.getUTCDate() + '–' + b.getUTCDate() + ' ' + MONTHS[a.getUTCMonth()] + ' ' + a.getUTCFullYear();
     }
+    if (a.getUTCFullYear() === b.getUTCFullYear()) return a.getUTCDate() + ' ' + MONTHS[a.getUTCMonth()] + ' – ' + fmtDate(b);
     return fmtDate(a) + ' – ' + fmtDate(b);
   }
   function ordinal(n) {
@@ -169,7 +185,7 @@
       return Object.keys(seen).length;
     }
     var top = cur.slice().sort(function(a, b) { return (Number(b.market_cap_usd) || 0) - (Number(a.market_cap_usd) || 0); });
-    // Accepted issuers either present or take one-on-one meetings only; a presentation slot tells them apart
+    // Accepted issuers either present or take 1x1 meetings only; a presentation slot tells them apart
     var presents = function(c) { return !!(c.presentation_date || (c.presentation_location && String(c.presentation_location).trim()) || (c.presentation_type && String(c.presentation_type).trim())); };
     var hasSlots = cur.some(presents);
     var presenters = hasSlots ? cur.filter(presents).length : null;
@@ -572,33 +588,44 @@
 
   Brief.prototype.caps = function(text, x, y, opts) {
     opts = opts || {};
-    this.doc.font(opts.font || 'bold').fontSize(opts.size || 7).fillColor(opts.color || MUTED)
+    this.doc.font(opts.font || 'black').fontSize(opts.size || 7).fillColor(opts.color || MUTED)
       .text(String(text).toUpperCase(), x, y, { characterSpacing: opts.spacing != null ? opts.spacing : 1.1, width: opts.width, align: opts.align || 'left', lineBreak: opts.width != null });
   };
 
   Brief.prototype.sectionTitle = function(title, y, kicker) {
     var doc = this.doc;
-    doc.rect(M, y + 3, 3, 14).fill(GOLD);
-    doc.font('serif').fontSize(14).fillColor(INK).text(title, M + 11, y, { lineBreak: false });
+    doc.rect(M, y + 2, 3, 16).fill(ACCENT);
+    doc.font('display').fontSize(17).fillColor(INK).text(title, M + 11, y, { lineBreak: false });
     if (kicker) {
       var w = doc.widthOfString(title);
-      doc.font('regular').fontSize(8.5).fillColor(MUTED).text(kicker, M + 11 + w + 10, y + 5.5, { lineBreak: false });
+      doc.font('regular').fontSize(8.5).fillColor(MUTED).text(kicker, M + 11 + w + 10, y + 6.5, { lineBreak: false });
     }
     doc.moveTo(M, y + 22).lineTo(PAGE_W - M, y + 22).lineWidth(0.5).strokeColor(RULE).stroke();
     return y + 31;
   };
 
-  Brief.prototype.footer = function(pageNo, asOf, pages) {
-    var doc = this.doc, y = PAGE_H - 40;
-    doc.moveTo(M, y).lineTo(PAGE_W - M, y).lineWidth(0.75).strokeColor(GOLD).stroke();
-    doc.font('regular').fontSize(6.8).fillColor(MUTED)
+  // Footers in Lato grey 700 under a thin rule. The last page is the back cover: the DGG stacked lockup
+  // sits in its corner at 20 mm with denvergold.org beneath (guidelines 07), so its footer is taller.
+  Brief.FOOTER_H = 40;
+  Brief.BACK_FOOTER_H = 80;
+  Brief.prototype.footer = function(pageNo, asOf, pages, opts) {
+    var doc = this.doc, back = opts && opts.back, y = PAGE_H - (back ? Brief.BACK_FOOTER_H : Brief.FOOTER_H);
+    doc.moveTo(M, y).lineTo(PAGE_W - M, y).lineWidth(0.5).strokeColor(RULE).stroke();
+    var rightW = back ? 70 : 115, textW = CONTENT_W - rightW - 12;
+    doc.font('regular').fontSize(7.2).fillColor(MUTED)
       .text('© ' + asOf.getUTCFullYear() + ' Denver Gold Group. Prepared for information only; it is not investment advice or a recommendation. ' +
         'Issuer data as supplied to Denver Gold Group by participating members and public market sources.',
-        M, y + 7, { width: CONTENT_W - 120, lineGap: 1 });
-    doc.font('bold').fontSize(6.8).fillColor(TEXT)
-      .text('Data as of ' + fmtDate(asOf), PAGE_W - M - 115, y + 7, { width: 115, align: 'right', lineBreak: false });
-    doc.font('regular').fontSize(6.8).fillColor(MUTED)
-      .text('Page ' + pageNo + ' of ' + (pages || 2), PAGE_W - M - 115, y + 16.5, { width: 115, align: 'right', lineBreak: false });
+        M, y + 8, { width: textW, lineGap: 1.2 });
+    var ty = back ? doc.y + 6 : y + 8;
+    doc.font('bold').fontSize(7.2).fillColor(TEXT)
+      .text('Data as of ' + fmtDate(asOf), back ? M : PAGE_W - M - 115, ty, { width: back ? textW : 115, align: back ? 'left' : 'right', lineBreak: false });
+    doc.font('regular').fontSize(7.2).fillColor(MUTED)
+      .text('Page ' + pageNo + ' of ' + (pages || 2), back ? M : PAGE_W - M - 115, ty + 10, { width: back ? textW : 115, align: back ? 'left' : 'right', lineBreak: false });
+    if (back && DGG) {
+      var lw = 58, lh = lw * DGG.LOCKUPS.stacked.h / DGG.LOCKUPS.stacked.w, lx = PAGE_W - M - lw;   // 20 mm wide
+      DGG.draw(doc, 'stacked', lx, y + 8, lh, DGG.NAVY);
+      doc.font('bold').fontSize(7.2).fillColor(TEXT).text('denvergold.org', lx - 20, y + 8 + lh + 4, { width: lw + 40, align: 'center', lineBreak: false, link: 'https://www.denvergold.org' });
+    }
   };
 
   // Horizontal bar list: label · bar · value (· secondary)
@@ -614,7 +641,7 @@
       doc.font('regular').fontSize(8.3).fillColor(TEXT).text(it.label, x, ry + 2, { width: labelW, lineBreak: false, ellipsis: true });
       doc.roundedRect(barX, ry + 3.5, barW, 7, 1.5).fill(TRACK);
       var fw = Math.max(barW * it.count / max, 2);
-      doc.roundedRect(barX, ry + 3.5, fw, 7, 1.5).fill(i === 0 && opts.leadDark ? GOLD_DARK : GOLD);
+      doc.roundedRect(barX, ry + 3.5, fw, 7, 1.5).fill(i === 0 && opts.leadDark ? ACCENT_DEEP : ACCENT);
       var vx = barX + barW + 6;
       if (opts.shareOnly) {
         doc.font('bold').fontSize(8.3).fillColor(INK).text(fmtPct(it.count / totalCount), vx, ry + 2, { width: valueW, align: 'right', lineBreak: false });
@@ -649,8 +676,8 @@
     y += 16;
     rows.forEach(function(r, i) {
       var isTotal = r.__total;
-      if (isTotal) doc.rect(x, y, totalW, rowH).fill('#EFE7D3');
-      else if (i % 2 === 1) doc.rect(x, y, totalW, rowH).fill(TINT);
+      if (isTotal) doc.rect(x, y, totalW, rowH).fill('#DDD8D2');
+      else if (i % 2 === 1) doc.rect(x, y, totalW, rowH).fill(TRACK);
       cx = x;
       cols.forEach(function(c) {
         var val = c.get(r, i);
@@ -671,8 +698,8 @@
   Brief.prototype.kpi = function(x, y, w, h, value, label, note, noteColor) {
     var doc = this.doc;
     doc.roundedRect(x, y, w, h, 3).fill(TINT);
-    doc.rect(x, y, w, 2.2).fill(GOLD);
-    doc.font('serif').fontSize(22).fillColor(INK).text(value, x + 9, y + 11, { width: w - 18, lineBreak: false });
+    doc.rect(x, y, w, 3).fill(ACCENT);
+    doc.font('display').fontSize(27).fillColor(INK).text(value, x + 9, y + 9, { width: w - 18, lineBreak: false });
     this.caps(label, x + 9, y + 40, { size: 6.4, spacing: 0.8, width: w - 18, color: TEXT });
     if (note) doc.font('regular').fontSize(7.2).fillColor(noteColor || MUTED).text(note, x + 9, y + 60, { width: w - 16, lineGap: 1, height: 30 });
   };
@@ -681,38 +708,56 @@
   // Each draws one block at y and returns the next y. The Analyst and Member briefings compose them.
   var sections = {};
 
+  // Page one opens with the DGG header band (guidelines 07: #1B1416, white horizontal lockup flush left,
+  // gold rule beneath), then the forum's own block on white: shield, eyebrow, Bebas title, dates.
   sections.headerBand = function(b, data, assets, kicker) {
     var doc = b.doc, evt = data.event;
     var start = parseDate(evt.start_date), end = parseDate(evt.end_date);
-    doc.rect(0, 0, PAGE_W, 116).fill(INK);
-    doc.rect(0, 116, PAGE_W, 2.5).fill(GOLD);
-    var textX = M;
+    var bandH = 32;
+    doc.rect(0, 0, PAGE_W, bandH).fill(BAND);
+    doc.rect(0, bandH, PAGE_W, 2).fill(DGG ? DGG.GOLD : ACCENT);
+    if (DGG) DGG.draw(doc, 'horizontal', M, (bandH - 12.5) / 2, 12.5, '#FFFFFF');
+    var top = bandH + 16, textX = M;
     if (assets.logos && assets.logos.event) {
-      doc.image(assets.logos.event, M - 4, 17, { height: 82 });
-      textX = M + 128;
+      doc.image(assets.logos.event, M - 3, top - 3, { height: 68 });
+      textX = M + 110;
     }
-    if (assets.logos && assets.logos.dgg) doc.image(assets.logos.dgg, PAGE_W - M - 62, 30, { height: 52 });
-    b.caps(kicker, textX, 30, { size: 7.5, spacing: 2.2, color: GOLD });
-    doc.font('serif').fontSize(23).fillColor('#FFFFFF').text(evt.event_name, textX, 42, { lineBreak: false });
+    b.caps(kicker, textX, top, { size: 7.5, spacing: 2.2, color: INK });
+    doc.font('display').fontSize(30).fillColor(INK).text(evt.event_name, textX, top + 10, { lineBreak: false });
     var where = [evt.venue, evt.city].filter(Boolean).join(', ');
-    doc.font('regular').fontSize(9.5).fillColor('#D9D4C7').text(fmtDateRange(start, end) + (where ? '   ·   ' + where : ''), textX, 73, { lineBreak: false });
-    doc.font('italic').fontSize(8).fillColor('#A9A498')
-      .text('Presented by the Denver Gold Group since 1989. Matching global capital with global mining.', textX, 88, { lineBreak: false });
-    return 134;
+    doc.font('regular').fontSize(9.5).fillColor(TEXT).text(fmtDateRange(start, end) + (where ? '   ·   ' + where : ''), textX, top + 41, { lineBreak: false });
+    doc.font('italic').fontSize(8).fillColor(MUTED)
+      .text('Presented by the Denver Gold Group since 1989 · Connecting global mining with global capital.', textX, top + 55, { lineBreak: false });
+    var y = top + 70;
+    doc.rect(M, y, CONTENT_W, 2).fill(ACCENT);
+    return y + 16;
   };
 
   sections.runningHead = function(b, data, kicker) {
     var doc = b.doc;
-    doc.rect(0, 0, PAGE_W, 30).fill(INK);
-    doc.rect(0, 30, PAGE_W, 2).fill(GOLD);
+    doc.rect(0, 0, PAGE_W, 30).fill(CARD);
+    doc.rect(0, 30, PAGE_W, 2).fill(ACCENT);
     b.caps(data.event.event_name, M, 11.5, { size: 7.2, spacing: 1.8, color: '#FFFFFF' });
-    b.caps(kicker, PAGE_W - M - 300, 11.5, { size: 7.2, spacing: 1.8, color: GOLD, width: 300, align: 'right' });
+    b.caps(kicker, PAGE_W - M - 300, 11.5, { size: 7.2, spacing: 1.8, color: ACCENT, width: 300, align: 'right' });
     return 46;
   };
 
+  // Ordinals take a superscript suffix ("38TH annual", guidelines 09), set through Lato's own superior figures
   sections.lede = function(b, text, y) {
-    b.doc.font('regular').fontSize(10.4).fillColor(TEXT).text(text, M, y, { width: CONTENT_W, lineGap: 2.6 });
-    return b.doc.y + 12;
+    var doc = b.doc, parts = String(text).split(/(\b\d+(?:st|nd|rd|th)\b)/), first = true;
+    doc.font('regular').fontSize(10.4).fillColor(TEXT);
+    var opts = function(cont, extra) { var o = { width: CONTENT_W, lineGap: 2.6, continued: cont, features: [] }; if (extra) for (var k in extra) o[k] = extra[k]; return o; };
+    parts.forEach(function(part, i) {
+      if (!part) return;
+      var m = /^(\d+)(st|nd|rd|th)$/.exec(part), last = i === parts.length - 1;
+      if (m) {
+        if (first) doc.text(m[1], M, y, opts(true)); else doc.text(m[1], opts(true));
+        doc.text(m[2], opts(!last, { features: ['sups'] }));
+      } else if (first) doc.text(part, M, y, opts(!last));
+      else doc.text(part, opts(!last));
+      first = false;
+    });
+    return doc.y + 12;
   };
 
   // "up 12%" / "down 3%" for running text
@@ -737,7 +782,7 @@
       case 'mcap': return { v: fmtUsd(s.mcap), l: 'Aggregate MC', n: versus(s.mcap, s.priorMcap, fmtUsd), c: tone(s.mcap, s.priorMcap) };
       case 'holdings': return s.holdings ? { v: fmtPct(s.holdings.ratio), l: 'Shareholding',
         n: versus(s.holdings.ratio, s.holdings.priorRatio, function(r) { return fmtPct(r); }), c: tone(s.holdings.ratio, s.holdings.priorRatio) } : null;
-      case 'meetings': return s.meetings ? { v: fmtInt(s.meetings.shownTotal), l: (s.meetings.projected ? 'Proj. accepted meetings' : (s.meetings.informal ? 'One-on-one meetings' : 'Accepted meetings')),
+      case 'meetings': return s.meetings ? { v: fmtInt(s.meetings.shownTotal), l: (s.meetings.projected ? 'Proj. accepted meetings' : (s.meetings.informal ? '1x1 meetings' : 'Accepted meetings')),
         n: versus(s.meetings.shownTotal, s.meetings.priorFinal, fmtInt) || s.meetings.mean.toFixed(1) + ' per issuer', c: tone(s.meetings.shownTotal, s.meetings.priorFinal) } : null;
       case 'buyside': return s.buyside ? { v: fmtInt(s.buyside.value), l: (s.buyside.projected ? 'Proj. buy-side' : 'Buy-side'),
         n: versus(s.buyside.value, s.buyside.prior, fmtInt), c: tone(s.buyside.value, s.buyside.prior) } : null;
@@ -755,15 +800,15 @@
     var colW = (CONTENT_W - 24) / 2, x2 = M + colW + 24, rowH = opts.rowH || 19;
     var secondary = function(it) { return fmtUsd(it.mcap); };
     y = b.sectionTitle(opts.title || (opts.upcoming ? 'Who is taking part' : 'Who took part'), y, 'issuers and aggregate market cap');
-    b.caps('By stage of development', M, y, { color: GOLD_DARK });
-    b.caps('By primary metal', x2, y, { color: GOLD_DARK });
+    b.caps('By stage of development', M, y, { color: INK });
+    b.caps('By primary metal', x2, y, { color: INK });
     var yL = b.barList(s.byStatus, M, y + 13, colW, { labelW: 138, valueW: 70, rowH: rowH, secondary: secondary });
     var yR = b.barList(s.byMineral, x2, y + 13, colW, { labelW: 84, valueW: 70, rowH: rowH, secondary: secondary });
     y = Math.max(yL, yR) + 16;
     if (opts.compact) return y;
     y = b.sectionTitle('Where they operate and list', y, 'issuers and aggregate market cap');
-    b.caps('By primary operations', M, y, { color: GOLD_DARK });
-    b.caps('By primary stock exchange', x2, y, { color: GOLD_DARK });
+    b.caps('By primary operations', M, y, { color: INK });
+    b.caps('By primary stock exchange', x2, y, { color: INK });
     yL = b.barList(s.byCountry, M, y + 13, colW, { labelW: 104, valueW: 70, rowH: rowH, secondary: secondary });
     yR = b.barList(s.byExchange, x2, y + 13, colW, { labelW: 84, valueW: 70, rowH: rowH, secondary: secondary });
     return Math.max(yL, yR);
@@ -772,7 +817,7 @@
   sections.holdings = function(b, s, evt, y) {
     var doc = b.doc, h = s.holdings;
     y = b.sectionTitle('Shareholder representation', y, 'what attending investors already own');
-    doc.font('serif').fontSize(38).fillColor(GOLD_DARK).text(fmtPct(h.ratio), M, y - 4, { lineBreak: false });
+    doc.font('display').fontSize(44).fillColor(INK).text(fmtPct(h.ratio), M, y - 6, { lineBreak: false });
     var bigW = doc.widthOfString(fmtPct(h.ratio));
     doc.font('regular').fontSize(9.6).fillColor(TEXT)
       .text('of aggregate event market cap is held by investors ' + (s.audience && s.audience.checkedIn ? 'who attended' : 'registered to attend') +
@@ -791,11 +836,11 @@
       { label: 'Attendee holdings', w: h.hasMedian ? 84 : 98, align: 'right', font: 'bold', get: function(r) { return fmtUsd(r.held); } },
       { label: 'Share held', w: h.hasMedian ? 74 : 80, get: function() { return ''; }, draw: function(d, r, cx, cy, cw, rh) {
         var bw = cw - 38;
-        d.roundedRect(cx + 5, cy + rh / 2 - 3, bw, 6, 1.5).fill(r.__total ? '#DDD2B4' : TRACK);
-        d.roundedRect(cx + 5, cy + rh / 2 - 3, Math.max(bw * (r.ratio || 0) / maxRatio, 1.5), 6, 1.5).fill(r.__total ? INK : GOLD);
+        d.roundedRect(cx + 5, cy + rh / 2 - 3, bw, 6, 1.5).fill(r.__total ? RULE : TRACK);
+        d.roundedRect(cx + 5, cy + rh / 2 - 3, Math.max(bw * (r.ratio || 0) / maxRatio, 1.5), 6, 1.5).fill(r.__total ? INK : ACCENT);
         d.font('bold').fontSize(8.2).fillColor(INK).text(fmtPct(r.ratio), cx + bw + 8, cy + rh / 2 - 4.7, { width: 27, align: 'right', lineBreak: false });
       } });
-    y = b.table(cols, tierRows, M, y, { rowH: 16 });
+    y = b.table(cols, tierRows, M, y, { rowH: 15 });
     doc.font('italic').fontSize(7.2).fillColor(MUTED)
       .text('Attendee holdings: the value of shares in participating issuers held by investment firms ' + (s.audience && s.audience.checkedIn ? 'that attended the forum' : 'registered for the forum') +
         (h.hasMedian ? '. Median market cap from the event roster' : '') + '. Source: Denver Gold Group.', M, y + 5, { width: CONTENT_W });
@@ -808,8 +853,8 @@
     y = b.sectionTitle(opts.title || 'The audience', y, fmtInt(a.total) + ' ' + a.phrase +
       (a.countries.length ? ' from ' + a.countries.length + ' countries' : ''));
     var colW = (CONTENT_W - 24) / 2;
-    b.caps(a.mixLabel, M, y, { color: GOLD_DARK });
-    b.caps('Buy-side by type', M + colW + 24, y, { color: GOLD_DARK });
+    b.caps(a.mixLabel, M, y, { color: INK });
+    b.caps('Buy-side by type', M + colW + 24, y, { color: INK });
     var rowH = opts.rowH || 15.5;
     var y1 = b.barList(a.mix, M, y + 13, colW, { labelW: 132, valueW: 62, rowH: rowH });
     var y2 = b.barList(a.buySubs, M + colW + 24, y + 13, colW, { labelW: 132, valueW: 62, rowH: rowH, shareOnly: a.projected });
@@ -838,14 +883,14 @@
       if (rest > 0) top.push({ label: 'All other countries', count: rest });
       return top;
     };
-    b.caps('Attendees by country', M, y, { color: GOLD_DARK });
-    b.caps('Buy-side by country', M + colW + 24, y, { color: GOLD_DARK });
+    b.caps('Attendees by country', M, y, { color: INK });
+    b.caps('Buy-side by country', M + colW + 24, y, { color: INK });
     var y1 = b.barList(fold(a.countries), M, y + 13, colW, { labelW: 132, valueW: 62, rowH: 15.5 });
     var y2 = b.barList(fold(a.buyCountries), M + colW + 24, y + 13, colW, { labelW: 132, valueW: 62, rowH: 15.5 });
     return Math.max(y1, y2);
   };
 
-  // Average one-on-one meetings per issuer: by stage of development on the left, by primary metal on the right
+  // Average 1x1 meetings per issuer: by stage of development on the left, by primary metal on the right
   sections.meetingsByGroup = function(b, s, y, maxRows) {
     var m = s.meetings, colW = (CONTENT_W - 24) / 2;
     var word = m.projected ? ', projected' : '';
@@ -853,8 +898,8 @@
     var opts = { labelW: 132, valueW: 62, rowH: 14, fmtValue: function(v) { return v.toFixed(1); },
       secondary: function(it) { return fmtInt(it.issuers); } };
     var rows = function(list) { return list.slice(0, maxRows).map(function(g) { return { label: g.label, count: g.avg, issuers: g.issuers }; }); };
-    b.caps('Average meetings by stage' + word + ' (issuers)', M, y, { color: GOLD_DARK });
-    b.caps('Average meetings by primary metal' + word + ' (issuers)', M + colW + 24, y, { color: GOLD_DARK });
+    b.caps('Average meetings by stage' + word + ' (issuers)', M, y, { color: INK });
+    b.caps('Average meetings by primary metal' + word + ' (issuers)', M + colW + 24, y, { color: INK });
     var y1 = b.barList(rows(m.byStatus), M, y + 13, colW, opts);
     var y2 = b.barList(rows(m.byMineral), M + colW + 24, y + 13, colW, opts);
     return Math.max(y1, y2);
@@ -866,8 +911,8 @@
     var lead = c.ceoCompanies && c.issuers ? c.ceoCompanies / c.issuers : c.share;
     var past = s.audience.checkedIn;
     doc.roundedRect(M, y, CONTENT_W, boxH, 3).fill(TINT);
-    doc.rect(M, y, 3, boxH).fill(GOLD);
-    doc.font('serif').fontSize(26).fillColor(GOLD_DARK).text(fmtPct(lead), M + 13, y + 5, { lineBreak: false });
+    doc.rect(M, y, 3, boxH).fill(ACCENT);
+    doc.font('display').fontSize(30).fillColor(INK).text(fmtPct(lead), M + 13, y + 4, { lineBreak: false });
     var cw = doc.widthOfString(fmtPct(lead));
     var parts = [fmtInt(c.ceo) + ' CEOs, presidents and managing directors', fmtInt(c.cfo) + ' CFOs'];
     if (c.other) parts.push(fmtInt(c.other) + ' other chief officers');
@@ -882,14 +927,14 @@
       line = 'of the ' + fmtInt(c.delegates) + ' corporate delegates ' + (past ? 'were' : 'are') + ' C-suite executives: ' + breakdown + '.';
     }
     var tx = M + 26 + cw;
-    b.caps('C-suite representation', tx, y + 6, { size: 6.4, spacing: 1, color: GOLD_DARK });
+    b.caps('C-suite representation', tx, y + 6, { size: 6.4, spacing: 1, color: INK });
     doc.font('regular').fontSize(8.4).fillColor(TEXT).text(line, tx, y + 15.5, { width: PAGE_W - M - tx - 10, lineGap: 1.2, height: 22, ellipsis: true });
     return y + boxH;
   };
 
   sections.meetings = function(b, s, evt, y) {
     var doc = b.doc, m = s.meetings;
-    y = b.sectionTitle('One-on-one meetings', y, 'between issuers and investors');
+    y = b.sectionTitle('1x1 meetings', y, 'between issuers and investors');
     var cells = [[fmtInt(m.shownTotal), m.projected ? 'meetings, projected final tally' : 'meetings held']];
     if (m.priorFinal) cells.push([fmtSigned(m.shownTotal / m.priorFinal - 1), 'against ' + fmtInt(m.priorFinal) + ' final meetings in ' + (evt.year - 1)]);
     var projWord = m.projected ? ', projected' : '';
@@ -899,7 +944,7 @@
     cells.forEach(function(cell, i) {
       var cx = M + i * cellW;
       if (i) doc.moveTo(cx - 8, y + 2).lineTo(cx - 8, y + 50).lineWidth(0.5).strokeColor(RULE).stroke();
-      doc.font('serif').fontSize(22).fillColor(i === 0 ? GOLD_DARK : INK).text(cell[0], cx, y, { lineBreak: false });
+      doc.font('display').fontSize(27).fillColor(INK).text(cell[0], cx, y - 2, { lineBreak: false });
       doc.font('regular').fontSize(7.8).fillColor(MUTED).text(cell[1], cx, y + 27, { width: cellW - 18, lineGap: 0.8, height: 30 });
     });
     y += 60;
@@ -970,7 +1015,7 @@
     var tone = function(v) { return v == null ? MUTED : (v >= 100 ? UP : DOWN); };
     y = b.sectionTitle('Webcast performance', y, 'relative to ' + w.priorYear + ' at the same point after its forum');
     // The headline score
-    doc.font('serif').fontSize(38).fillColor(all.rwp >= 100 ? GOLD_DARK : DOWN).text(fmtIdx(all.rwp), M, y - 4, { lineBreak: false });
+    doc.font('display').fontSize(44).fillColor(all.rwp >= 100 ? INK : DOWN).text(fmtIdx(all.rwp), M, y - 6, { lineBreak: false });
     var bigW = doc.widthOfString(fmtIdx(all.rwp));
     doc.font('regular').fontSize(9.6).fillColor(TEXT)
       .text('Relative Webcast Performance (RWP) across ' + fmtInt(w.webcasts) + ' presentation webcasts, against ' + fmtInt(w.priorWebcasts) +
@@ -982,13 +1027,13 @@
     var gap = 8, tw = (CONTENT_W - gap * 3) / 4;
     comps.forEach(function(c, i) {
       var x = M + i * (tw + gap);
-      doc.roundedRect(x, y, tw, 74, 3).fill(TINT);
-      doc.rect(x, y, tw, 2.2).fill(c[1] == null ? MUTED : (c[1] >= 100 ? GOLD : DOWN));
-      doc.font('serif').fontSize(22).fillColor(tone(c[1])).text(fmtIdx(c[1]), x + 9, y + 11, { lineBreak: false });
-      b.caps(c[0], x + 9, y + 40, { size: 6.4, spacing: 0.8, color: TEXT });
-      doc.font('regular').fontSize(7.2).fillColor(MUTED).text(c[2] + ', ' + w.priorYear + ' = 100', x + 9, y + 52, { width: tw - 16, lineBreak: false });
+      doc.roundedRect(x, y, tw, 70, 3).fill(TINT);
+      doc.rect(x, y, tw, 2.2).fill(c[1] == null ? MUTED : (c[1] >= 100 ? ACCENT : DOWN));
+      doc.font('display').fontSize(27).fillColor(tone(c[1])).text(fmtIdx(c[1]), x + 9, y + 9, { lineBreak: false });
+      b.caps(c[0], x + 9, y + 38, { size: 6.4, spacing: 0.8, color: TEXT });
+      doc.font('regular').fontSize(7.2).fillColor(MUTED).text(c[2] + ', ' + w.priorYear + ' = 100', x + 9, y + 49, { width: tw - 16, lineBreak: false });
     });
-    y += 74 + 10;
+    y += 70 + 10;
     // The webcast site itself, as a rate per 30 days so unequal spans compare
     if (s.site) {
       var st = s.site;
@@ -1029,7 +1074,7 @@
       .text(evt.event_name + ' is organized by the Denver Gold Group, a not-for-profit association of the mining industry. ' +
         'It takes no commissions, deal flow or advisory fees from the issuers or investors that take part, ' +
         'and presenting issuers are scheduled on equal terms, by seniority. ', M, y, { width: CONTENT_W, lineGap: 2.2, continued: true })
-      .font('bold').fillColor(GOLD_DARK).text('denvergold.org', { link: 'https://www.denvergold.org', underline: false, continued: false });
+      .font('bold').fillColor(INK).text('denvergold.org', { link: 'https://www.denvergold.org', underline: false, continued: false });
     return doc.y;
   };
 
@@ -1043,7 +1088,7 @@
     y = b.sectionTitle(opts.title || 'Event partners', y, opts.kicker || 'the firms that make the Forum more affordable and attractive to investors');
     var cols = 4, rowH = 14, colW = CONTENT_W / cols, rows = Math.ceil(names.length / cols);
     doc.rect(M, y - 2, CONTENT_W, rows * rowH + 8).fill(TINT);
-    doc.rect(M, y - 2, CONTENT_W, 2.2).fill(GOLD);
+    doc.rect(M, y - 2, CONTENT_W, 2.2).fill(ACCENT);
     names.forEach(function(n, i) {
       var c = i % cols, r = Math.floor(i / cols);
       doc.font('bold').fontSize(8.4).fillColor(TEXT).text(n, M + 9 + c * colW, y + 6 + r * rowH, { width: colW - 14, lineBreak: false, ellipsis: true });
@@ -1061,12 +1106,12 @@
       ['Summaries', 'A concise summary of each presentation, so a reader can decide in a minute whether to watch.'],
       ['Key moments', 'The moments that matter, built with a custom mining taxonomy and embedded as video chapters to jump straight to.']
     ];
-    var gap = 8, tw = (CONTENT_W - gap * 3) / 4, th = 78;
+    var gap = 8, tw = (CONTENT_W - gap * 3) / 4, th = 74;
     items.forEach(function(it, i) {
       var x = M + i * (tw + gap);
       doc.roundedRect(x, y, tw, th, 3).fill(TINT);
-      doc.rect(x, y, tw, 2.2).fill(GOLD);
-      doc.font('serif').fontSize(11).fillColor(INK).text(it[0], x + 9, y + 11, { width: tw - 18, lineBreak: false });
+      doc.rect(x, y, tw, 2.2).fill(ACCENT);
+      doc.font('display').fontSize(13).fillColor(INK).text(it[0], x + 9, y + 10, { width: tw - 18, lineBreak: false });
       doc.font('regular').fontSize(7.6).fillColor(TEXT).text(it[1], x + 9, y + 28, { width: tw - 18, lineGap: 1.2, height: th - 30, ellipsis: true });
     });
     return y + th;
@@ -1080,20 +1125,25 @@
     opts = opts || {};
     y = b.sectionTitle(opts.title || 'Join us in ' + forums[0].year, y, opts.kicker || 'the Denver Gold Group forums to come');
     // Logo across the top of each card, the words beneath it
-    var gap = 10, cw = (CONTENT_W - gap * (forums.length - 1)) / forums.length, ch = sections.nextForums.CARD_H, logoH = 54;
+    // Each card on its own forum's ground (guidelines 07.1), the shield as supplied on the forum colour
+    var gap = 10, cw = (CONTENT_W - gap * (forums.length - 1)) / forums.length, ch = sections.nextForums.CARD_H, logoH = 50;
     forums.forEach(function(f, i) {
       var x = M + i * (cw + gap), tx = x + 10, tw = cw - 20;
-      doc.roundedRect(x, y, cw, ch, 3).fill(TINT);
-      doc.rect(x, y, cw, 2.2).fill(GOLD);
+      var g = FORUM[String(f.code).toLowerCase().replace(/\d+$/, '')] || FORUM.mfa;
+      if (g.grad) {
+        var grad = doc.linearGradient(x, y, x + cw, y + ch);
+        grad.stop(0, g.grad[0]).stop(0.45, g.grad[1]).stop(1, g.grad[2]);
+        doc.roundedRect(x, y, cw, ch, 4).fill(grad);
+      } else doc.roundedRect(x, y, cw, ch, 4).fill(g.fill);
       var logo = assets && assets.logos && assets.logos[f.code.toLowerCase()];
-      if (logo) doc.image(logo, x + 10, y + 10, { fit: [tw, logoH], align: 'center', valign: 'center' });
-      b.caps(f.event_name, tx, y + logoH + 20, { size: 6.4, spacing: 0.9, color: GOLD_DARK, width: tw });
-      doc.font('serif').fontSize(11).fillColor(INK).text(f.dates, tx, y + logoH + 32, { width: tw, lineBreak: false });
-      doc.font('regular').fontSize(8).fillColor(TEXT).text([f.venue, f.city].filter(Boolean).join('\n'), tx, y + logoH + 47, { width: tw, lineGap: 1 });
+      if (logo) doc.image(logo, x + 10, y + 9, { fit: [tw, logoH], align: 'center', valign: 'center' });
+      b.caps(f.event_name, tx, y + logoH + 17, { size: 6.4, spacing: 0.9, color: g.eyebrow, width: tw });
+      doc.font('display').fontSize(13).fillColor(g.text).text(f.dates, tx, y + logoH + 27, { width: tw, lineBreak: false });
+      doc.font('regular').fontSize(8).fillColor(g.sub).text([f.venue, f.city].filter(Boolean).join('\n'), tx, y + logoH + 43, { width: tw, lineGap: 1 });
     });
     return y + ch;
   };
-  sections.nextForums.CARD_H = 122;
+  sections.nextForums.CARD_H = 114;
 
   // ── Pages ────────────────────────────────────────────
   function pageOne(b, data, s, assets, asOf) {
@@ -1106,7 +1156,7 @@
     var lede = fmtInt(s.n) + ' mining issuers with an aggregate market capitalization of ' + fmtUsdWords(s.mcap) +
       (upcoming ? ' will take part in ' : ' took part in ') + nth + evt.event_name +
       (s.meetingsOnly ? ': ' + fmtInt(s.presenters) + (upcoming ? ' will present' : ' presented') + ' and ' + fmtInt(s.meetingsOnly) +
-        (upcoming ? ' will take' : ' took') + ' one-on-one meetings only.' : '.');
+        (upcoming ? ' will take' : ' took') + ' 1x1 meetings only.' : '.');
     if (s.holdings && s.holdings.ratio != null) {
       lede += ' Investors ' + (s.audience && s.audience.checkedIn ? 'who attended the forum hold ' : 'registered for the forum hold ') + fmtUsdWords(s.holdings.held) + ' of those issuers’ shares, ' +
         fmtPct(s.holdings.ratio) + ' of aggregate event market cap' +
@@ -1131,14 +1181,14 @@
     var hasMetal = sections.marketFits(evt, metal);
     // A sparser page gets more air between sections
     var n = (s.holdings ? 1 : 0) + (s.audience ? 1 : 0) + (s.meetings ? 1 : 0) + (hasMetal ? 1 : 0);
-    var gapY = n >= 4 ? 12 : 26;
+    var gapY = n >= 4 ? 8 : 26;
     if (s.holdings) y = sections.holdings(b, s, evt, y) + gapY;
-    if (s.audience) y = sections.audience(b, s, y) + gapY;
+    if (s.audience) y = sections.audience(b, s, y, { rowH: n >= 4 ? 14.5 : 15.5 }) + gapY;
     if (s.meetings) y = sections.meetings(b, s, evt, y) + gapY;
-    if (hasMetal) y = sections.market(b, evt, metal, y, { rowH: n >= 4 ? 13 : 14 });
+    if (hasMetal) y = sections.market(b, evt, metal, y, { rowH: n >= 4 ? 12.5 : 14 });
     // When a section is missing the page has room to spare: use it to say who stands behind the forum
-    if (PAGE_H - 48 - y > 96) sections.about(b, evt, y + gapY);
-    b.footer(2, asOf);
+    if (PAGE_H - Brief.BACK_FOOTER_H - 8 - y > 96) sections.about(b, evt, y + gapY);
+    b.footer(2, asOf, 2, { back: true });
   }
 
   // ── Entry point ──────────────────────────────────────
@@ -1160,7 +1210,7 @@
     doc.registerFont('black', f.black || f.bold);
     doc.registerFont('light', f.light || f.regular);
     doc.registerFont('italic', f.italic || f.regular);
-    doc.registerFont('serif', f.serif);
+    doc.registerFont('display', f.display || f.serif);
 
     var s = summarise(data, asOf);
     var b = new Brief(doc);
@@ -1173,7 +1223,7 @@
   var api = { generate: generate, summarise: summarise, sections: sections,
     // Shared with the Member Post-Show Briefing (member-brief.js)
     Brief: Brief, fmt: { int: fmtInt, usd: fmtUsd, usdWords: fmtUsdWords, pct: fmtPct, signed: fmtSigned, price: fmtPrice, date: fmtDate, dateRange: fmtDateRange, ordinal: ordinal, parseDate: parseDate },
-    style: { INK: INK, GOLD: GOLD, GOLD_DARK: GOLD_DARK, TEXT: TEXT, MUTED: MUTED, RULE: RULE, TINT: TINT, TRACK: TRACK, UP: UP, DOWN: DOWN, PAGE_W: PAGE_W, PAGE_H: PAGE_H, M: M, CONTENT_W: CONTENT_W } };
+    style: { INK: INK, ACCENT: ACCENT, ACCENT: ACCENT, INK: INK, TEXT: TEXT, MUTED: MUTED, RULE: RULE, TINT: TINT, TRACK: TRACK, UP: UP, DOWN: DOWN, PAGE_W: PAGE_W, PAGE_H: PAGE_H, M: M, CONTENT_W: CONTENT_W } };
   if (typeof module !== 'undefined' && module.exports) module.exports = api;
   else root.AnalystBrief = api;
 })(typeof window !== 'undefined' ? window : this);

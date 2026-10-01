@@ -36,7 +36,7 @@
     var days = null;
     var start = F.parseDate(evt.start_date), end = F.parseDate(evt.end_date);
     if (start && end) days = Math.round((end - start) / 864e5) + 1;
-    var split = s.meetingsOnly ? ', ' + F.int(s.presenters) + ' of them presenting and ' + F.int(s.meetingsOnly) + ' taking one-on-one meetings only' : '';
+    var split = s.meetingsOnly ? ', ' + F.int(s.presenters) + ' of them presenting and ' + F.int(s.meetingsOnly) + ' taking 1x1 meetings only' : '';
     var first = 'Thank you for taking part in ' + nth + evt.event_name + '. ' +
       (days ? 'Over ' + ['one', 'two', 'three', 'four', 'five'][days - 1] + ' days, ' : '') +
       F.int(s.n) + ' issuers with an aggregate market capitalization of ' + F.usdWords(s.mcap) + ' took part' + split +
@@ -47,7 +47,7 @@
         ' of aggregate event market cap' + (h.priorRatio != null ? ', against ' + F.pct(h.priorRatio) + ' last year.' : '.')
       : null;
     var third = m
-      ? F.int(m.shownTotal) + ' one-on-one meetings were ' + (m.projected ? 'projected' : 'held') +
+      ? F.int(m.shownTotal) + ' 1x1 meetings were ' + (m.projected ? 'projected' : 'held') +
         (m.perIssuer != null ? ', ' + m.perIssuer.toFixed(1) + ' on average for each issuer taking meetings' : '') +
         (m.priorFinal ? ' (' + F.int(m.priorFinal) + ' in ' + (evt.year - 1) + ').' : '.')
       : null;
@@ -92,16 +92,16 @@
   function pageThree(b, data, s, assets, asOf) {
     var evt = data.event;
     var y = S.runningHead(b, data, KICKER);
-    if (s.webcast) y = S.webcast(b, s, y) + 14;
-    y = S.recordings(b, evt, y) + 14;
-    y = S.about(b, evt, y) + 14;
+    if (s.webcast) y = S.webcast(b, s, y) + 8;
+    y = S.recordings(b, evt, y) + 8;
+    y = S.about(b, evt, y) + 8;
     var forums = nextForums(evt.year);
     if (forums.length) {
       // Anchor the cards to the foot of the page when there is room to spare
-      var h = 31 + S.nextForums.CARD_H, bottom = ST.PAGE_H - 56;
+      var h = 31 + S.nextForums.CARD_H, bottom = ST.PAGE_H - AB.Brief.BACK_FOOTER_H - 10;
       S.nextForums(b, forums, assets, Math.max(y, bottom - h));
     }
-    b.footer(3, asOf, 3);
+    b.footer(3, asOf, 3, { back: true });
   }
 
   function generate(PDFDocument, data, assets, metal) {
@@ -118,7 +118,7 @@
     doc.registerFont('black', f.black || f.bold);
     doc.registerFont('light', f.light || f.regular);
     doc.registerFont('italic', f.italic || f.regular);
-    doc.registerFont('serif', f.serif);
+    doc.registerFont('display', f.display || f.serif);
     var s = AB.summarise(data, asOf);
     var b = new AB.Brief(doc);
     var pages = 3;
