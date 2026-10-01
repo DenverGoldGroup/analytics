@@ -377,7 +377,7 @@
       <!-- Analyst Briefing PDF -->
       <div class="upload-section" style="border:2px solid #E8DDBF">
         <h3>Briefings (PDF)</h3>
-        <div class="desc">Generate a fresh two-page, Denver Gold Group and event-branded briefing from the data loaded at this moment, so upload the latest attendees, meetings and holdings first. The <strong>Analyst Briefing</strong> is for sell-side analysts: issuers and market cap, shareholder representation, the audience and its C-suite presence, 1x1 meetings and the metals backdrop. The <strong>Member and Partner Post-Show Briefing</strong> is for presenting issuers and event partners after the forum: the same figures, led by who was in the room, what they own and the meetings held, plus the event partners, webcast performance and the forums to come. Partners come from the PSR sponsors table for the event.</div>
+        <div class="desc">Generate a fresh three-page, Denver Gold Group and event-branded briefing from the data loaded at this moment, so upload the latest attendees, meetings and holdings first. The <strong>Analyst Briefing</strong> is for sell-side analysts: issuers and market cap, shareholder representation, the audience and its C-suite presence, 1x1 meetings and the metals backdrop, then after the forum the meetings by stage and metal, webcast performance and the forums to come. The <strong>Member and Partner Post-Show Briefing</strong> is for presenting issuers and event partners after the forum: the same figures, led by who was in the room, what they own and the meetings held, plus the event partners, webcast performance and the forums to come. Partners come from the PSR sponsors table for the event.</div>
         <div class="upload-row">
           <div style="min-width:110px">
             <select id="ab-event" onchange="loadBriefInputs()" style="width:100%;padding:8px 12px;font-size:12px;font-family:inherit;border:2px solid #E0E0E0;border-radius:6px;background:#fff">
@@ -1276,8 +1276,8 @@
           loadScriptOnce('/js/metal-history.js?v=4'),
           // analyst-brief.js reads DGGMark and AttendeeProjection as it loads, so those two must be in first
           loadScriptOnce('/js/dgg-mark.js?v=1').then(function() { return loadScriptOnce('/js/attendee-projection.js?v=2'); })
-            .then(function() { return loadScriptOnce('/js/analyst-brief.js?v=31'); })
-            .then(function() { return loadScriptOnce('/js/member-brief.js?v=8'); }),
+            .then(function() { return loadScriptOnce('/js/analyst-brief.js?v=32'); })
+            .then(function() { return loadScriptOnce('/js/member-brief.js?v=9'); }),
         ]).catch(function(err) { _abLibs = null; throw err; });
       }
       return _abLibs;
@@ -1423,9 +1423,9 @@
           fonts: { regular: loaded[1], bold: loaded[2], black: loaded[3], light: loaded[4], italic: loaded[5], display: loaded[6] },
           logos: { event: loaded[7], dgg: loaded[8] }
         };
-        if (isMember) {
-          // The member briefing ends with the forums to come, each with its logo
-          var coming = MemberBrief.nextForums(data.event.year);
+        {
+          // Both briefings end with the forums to come, each with its logo
+          var coming = AnalystBrief.nextForums(data.event.year);
           var comingLogos = await Promise.all(coming.map(function(f) { return fetchBinary('/logos/' + f.code + '-logo.png', true); }));
           coming.forEach(function(f, i) { if (comingLogos[i]) assets.logos[f.code] = comingLogos[i]; });
         }

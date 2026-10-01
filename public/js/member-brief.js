@@ -9,20 +9,8 @@
   var S = AB.sections, F = AB.fmt, ST = AB.style;
   var KICKER = 'Member and partner post-show briefing';
 
-  // The forums to come, shown at the foot of the last page. Logos are /logos/<code>-logo.png;
-  // admin.html and the node harness load one per entry into assets.logos[code].
-  var NEXT_FORUMS = {
-    2027: [
-      { code: 'mfe27', event_name: 'Mining Forum Europe 2027', year: 2027, dates: 'April 12–15, 2027', venue: 'Park Hyatt Zürich', city: 'Zürich, Switzerland' },
-      { code: 'mfa27', event_name: 'Mining Forum Americas 2027', year: 2027, dates: 'September 19–22, 2027', venue: 'The Broadmoor', city: 'Colorado Springs, Colorado' },
-      { code: 'mfau27', event_name: 'Mining Forum Australia 2027', year: 2027, dates: 'October 26–28, 2027', venue: 'Hilton Sydney', city: 'Sydney, Australia' }
-    ]
-  };
-
-  // The forums that follow the event of `year`
-  function nextForums(year) {
-    return NEXT_FORUMS[year + 1] || [];
-  }
+  // The forums to come live in analyst-brief.js, shared by both briefings
+  var nextForums = AB.nextForums, NEXT_FORUMS = AB.NEXT_FORUMS;
 
   function join(parts) {
     return parts.filter(Boolean).join(' ');

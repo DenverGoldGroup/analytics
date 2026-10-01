@@ -1,4 +1,4 @@
-// Analyst Briefing — a two-page, vector PDF summarizing an event for sell-side analysts.
+// Analyst Briefing — a three-page, vector PDF summarizing an event for sell-side analysts.
 // Pure layout: takes a PDFKit constructor, the 'analyst-brief-data' API payload, binary assets
 // (fonts + logos) and the shared metal history, and returns the PDFKit document.
 // Runs unchanged in the browser (pdfkit.standalone) and in node (tests).
@@ -1009,8 +1009,9 @@
 
   // Webcast performance: the RWP score, its four REEI components, and the score by issuer stage.
   // Indices only; the underlying view counts are never printed.
-  sections.webcast = function(b, s, y) {
+  sections.webcast = function(b, s, y, opts) {
     var doc = b.doc, w = s.webcast, all = w.all;
+    opts = opts || {};
     var fmtIdx = function(v) { return v == null ? '—' : String(Math.round(v)); };
     var tone = function(v) { return v == null ? MUTED : (v >= 100 ? UP : DOWN); };
     y = b.sectionTitle('Webcast performance', y, 'relative to ' + w.priorYear + ' at the same point after its forum');
@@ -1045,7 +1046,7 @@
         .font('regular').fillColor(TEXT).text(').', { continued: false });
       y = doc.y + 8;
     }
-    if (w.byStatus.length) {
+    if (w.byStatus.length && !opts.noTable) {
       var col = function(label, key) {
         return { label: label, w: 62, align: 'right', get: function() { return ''; }, draw: function(d, r, cx, cy, cw, rh) {
           var v = r.score[key];
@@ -1117,6 +1118,18 @@
     return y + th;
   };
 
+  // The forums to come, shown at the foot of each briefing's last page. Logos are /logos/<code>-logo.png;
+  // admin.html and the node harness load one per entry into assets.logos[code].
+  var NEXT_FORUMS = {
+    2027: [
+      { code: 'mfe27', event_name: 'Mining Forum Europe 2027', year: 2027, dates: '12–15 April 2027', venue: 'Park Hyatt Zürich', city: 'Zürich, Switzerland' },
+      { code: 'mfa27', event_name: 'Mining Forum Americas 2027', year: 2027, dates: '19–22 September 2027', venue: 'The Broadmoor', city: 'Colorado Springs, Colorado' },
+      { code: 'mfau27', event_name: 'Mining Forum Australia 2027', year: 2027, dates: '26–28 October 2027', venue: 'Hilton Sydney', city: 'Sydney, Australia' }
+    ]
+  };
+  // The forums that follow the event of `year`
+  function nextForums(year) { return NEXT_FORUMS[year + 1] || []; }
+
   // The forums to come: one card per forum with its logo, dates and venue
   sections.nextForums = function(b, forums, assets, y, opts) {
     var doc = b.doc;
@@ -1187,8 +1200,27 @@
     if (s.meetings) y = sections.meetings(b, s, evt, y) + gapY;
     if (hasMetal) y = sections.market(b, evt, metal, y, { rowH: n >= 4 ? 12.5 : 14 });
     // When a section is missing the page has room to spare: use it to say who stands behind the forum
-    if (PAGE_H - Brief.BACK_FOOTER_H - 8 - y > 96) sections.about(b, evt, y + gapY);
-    b.footer(2, asOf, 2, { back: true });
+    if (PAGE_H - Brief.FOOTER_H - 8 - y > 96) sections.about(b, evt, y + gapY);
+    b.footer(2, asOf, 3);
+  }
+
+  // After the forum: meetings by stage and metal, the webcasts and what is new in them, the forums to come
+  function pageThree(b, data, s, assets, asOf) {
+    var evt = data.event;
+    var y = sections.runningHead(b, data, 'Analyst briefing');
+    if (s.meetings && s.meetings.byStatus && s.meetings.byStatus.length) {
+      y = b.sectionTitle('1x1 meetings by stage and metal', y, 'average per issuer taking meetings');
+      y = sections.meetingsByGroup(b, s, y, 8) + 14;
+    }
+    if (s.webcast) y = sections.webcast(b, s, y, { noTable: true }) + 10;
+    y = sections.recordings(b, evt, y) + 10;
+    var forums = nextForums(evt.year);
+    if (forums.length) {
+      var h = 31 + sections.nextForums.CARD_H, bottom = PAGE_H - Brief.BACK_FOOTER_H - 10;
+      if (bottom - y > h + 70) y = sections.about(b, evt, y) + 10;
+      sections.nextForums(b, forums, assets, Math.max(y, bottom - h));
+    } else if (PAGE_H - Brief.BACK_FOOTER_H - y > 70) sections.about(b, evt, y);
+    b.footer(3, asOf, 3, { back: true });
   }
 
   // ── Entry point ──────────────────────────────────────
@@ -1217,10 +1249,12 @@
     pageOne(b, data, s, assets, asOf);
     doc.addPage({ size: 'LETTER', margin: 0 });
     pageTwo(b, data, s, metal, asOf);
+    doc.addPage({ size: 'LETTER', margin: 0 });
+    pageThree(b, data, s, assets, asOf);
     return doc;
   }
 
-  var api = { generate: generate, summarise: summarise, sections: sections,
+  var api = { generate: generate, summarise: summarise, sections: sections, nextForums: nextForums, NEXT_FORUMS: NEXT_FORUMS,
     // Shared with the Member Post-Show Briefing (member-brief.js)
     Brief: Brief, fmt: { int: fmtInt, usd: fmtUsd, usdWords: fmtUsdWords, pct: fmtPct, signed: fmtSigned, price: fmtPrice, date: fmtDate, dateRange: fmtDateRange, ordinal: ordinal, parseDate: parseDate },
     style: { INK: INK, ACCENT: ACCENT, ACCENT: ACCENT, INK: INK, TEXT: TEXT, MUTED: MUTED, RULE: RULE, TINT: TINT, TRACK: TRACK, UP: UP, DOWN: DOWN, PAGE_W: PAGE_W, PAGE_H: PAGE_H, M: M, CONTENT_W: CONTENT_W } };
