@@ -296,7 +296,7 @@
       <!-- Upload: Companies CSV -->
       <div class="upload-section">
         <h3>Upload Companies <span style="font-weight:400;color:#888;font-size:12px">(fallback for the EMS sync)</span></h3>
-        <div class="desc">Replace the DGG member roster with the CSV when EMS cannot supply it. Existing companies are updated in place, new ones are added, and companies not in the file leave the roster (kept, off the roster, when a past event refers to them). Event participations are not touched. The next EMS sync replaces this.</div>
+        <div class="desc">Use when EMS cannot supply the roster. Delete and replace: the <strong>companies</strong> table and <strong>all event participations</strong> are cleared and the companies reloaded from the CSV, so re-upload each event's participations afterwards (and reload the hand-loaded MFA25 rows). The next EMS sync then refreshes the roster and any event whose registration is open.</div>
         <div class="upload-row">
           <div class="file-input-wrap">
             <input type="file" id="companies-file" accept=".json,.csv">
