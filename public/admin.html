@@ -289,6 +289,7 @@
           <button class="btn" onclick="emsSync(true)">Preview (changes nothing)</button>
           <button class="btn btn-gold" onclick="emsSync(false)">Sync from EMS now</button>
           <button class="btn" onclick="emsSyncLog()">Show recent runs</button>
+          <button class="btn" onclick="rosterOverrides()">Roster overrides</button>
         </div>
         <div id="ems-sync-out" style="display:none;margin-top:10px;font-size:12px"></div>
       </div>
@@ -1408,6 +1409,9 @@
         var ro = res.roster || {};
         lines.push('Roster: ' + ro.status + (ro.reason ? ' (' + ro.reason + ')' : '') +
           (ro.ems != null ? ' · EMS ' + ro.ems + ', held ' + ro.held + ', updated ' + ro.updated + ', added ' + ro.added + ', removed ' + ro.removed + ', kept for past events ' + ro.kept_for_past_events + ', without market cap ' + ro.without_market_cap : ''));
+        if (ro.kept_by_override_names && ro.kept_by_override_names.length) lines.push('  Kept on the roster by DGG override: ' + ro.kept_by_override_names.join('; '));
+        if (ro.override_now_listed && ro.override_now_listed.length) lines.push('  Now listed by EMS, so their override can be removed: ' + ro.override_now_listed.join('; '));
+        if (ro.merged_duplicates) lines.push('  Duplicate rows merged: ' + ro.merged_duplicates);
         if (ro.joining && ro.joining.length) lines.push('  Joining: ' + ro.joining.join('; '));
         if (ro.leaving && ro.leaving.length) lines.push('  Leaving: ' + ro.leaving.join('; '));
         if (Array.isArray(res.events)) {
@@ -1442,6 +1446,55 @@
         }).join('\n') : 'No runs yet.';
         out.innerHTML = ''; out.appendChild(pre);
       } catch (err) { out.textContent = 'Could not load the log: ' + err.message; }
+    }
+
+    // Roster overrides: members DGG knows are paid but EMS's dues rule does not count (a different payment
+    // method). The sync keeps them on the roster; fix the payment record in EMS, then remove the override.
+    async function rosterOverrides() {
+      var out = document.getElementById('ems-sync-out');
+      out.style.display = 'block';
+      out.textContent = 'Loading...';
+      try {
+        var r = await fetch('/api/psr?action=roster-overrides', { headers: { 'Authorization': 'Bearer ' + adminToken } });
+        var d = await r.json();
+        if (!d.ok) throw new Error(d.error || 'Could not load overrides');
+        out.innerHTML = '';
+        var intro = document.createElement('div');
+        intro.style.cssText = 'margin-bottom:6px;color:#555';
+        intro.textContent = 'Companies kept on the roster although EMS does not count them as in good standing (paid, but recorded differently in EMS). Fix the payment in EMS, then remove the override.';
+        out.appendChild(intro);
+        var list = document.createElement('div');
+        if (!d.overrides.length) list.textContent = 'No overrides.';
+        d.overrides.forEach(function(c) {
+          var row = document.createElement('div');
+          row.style.cssText = 'display:flex;gap:8px;align-items:center;padding:3px 0;border-bottom:1px solid #eee';
+          var name = document.createElement('strong'); name.textContent = c.company_name;
+          var note = document.createElement('span'); note.style.color = '#777'; note.textContent = c.roster_override_note || '';
+          var btn = document.createElement('button'); btn.className = 'btn'; btn.style.marginLeft = 'auto'; btn.textContent = 'Remove';
+          btn.onclick = function() { setRosterOverride(c.id, false); };
+          row.appendChild(name); row.appendChild(note); row.appendChild(btn); list.appendChild(row);
+        });
+        out.appendChild(list);
+        if (d.candidates.length) {
+          var add = document.createElement('div');
+          add.style.cssText = 'display:flex;gap:8px;margin-top:10px;align-items:center';
+          var sel = document.createElement('select'); sel.style.cssText = 'padding:4px;max-width:280px';
+          d.candidates.forEach(function(c) { var o = document.createElement('option'); o.value = c.id; o.textContent = c.company_name; sel.appendChild(o); });
+          var noteIn = document.createElement('input'); noteIn.placeholder = 'Reason (e.g. paid by wire, 2026 dues)'; noteIn.style.cssText = 'flex:1;padding:4px';
+          var addBtn = document.createElement('button'); addBtn.className = 'btn btn-gold'; addBtn.textContent = 'Keep on roster';
+          addBtn.onclick = function() { setRosterOverride(Number(sel.value), true, noteIn.value); };
+          add.appendChild(sel); add.appendChild(noteIn); add.appendChild(addBtn); out.appendChild(add);
+        }
+      } catch (err) { out.textContent = 'Could not load overrides: ' + err.message; }
+    }
+    async function setRosterOverride(id, on, note) {
+      try {
+        var r = await fetch('/api/psr', { method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + adminToken },
+          body: JSON.stringify({ action: 'roster-override', company_id: id, on: on, note: note || '' }) });
+        var d = await r.json();
+        if (!d.ok) throw new Error(d.error || 'failed');
+        rosterOverrides();
+      } catch (err) { alert('Could not change the override: ' + err.message); }
     }
 
     // Read-only check: EMS's figures for the selected event beside the ones the briefings use today.

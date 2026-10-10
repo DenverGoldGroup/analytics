@@ -765,6 +765,16 @@ module.exports = async function handler(req, res) {
         return res.status(200).json(Object.assign({ ok: true }, await buildFullReport(sb, evt)));
       }
 
+      // Roster overrides: companies DGG keeps on the roster although EMS's dues rule does not count them,
+      // with the companies that could be added (off the roster). Admin only.
+      if (action === 'roster-overrides') {
+        if (!verifyToken(req.headers.authorization)) return res.status(401).json({ ok: false, error: 'Unauthorized' });
+        res.setHeader('Cache-Control', 'no-store');
+        var { data: ovRows, error: ovErr } = await sb.from('companies').select('id, company_name, in_roster, roster_override, roster_override_note').or('roster_override.eq.true,in_roster.eq.false').order('company_name');
+        if (ovErr) return res.status(500).json({ ok: false, error: ovErr.message });
+        return res.status(200).json({ ok: true, overrides: ovRows.filter(function(c) { return c.roster_override; }), candidates: ovRows.filter(function(c) { return !c.roster_override; }) });
+      }
+
       // EMS sync: the recent sync log, and a run on demand (?dry_run=1 previews without writing). Admin only.
       if (action === 'ems-sync-log' || action === 'ems-sync') {
         if (!verifyToken(req.headers.authorization)) {
@@ -937,6 +947,21 @@ module.exports = async function handler(req, res) {
         if (ulErr) return res.status(500).json({ ok: false, error: ulErr.message });
         logActivity(sb, { event_code: body.event_code, email: lockInfo.email, role: lockInfo.role, action: 'psr-unlock', detail: 'Unlocked the PSR; live reads resume', ip: getClientIP(req) });
         return res.status(200).json({ ok: true, locked: false });
+      }
+
+      // Keep a company on the roster by hand, or stop doing so; the next EMS sync then decides by EMS alone
+      if (postAction === 'roster-override') {
+        var ovId = Number(body.company_id);
+        if (!ovId) return res.status(400).json({ ok: false, error: 'company_id is required' });
+        var ovInfo = extractTokenInfo(req.headers.authorization);
+        var ovUpdate = body.on
+          ? { roster_override: true, in_roster: true, roster_override_note: String(body.note || '').slice(0, 300) || ('Kept on the roster by ' + ovInfo.email) }
+          : { roster_override: false, roster_override_note: null };
+        var { data: ovDone, error: ovSetErr } = await sb.from('companies').update(ovUpdate).eq('id', ovId).select('id, company_name');
+        if (ovSetErr) return res.status(500).json({ ok: false, error: ovSetErr.message });
+        if (!ovDone || !ovDone.length) return res.status(404).json({ ok: false, error: 'Company not found' });
+        logActivity(sb, { email: ovInfo.email, role: ovInfo.role, action: 'roster-override', detail: (body.on ? 'Kept on the roster: ' : 'Override removed: ') + ovDone[0].company_name, ip: getClientIP(req) });
+        return res.status(200).json({ ok: true, company: ovDone[0], on: !!body.on });
       }
 
       // A locked PSR takes no edits. Actions name their event, or a row whose event we look up;

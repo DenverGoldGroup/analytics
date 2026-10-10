@@ -32,6 +32,19 @@ function nameKey(s) {
     .replace(/\b(corporation|corp|limited|ltd|inc|plc|company|co|the|sa|nv|ag|llc|lp)\b/g, ' ').replace(/\s+/g, ' ').trim();
 }
 
+// name key -> every row with that name. One company can have two rows from old uploads (one from the roster
+// upload, one auto-created by a participations upload); the sync keeps one and merges the other into it.
+function nameIndex(rows) {
+  var idx = {};
+  rows.forEach(function(c) { var k = nameKey(c.company_name); (idx[k] = idx[k] || []).push(c); });
+  return idx;
+}
+// The row to keep among same-name rows: one already linked to EMS, else one on the roster, else the first
+function pick(list) {
+  if (!list || !list.length) return null;
+  return list.filter(function(c) { return c.ems_company_id; })[0] || list.filter(function(c) { return c.in_roster !== false; })[0] || list[0];
+}
+
 // Run fn over items, a few at a time
 async function pool(items, fn) {
   var out = new Array(items.length), next = 0;
@@ -124,7 +137,10 @@ async function syncRoster(sb, opts, detail) {
 
   var { data: existing, error } = await sb.from('companies').select('*');
   if (error) throw new Error('Read companies failed: ' + error.message);
-  var held = existing.filter(function(c) { return c.in_roster !== false; }).length;
+  // Members held: distinct companies on the roster, leaving out duplicate rows and DGG's own overrides
+  var heldKeys = {};
+  existing.forEach(function(c) { if (c.in_roster !== false && !c.roster_override) heldKeys[nameKey(c.company_name)] = true; });
+  var held = Object.keys(heldKeys).length;
 
   if (!members || !members.length) {
     await log(sb, Object.assign({}, base, { status: 'skipped', message: 'EMS did not return the member roster; the last upload stays in place.' }));
@@ -137,18 +153,28 @@ async function syncRoster(sb, opts, detail) {
   }
 
   var regions = regionIndex(facets);
-  var byEms = {}, byName = {};
-  existing.forEach(function(c) { if (c.ems_company_id) byEms[c.ems_company_id] = c; byName[nameKey(c.company_name)] = c; });
+  var byEms = {}, byName = nameIndex(existing);
+  existing.forEach(function(c) { if (c.ems_company_id) byEms[c.ems_company_id] = c; });
   var details = await pool(members, function(m) { return detail(m.id); });
 
-  var updates = [], inserts = [], seen = {};
+  var updates = [], inserts = [], seen = {}, merges = [], overrideListed = [];
   members.forEach(function(m, i) {
-    var prev = byEms[m.id] || byName[nameKey(m.name)];
+    var same = byName[nameKey(m.name)] || [];
+    var prev = byEms[m.id] || pick(same);
     var row = companyRow(m, details[i], regions, prev);
     row.in_roster = true;
-    if (prev) { seen[prev.id] = true; updates.push(Object.assign({ id: prev.id }, row)); }
+    if (prev) {
+      seen[prev.id] = true;
+      if (prev.roster_override) overrideListed.push(prev.company_name);
+      updates.push(Object.assign({ id: prev.id }, row));
+      // Same-name rows not linked to another EMS company are duplicates of this one
+      same.forEach(function(d) { if (d.id !== prev.id && (!d.ems_company_id || d.ems_company_id === m.id)) { seen[d.id] = true; merges.push({ from: d.id, to: prev.id, name: d.company_name }); } });
+    }
     else inserts.push(row);
   });
+  // Companies DGG keeps on the roster by hand (paid, but not counted by EMS's dues rule) never leave it
+  var overridden = existing.filter(function(c) { return c.roster_override && !seen[c.id]; });
+  overridden.forEach(function(c) { seen[c.id] = true; });
   var leaving = existing.filter(function(c) { return !seen[c.id] && c.in_roster !== false; });
   var { data: refs } = await sb.from('event_participations').select('company_id');
   var referenced = {};
@@ -156,6 +182,7 @@ async function syncRoster(sb, opts, detail) {
   var toDelete = leaving.filter(function(c) { return !referenced[c.id]; }).map(function(c) { return c.id; });
   var toFlag = leaving.filter(function(c) { return referenced[c.id]; }).map(function(c) { return c.id; });
   var counts = { ems: members.length, held: held, updated: updates.length, added: inserts.length, removed: toDelete.length,
+    merged_duplicates: merges.length, kept_by_override: overridden.length,
     kept_for_past_events: toFlag.length, without_market_cap: updates.concat(inserts).filter(function(r) { return r.market_cap_usd == null; }).length };
 
   if (!opts.dryRun) {
@@ -167,6 +194,16 @@ async function syncRoster(sb, opts, detail) {
       var { error: iErr } = await sb.from('companies').insert(inserts.slice(j, j + 50));
       if (iErr) throw new Error('Insert companies failed: ' + iErr.message);
     }
+    for (var k = 0; k < merges.length; k++) {
+      var { error: mErr } = await sb.from('event_participations').update({ company_id: merges[k].to }).eq('company_id', merges[k].from);
+      if (mErr) throw new Error('Merge ' + merges[k].name + ' failed: ' + mErr.message);
+      var { error: mdErr } = await sb.from('companies').delete().eq('id', merges[k].from);
+      if (mdErr) throw new Error('Remove duplicate ' + merges[k].name + ' failed: ' + mdErr.message);
+    }
+    if (overridden.length) {
+      var { error: oErr } = await sb.from('companies').update({ in_roster: true }).in('id', overridden.map(function(c) { return c.id; }));
+      if (oErr) throw new Error('Override companies failed: ' + oErr.message);
+    }
     if (toFlag.length) {
       var { error: fErr } = await sb.from('companies').update({ in_roster: false }).in('id', toFlag);
       if (fErr) throw new Error('Flag companies failed: ' + fErr.message);
@@ -177,8 +214,12 @@ async function syncRoster(sb, opts, detail) {
     }
   }
   await log(sb, Object.assign({}, base, { status: opts.dryRun ? 'preview' : 'applied', counts: counts,
-    message: (opts.dryRun ? 'Would apply: ' : 'Applied: ') + members.length + ' members from EMS.' }));
-  return Object.assign({ status: opts.dryRun ? 'preview' : 'applied' }, counts,
+    message: (opts.dryRun ? 'Would apply: ' : 'Applied: ') + members.length + ' members from EMS' +
+      (overridden.length ? '; kept by DGG override: ' + overridden.map(function(c) { return c.company_name; }).join(', ') : '') +
+      (overrideListed.length ? '; now listed by EMS, override can be removed: ' + overrideListed.join(', ') : '') +
+      (merges.length ? '; merged duplicates: ' + merges.map(function(x) { return x.name; }).join(', ') : '') + '.' }));
+  return Object.assign({ status: opts.dryRun ? 'preview' : 'applied', kept_by_override_names: overridden.map(function(c) { return c.company_name; }),
+    override_now_listed: overrideListed }, counts,
     opts.dryRun ? { joining: inserts.map(function(r) { return r.company_name; }), leaving: leaving.map(function(c) { return c.company_name; }) } : {});
 }
 
@@ -216,14 +257,14 @@ async function syncEvent(sb, evt, opts, detail) {
 
   var regions = regionIndex(facets);
   var { data: companies } = await sb.from('companies').select('*');
-  var byEms = {}, byName = {}, prevPart = {};
-  (companies || []).forEach(function(c) { if (c.ems_company_id) byEms[c.ems_company_id] = c; byName[nameKey(c.company_name)] = c; });
+  var byEms = {}, byName = nameIndex(companies || []), prevPart = {};
+  (companies || []).forEach(function(c) { if (c.ems_company_id) byEms[c.ems_company_id] = c; });
   prior.forEach(function(p) { prevPart[nameKey(p.company_name)] = p; });
   var details = await pool(r.data, function(c) { return detail(c.id); });
 
   var newCompanies = [], rows = [];
   r.data.forEach(function(c, i) {
-    var comp = byEms[c.id] || byName[nameKey(c.name)];
+    var comp = byEms[c.id] || pick(byName[nameKey(c.name)]);
     var prev = prevPart[nameKey(c.name)] || comp;
     var row = companyRow(c, details[i], regions, prev);
     var s = slot(c.presentation, evt.timezone);
