@@ -14,6 +14,17 @@ var sb = window.supabase && window.supabase.createClient
   ? window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
   : null;
 
+// EMS split the Producer stage on 9 October 2026 into "Producer (commercial production)" and
+// "Producer (pre-commercial production)". Every view here groups by "Producer", so both are read as
+// Producer, with the stage kept in producer_stage for anything that wants the split.
+function normaliseStatus(rows) {
+  (rows || []).forEach(function(r) {
+    var s = r.company_status || '';
+    if (s !== 'Producer' && s.indexOf('Producer') === 0) { r.producer_stage = s; r.company_status = 'Producer'; }
+  });
+  return rows;
+}
+
 // Fetch all DGG member companies (unduplicated)
 async function fetchDGGCompanies() {
   if (!sb) { console.error('Supabase client not initialized'); return []; }
@@ -26,7 +37,7 @@ async function fetchDGGCompanies() {
       .order('market_cap_usd', { ascending: false, nullsFirst: false });
     if (error) { console.error('Error fetching companies:', error); return []; }
     console.log('Fetched', (data || []).length, 'companies');
-    return data || [];
+    return normaliseStatus(data || []);
   } catch (err) {
     console.error('fetchDGGCompanies exception:', err);
     return [];
@@ -44,7 +55,7 @@ async function fetchEventParticipations(eventCode) {
       .order('market_cap_usd', { ascending: false, nullsFirst: false });
     if (error) { console.error('Error fetching participations:', error); return []; }
     console.log('Fetched', (data || []).length, 'participations for', eventCode);
-    return data || [];
+    return normaliseStatus(data || []);
   } catch (err) {
     console.error('fetchEventParticipations exception:', err);
     return [];

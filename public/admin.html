@@ -1196,7 +1196,28 @@
 
         var workbook = XLSX.read(arrayBuffer, { type: 'array', cellDates: true });
         var sheet = workbook.Sheets[workbook.SheetNames[0]];
-        var jsonRows = XLSX.utils.sheet_to_json(sheet);
+        // The EMS export (since the 9 October 2026 cutover) opens with a title row
+        // ("Mining Forum Americas 2026 > Cancellations"); the legacy one had headers on row 1. Find the header row.
+        var grid = XLSX.utils.sheet_to_json(sheet, { header: 1, defval: null });
+        var headerAt = grid.findIndex(function(r) { return r && r.indexOf('Company') !== -1 && r.indexOf('Status') !== -1; });
+        if (headerAt < 0) throw new Error('No header row with Company and Status columns found');
+        var jsonRows = XLSX.utils.sheet_to_json(sheet, { range: headerAt, defval: null });
+
+        // EMS writes dates as "Sep 23, 2026, 8:11 pm" in its own time zone (Denver); read them as such
+        var cxlDate = function(v) {
+          if (!v) return null;
+          if (v instanceof Date) return isNaN(v.getTime()) ? null : v.toISOString();
+          var m = /^([A-Za-z]{3}) (\d{1,2}), (\d{4}),? (\d{1,2}):(\d{2}) ?(am|pm)$/i.exec(String(v).trim());
+          if (!m) { var d = new Date(v); return isNaN(d.getTime()) ? null : d.toISOString(); }
+          var mon = ['jan','feb','mar','apr','may','jun','jul','aug','sep','oct','nov','dec'].indexOf(m[1].toLowerCase());
+          var h = Number(m[4]) % 12 + (m[6].toLowerCase() === 'pm' ? 12 : 0);
+          var asUtc = Date.UTC(Number(m[3]), mon, Number(m[2]), h, Number(m[5]));
+          // Denver's offset at that moment, from the browser's time-zone data
+          var parts = new Intl.DateTimeFormat('en-US', { timeZone: 'America/Denver', year: 'numeric', month: 'numeric', day: 'numeric', hour: 'numeric', minute: 'numeric', hour12: false }).formatToParts(new Date(asUtc));
+          var g = function(k) { return Number(parts.filter(function(p) { return p.type === k; })[0].value); };
+          var denverAsUtc = Date.UTC(g('year'), g('month') - 1, g('day'), g('hour') % 24, g('minute'));
+          return new Date(asUtc + (asUtc - denverAsUtc)).toISOString();
+        };
 
         var rows = jsonRows.filter(function(r) { return r['Company']; }).map(function(r) {
           var mc = r['Market Cap'];
@@ -1207,8 +1228,9 @@
             mineral: r['Mineral'] || '',
             primary_country: r['Primary Country'] || '',
             market_cap: mc || null,
-            cxl_date: r['CXL Date'] ? new Date(r['CXL Date']).toISOString() : null,
-            company_reason: r['Company Reason'] || '',
+            cxl_date: cxlDate(r['CXL Date']),
+            // EMS calls it Reason; the legacy export called it Company Reason
+            company_reason: r['Reason'] || r['Company Reason'] || '',
             dgg_response: r['DGG Response'] || ''
           };
         });

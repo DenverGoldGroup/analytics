@@ -482,6 +482,17 @@ function _buildDetail(action, body) {
   return a;
 }
 
+// EMS split the Producer stage on 9 October 2026 into commercial and pre-commercial production. The report,
+// the briefings and the dashboard group by "Producer", so both read as Producer, the stage kept beside it.
+function normaliseStatus(rows, field) {
+  field = field || 'company_status';
+  (rows || []).forEach(function(r) {
+    var s = r && r[field] || '';
+    if (s !== 'Producer' && s.indexOf('Producer') === 0) { r.producer_stage = s; r[field] = 'Producer'; }
+  });
+  return rows;
+}
+
 // The full Post Show Report payload for one event, from Supabase, the budget system and (while the PSR is
 // unlocked) live EMS reads. Locking a PSR stores this payload as its snapshot, served unchanged from then on.
 async function buildFullReport(sb, evt) {
@@ -597,6 +608,9 @@ async function buildFullReport(sb, evt) {
     priorSnapshot: priorEvt && priorEvt.locked && priorEvt.snapshot ? priorEvt.snapshot : null,
     priorMeetings: extra[1].data || []
   }) };
+  normaliseStatus(payload.composition.current);
+  normaliseStatus(payload.composition.prior);
+  normaliseStatus(payload.cancellations, 'status');
   return payload;
 }
 
@@ -865,8 +879,8 @@ module.exports = async function handler(req, res) {
           generated_at: new Date().toISOString(),
           event: bEvt,
           prior_code: bPrior,
-          companies: bRows.filter(function(r) { return r.event_code === eventCode; }),
-          companies_prior: bRows.filter(function(r) { return r.event_code === bPrior; }),
+          companies: normaliseStatus(bRows.filter(function(r) { return r.event_code === eventCode; })),
+          companies_prior: normaliseStatus(bRows.filter(function(r) { return r.event_code === bPrior; })),
           top_meetings: bResults[1].data || [],
           holdings: bResults[2].data || [],
           meetings: bResults[3].data || [],
