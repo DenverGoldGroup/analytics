@@ -308,6 +308,7 @@
     if (s.event === 'ems') live.push('event dates');
     if (s.composition === 'ems') live.push('member data');
     if (s.meetings === 'ems') live.push('1x1 meetings');
+    if (s.cancellations === 'ems') live.push('cancellations');
     var note;
     if (e.mode === 'locked') {
       note = 'Figures locked on ' + fmtDate(String(e.locked_at || '').slice(0, 10)) + (live.length ? ', including ' + live.join(', ') + ' from EMS as they stood then' : '') + '.';

@@ -6,6 +6,10 @@
 //   member data (composition)    GET /event-members?event_id=   (market cap: the stored row's, else EMS's current)
 //   1x1 meetings                 GET /events/{id}/meetings      (formal = accepted, declined, per-kind averages;
 //                                                                informal = DGG's estimate on the accepted total)
+//   cancellations                GET /events/{id}/cancellations (companies still cancelled; DGG's response kept
+//                                                                from the stored row, else EMS's staff notes).
+//                                Until ems-laravel PR #23 reaches production this answers 404 and the stored
+//                                upload is shown; it switches over by itself once deployed.
 // Prior-year comparisons never come from live EMS: EMS lists only companies active today, so companies acquired
 // since would vanish from past years and understate them. The prior year comes from its locked PSR snapshot, or
 // from the stored rows. Each block falls back to the stored data when EMS cannot answer.
@@ -35,9 +39,11 @@ async function emsFor(code) {
     var parts = await Promise.all([
       EMS.ems('/events/' + evt.id),
       EMS.ems('/event-members', { event_id: evt.id }),
-      EMS.ems('/events/' + evt.id + '/meetings')
+      EMS.ems('/events/' + evt.id + '/meetings'),
+      EMS.ems('/events/' + evt.id + '/cancellations')
     ]);
-    return { id: evt.id, event: parts[0] && parts[0].data, members: parts[1] && Array.isArray(parts[1].data) ? parts[1].data : null, meetings: parts[2] && parts[2].data };
+    return { id: evt.id, event: parts[0] && parts[0].data, members: parts[1] && Array.isArray(parts[1].data) ? parts[1].data : null, meetings: parts[2] && parts[2].data,
+      cancellations: parts[3] && Array.isArray(parts[3].data) ? parts[3].data : null };
   });
 }
 
@@ -66,7 +72,7 @@ function metricValue(rows, metric) {
  * Returns the sources map: which blocks came from EMS and which stayed stored.
  */
 async function applyLive(payload, ctx) {
-  var sources = { event: 'stored', composition: 'stored', meetings: 'stored', checked_at: new Date().toISOString() };
+  var sources = { event: 'stored', composition: 'stored', meetings: 'stored', cancellations: 'stored', checked_at: new Date().toISOString() };
   var live;
   try { live = await emsFor(ctx.eventCode); } catch (err) { console.warn('[ems-psr] ' + ctx.eventCode + ': ' + err.message); live = null; }
 
@@ -138,6 +144,29 @@ async function applyLive(payload, ctx) {
       else if (/participant|investor/.test(k)) setMetric(rows, 'mean', 'Average participant meetings', Math.round(g.average * 10) / 10, priorOf('Average participant meetings'));
     });
     sources.meetings = 'ems';
+  }
+
+  // Cancellations: EMS's list of companies still cancelled; DGG's response to each is DGG's own note
+  if (live.cancellations) {
+    var storedCxl = {};
+    (payload.cancellations || []).forEach(function(c) { storedCxl[nameKey(c.company)] = c; });
+    payload.cancellations = live.cancellations.map(function(x, i) {
+      var co = x.company || {}, s = storedCxl[nameKey(co.name)] || {};
+      return {
+        event_code: ctx.eventCode,
+        company: co.name || s.company || '',
+        status: co.company_status || s.status || '',
+        mineral: co.primary_mineral || s.mineral || '',
+        primary_country: co.country || s.primary_country || '',
+        market_cap: s.market_cap != null ? s.market_cap : (co.market_cap_usd != null ? co.market_cap_usd : null),
+        cxl_date: x.cancelled_at || s.cxl_date || null,
+        company_reason: x.reason || s.company_reason || '',
+        dgg_response: s.dgg_response || x.notes || '',
+        sort_order: i + 1
+      };
+    });
+    sources.cancellations = 'ems';
+    sources.cancellation_counts = { ems: live.cancellations.length };
   }
   return sources;
 }
