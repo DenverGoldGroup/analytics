@@ -2,12 +2,16 @@
   "outputDirectory": "public",
   "cleanUrls": true,
   "functions": {
-    "api/*.js": {
+    "api/{ems-sync,psr}.js": {
+      "maxDuration": 300
+    },
+    "api/!(ems-sync|psr).js": {
       "maxDuration": 30
     }
   },
   "crons": [
-    { "path": "/api/metals-cron", "schedule": "0 0 1 * *" }
+    { "path": "/api/metals-cron", "schedule": "0 0 1 * *" },
+    { "path": "/api/ems-sync", "schedule": "0 11 * * *" }
   ],
   "redirects": [
     { "source": "/", "destination": "/dealbook", "has": [{ "type": "host", "value": "dealbook.miningforum.com" }], "permanent": false },

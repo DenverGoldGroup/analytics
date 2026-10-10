@@ -18,9 +18,11 @@ var sb = window.supabase && window.supabase.createClient
 async function fetchDGGCompanies() {
   if (!sb) { console.error('Supabase client not initialized'); return []; }
   try {
+    // The DGG roster: companies kept only for past events (off the roster) are left out
     const { data, error } = await sb
       .from('companies')
       .select('*')
+      .eq('in_roster', true)
       .order('market_cap_usd', { ascending: false, nullsFirst: false });
     if (error) { console.error('Error fetching companies:', error); return []; }
     console.log('Fetched', (data || []).length, 'companies');

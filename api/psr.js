@@ -3,6 +3,7 @@
 const crypto = require('crypto');
 const { createClient } = require('@supabase/supabase-js');
 const EMS = require('./_ems');
+const EMS_SYNC = require('./_ems-sync');
 
 const SUPABASE_URL = 'https://ljyogcspkvqgjbiyzfbn.supabase.co';
 
@@ -729,6 +730,26 @@ module.exports = async function handler(req, res) {
           spot_prices: results[17].data || [],
           attendees_provisional: attendeesProvisional
         });
+      }
+
+      // EMS sync: the recent sync log, and a run on demand (?dry_run=1 previews without writing). Admin only.
+      if (action === 'ems-sync-log' || action === 'ems-sync') {
+        if (!verifyToken(req.headers.authorization)) {
+          return res.status(401).json({ ok: false, error: 'Unauthorized' });
+        }
+        res.setHeader('Cache-Control', 'no-store');
+        try {
+          if (action === 'ems-sync-log') return res.status(200).json({ ok: true, log: await EMS_SYNC.recentLog(30) });
+          var dry = req.query.dry_run === '1';
+          if (!dry) {
+            var info = extractTokenInfo(req.headers.authorization);
+            logActivity(sb, { email: info.email, role: info.role, action: 'ems-sync', detail: 'Ran the EMS sync from /admin', ip: getClientIP(req) });
+          }
+          return res.status(200).json({ ok: true, result: await EMS_SYNC.run({ trigger: 'admin', dryRun: dry }) });
+        } catch (err) {
+          console.warn('[ems-sync] admin run failed: ' + err.message);
+          return res.status(500).json({ ok: false, error: 'Sync failed: ' + err.message });
+        }
       }
 
       // EMS check: what EMS says about an event, for comparison with the figures the briefings use today.
