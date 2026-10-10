@@ -300,6 +300,49 @@
     });
   }
 
+  // Where the figures come from: live EMS reads, or the snapshot taken when the PSR was locked.
+  // The note prints with the report; the lock control is for admins and stays off the PDF.
+  function renderProvenance(d) {
+    var e = d.ems || {}, s = e.sources || {}, html = '';
+    var live = [];
+    if (s.event === 'ems') live.push('event dates');
+    if (s.composition === 'ems') live.push('member data');
+    if (s.meetings === 'ems') live.push('1x1 meetings');
+    var note;
+    if (e.mode === 'locked') {
+      note = 'Figures locked on ' + fmtDate(String(e.locked_at || '').slice(0, 10)) + (live.length ? ', including ' + live.join(', ') + ' from EMS as they stood then' : '') + '.';
+    } else {
+      note = live.length ? 'Live from EMS: ' + live.join(', ') + '. Other figures from Denver Gold Group records.' : 'From Denver Gold Group records' + (s.note ? ' (' + s.note + ')' : '') + '.';
+      if (s.prior) note += ' Prior year from its ' + s.prior + ' report.';
+    }
+    html += '<div class="psr-provenance" style="display:flex;align-items:center;gap:12px;margin:-12px 0 20px;font-size:9pt;color:#4A4644">';
+    html += '<span>' + esc(note) + '</span>';
+    if (isAdmin()) {
+      var locked = e.mode === 'locked';
+      html += '<button class="btn no-print" data-html2canvas-ignore="true" style="margin-left:auto;font-size:9pt;padding:4px 10px" onclick="PSR.toggleLock(' + (locked ? 'false' : 'true') + ')">' +
+        (locked ? '\uD83D\uDD12 Locked' + (e.locked_by ? ' by ' + esc(e.locked_by) : '') + ': unlock' : 'Lock this report') + '</button>';
+    }
+    html += '</div>';
+    return html;
+  }
+
+  // Lock freezes the report as it stands; unlock returns it to live reads
+  function toggleLock(lock) {
+    var code = reportData && reportData.event && reportData.event.event_code;
+    if (!code) return;
+    var msg = lock
+      ? 'Lock the ' + code + ' report? Every figure is frozen as it stands now, including the EMS counts, and edits and uploads for ' + code + ' are refused until it is unlocked.'
+      : 'Unlock the ' + code + ' report? It returns to live EMS reads, so its figures may change.';
+    if (!confirm(msg)) return;
+    fetch(API, { method: 'POST', headers: Object.assign({ 'Content-Type': 'application/json' }, authHeaders()), body: JSON.stringify({ action: 'psr-lock', event_code: code, locked: lock }) })
+      .then(function(r) { return r.json(); })
+      .then(function(res) {
+        if (!res.ok) { alert('Could not ' + (lock ? 'lock' : 'unlock') + ' the report: ' + (res.error || 'unknown error')); return; }
+        selectEvent(currentEvent || reportData.event);
+      })
+      .catch(function(err) { alert('Could not ' + (lock ? 'lock' : 'unlock') + ' the report: ' + err.message); });
+  }
+
   // ── Main render ──────────────────────────────────────
   function renderReport(d) {
     var evt = d.event;
@@ -321,6 +364,7 @@
     html += '</div></div>';
     html += '<div class="rh-logo"><img src="/logos/' + logoFile + '" alt="' + esc(evt.event_code) + '"></div>';
     html += '</div>';
+    html += renderProvenance(d);
 
     var sectionNum = 0;
 
@@ -5350,6 +5394,7 @@
 
   // Expose editing functions globally
   window.PSR = {
+    toggleLock: toggleLock,
     saveSwotItem: saveSwotItem,
     deleteSwotItem: deleteSwotItem,
     addSwotItem: addSwotItem,

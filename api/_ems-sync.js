@@ -285,6 +285,16 @@ async function run(opts) {
     await log(sb, { trigger: opts.trigger, dry_run: !!opts.dryRun, scope: 'events', status: 'skipped', message: 'EMS did not return the event list.' });
   } else {
     out.events = [];
+    // An event whose PSR is locked is frozen: the sync leaves it alone
+    var { data: lockedRows } = await sb.from('psr_events').select('event_code').eq('locked', true);
+    var lockedCodes = {};
+    (lockedRows || []).forEach(function(r) { lockedCodes[r.event_code] = true; });
+    events = events.filter(function(e) {
+      var code = LOCAL_CODE[e.code] || e.code;
+      if (!lockedCodes[code]) return true;
+      out.events.push({ event_code: code, status: 'skipped', reason: 'PSR locked' });
+      return false;
+    });
     for (var i = 0; i < events.length; i++) {
       try { out.events.push(await syncEvent(sb, events[i], opts, detail)); }
       catch (err) {

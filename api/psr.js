@@ -4,6 +4,7 @@ const crypto = require('crypto');
 const { createClient } = require('@supabase/supabase-js');
 const EMS = require('./_ems');
 const EMS_SYNC = require('./_ems-sync');
+const EMS_PSR = require('./_ems-psr');
 
 const SUPABASE_URL = 'https://ljyogcspkvqgjbiyzfbn.supabase.co';
 
@@ -481,6 +482,124 @@ function _buildDetail(action, body) {
   return a;
 }
 
+// The full Post Show Report payload for one event, from Supabase, the budget system and (while the PSR is
+// unlocked) live EMS reads. Locking a PSR stores this payload as its snapshot, served unchanged from then on.
+async function buildFullReport(sb, evt) {
+  var eventCode = evt.event_code;
+  var evType = evt.event_type;
+  // Derive prior event code for YoY comparisons
+  var priorCode = evType + String(evt.year - 1).slice(-2);
+
+  var results = await Promise.all([
+    sb.from('psr_glossary').select('*').order('sort_order'),
+    sb.from('psr_venue_history').select('*').eq('event_type', evType).order('sort_order'),
+    sb.from('psr_swot').select('*').eq('event_code', eventCode).order('sort_order'),
+    sb.from('psr_market_data').select('*').eq('event_type', evType).order('year'),
+    sb.from('psr_financials').select('*').eq('event_code', eventCode).order('sort_order'),
+    sb.from('psr_attendance').select('*').eq('event_code', eventCode).order('sort_order'),
+    sb.from('psr_members').select('*').eq('event_code', eventCode).order('sort_order'),
+    sb.from('psr_sponsors').select('*').eq('event_code', eventCode).order('sort_order'),
+    sb.from('psr_hotel').select('*').eq('event_code', eventCode).order('night_date'),
+    sb.from('psr_engagement').select('*').eq('event_code', eventCode).order('sort_order'),
+    sb.from('psr_webcasts').select('*').eq('event_code', eventCode).order('sort_order'),
+    sb.from('psr_meetings').select('*').eq('event_code', eventCode).order('sort_order'),
+    sb.from('psr_top_meetings').select('*').eq('event_code', eventCode).order('rank'),
+    // Member composition from analytics (current + prior year)
+    sb.from('event_participations')
+      .select('event_code, company_name, company_status, primary_mineral, primary_country, market_cap_usd')
+      .in('event_code', [eventCode, priorCode]),
+    // Member historical composition
+    sb.from('psr_member_history').select('*').eq('event_type', evType).order('year'),
+    // Registration reconciliation
+    sb.from('psr_reg_recon').select('*').eq('event_code', eventCode).order('sort_order'),
+    // Member cancellations
+    sb.from('psr_cancellations').select('*').eq('event_code', eventCode).order('sort_order'),
+    // Cached spot prices — provisional valuation for the current year until its
+    // event-day price is recorded in psr_market_data
+    sb.from('metal_prices').select('metal, price, updated_at').in('metal', ['gold', 'silver'])
+  ]);
+
+  // Build composition breakdown
+  var epRows = results[13].data || [];
+  var composition = { current: [], prior: [], current_code: eventCode, prior_code: priorCode };
+  epRows.forEach(function(r) {
+    if (r.event_code === eventCode) composition.current.push(r);
+    else composition.prior.push(r);
+  });
+
+  // Fetch live financials from budget system (non-blocking fallback to psr_financials)
+  var financials = results[4].data || [];
+  var financialsSource = 'manual';
+  var prepaidAsOf = null;
+  var budgetResult = await fetchBudgetFinancials(evType, evt.year);
+  if (budgetResult && budgetResult.financials && budgetResult.financials.length > 0) {
+    financials = budgetResult.financials;
+    financialsSource = 'budget';
+    prepaidAsOf = budgetResult.prepaid_as_of;
+  }
+
+  // Fetch historical actuals from budget Supabase for recent years (per-event)
+  var histActuals = await fetchHistoricalActuals(evType, [2022, 2023, 2024, 2025]);
+
+  // No reconciliation yet (e.g. before the event): send registrants so the client can
+  // build a provisional current-year bar for Registration Historical Data.
+  // Paged because Supabase caps each response at 1,000 rows.
+  var attendeesProvisional = [];
+  if (!(results[15].data || []).length) {
+    for (var attFrom = 0; ; attFrom += 1000) {
+      var { data: attPage, error: attErr } = await sb.from('attendees')
+        .select('type, category, invitation_status, attendance, created_at')
+        .eq('event_code', eventCode)
+        .order('id')
+        .range(attFrom, attFrom + 999);
+      if (attErr || !attPage || !attPage.length) break;
+      attendeesProvisional = attendeesProvisional.concat(attPage);
+      if (attPage.length < 1000) break;
+    }
+  }
+
+
+  // Live EMS reads for this event; the prior year comes from its locked snapshot or the stored rows
+  var extra = await Promise.all([
+    sb.from('psr_events').select('locked, snapshot').eq('event_code', priorCode).maybeSingle(),
+    sb.from('psr_meetings').select('metric, value_current').eq('event_code', priorCode),
+    sb.from('psr_brief_inputs').select('informal_factor').eq('event_code', eventCode).maybeSingle()
+  ]);
+  var priorEvt = extra[0].data;
+  var payload = {
+    event: evt,
+    glossary: results[0].data || [],
+    venues: results[1].data || [],
+    swot: results[2].data || [],
+    market_data: results[3].data || [],
+    financials: financials,
+    financials_source: financialsSource,
+    prepaid_as_of: prepaidAsOf,
+    attendance: results[5].data || [],
+    members: results[6].data || [],
+    sponsors: results[7].data || [],
+    hotel: results[8].data || [],
+    engagement: results[9].data || [],
+    webcasts: results[10].data || [],
+    meetings: results[11].data || [],
+    top_meetings: results[12].data || [],
+    composition: composition,
+    member_history: results[14].data || [],
+    historical_actuals: histActuals,
+    reg_recon: results[15].data || [],
+    cancellations: results[16].data || [],
+    spot_prices: results[17].data || [],
+    attendees_provisional: attendeesProvisional
+  };
+  payload.ems = { mode: 'live', sources: await EMS_PSR.applyLive(payload, {
+    sb: sb, eventCode: eventCode, priorCode: priorCode,
+    informalFactor: Number(extra[2].data && extra[2].data.informal_factor) || 0,
+    priorSnapshot: priorEvt && priorEvt.locked && priorEvt.snapshot ? priorEvt.snapshot : null,
+    priorMeetings: extra[1].data || []
+  }) };
+  return payload;
+}
+
 module.exports = async function handler(req, res) {
   try {
     var sb = getSupabase();
@@ -497,7 +616,8 @@ module.exports = async function handler(req, res) {
       }
 
       if (action === 'events') {
-        var q = sb.from('psr_events').select('*').order('year', { ascending: false });
+        // Everything but the locked snapshot, which only the report itself needs
+        var q = sb.from('psr_events').select('id, event_code, event_name, event_type, year, venue, city, country, start_date, end_date, created_at, updated_at, cover_pdf, locked, locked_at, locked_by').order('year', { ascending: false });
         if (eventType) q = q.eq('event_type', eventType);
         var { data, error } = await q;
         if (error) return res.status(500).json({ ok: false, error: error.message });
@@ -631,105 +751,18 @@ module.exports = async function handler(req, res) {
 
         var { data: evt } = await sb.from('psr_events').select('*').eq('event_code', eventCode).single();
         if (!evt) return res.status(404).json({ ok: false, error: 'Event not found' });
+        var snapshot = evt.snapshot;
+        delete evt.snapshot;
 
-        var evType = evt.event_type;
-        // Derive prior event code for YoY comparisons
-        var priorCode = evType + String(evt.year - 1).slice(-2);
-
-        var results = await Promise.all([
-          sb.from('psr_glossary').select('*').order('sort_order'),
-          sb.from('psr_venue_history').select('*').eq('event_type', evType).order('sort_order'),
-          sb.from('psr_swot').select('*').eq('event_code', eventCode).order('sort_order'),
-          sb.from('psr_market_data').select('*').eq('event_type', evType).order('year'),
-          sb.from('psr_financials').select('*').eq('event_code', eventCode).order('sort_order'),
-          sb.from('psr_attendance').select('*').eq('event_code', eventCode).order('sort_order'),
-          sb.from('psr_members').select('*').eq('event_code', eventCode).order('sort_order'),
-          sb.from('psr_sponsors').select('*').eq('event_code', eventCode).order('sort_order'),
-          sb.from('psr_hotel').select('*').eq('event_code', eventCode).order('night_date'),
-          sb.from('psr_engagement').select('*').eq('event_code', eventCode).order('sort_order'),
-          sb.from('psr_webcasts').select('*').eq('event_code', eventCode).order('sort_order'),
-          sb.from('psr_meetings').select('*').eq('event_code', eventCode).order('sort_order'),
-          sb.from('psr_top_meetings').select('*').eq('event_code', eventCode).order('rank'),
-          // Member composition from analytics (current + prior year)
-          sb.from('event_participations')
-            .select('event_code, company_name, company_status, primary_mineral, primary_country, market_cap_usd')
-            .in('event_code', [eventCode, priorCode]),
-          // Member historical composition
-          sb.from('psr_member_history').select('*').eq('event_type', evType).order('year'),
-          // Registration reconciliation
-          sb.from('psr_reg_recon').select('*').eq('event_code', eventCode).order('sort_order'),
-          // Member cancellations
-          sb.from('psr_cancellations').select('*').eq('event_code', eventCode).order('sort_order'),
-          // Cached spot prices — provisional valuation for the current year until its
-          // event-day price is recorded in psr_market_data
-          sb.from('metal_prices').select('metal, price, updated_at').in('metal', ['gold', 'silver'])
-        ]);
-
-        // Build composition breakdown
-        var epRows = results[13].data || [];
-        var composition = { current: [], prior: [], current_code: eventCode, prior_code: priorCode };
-        epRows.forEach(function(r) {
-          if (r.event_code === eventCode) composition.current.push(r);
-          else composition.prior.push(r);
-        });
-
-        // Fetch live financials from budget system (non-blocking fallback to psr_financials)
-        var financials = results[4].data || [];
-        var financialsSource = 'manual';
-        var prepaidAsOf = null;
-        var budgetResult = await fetchBudgetFinancials(evType, evt.year);
-        if (budgetResult && budgetResult.financials && budgetResult.financials.length > 0) {
-          financials = budgetResult.financials;
-          financialsSource = 'budget';
-          prepaidAsOf = budgetResult.prepaid_as_of;
+        // A locked PSR is served exactly as it was when locked: no EMS, upload or budget change reaches it
+        if (evt.locked && snapshot) {
+          return res.status(200).json(Object.assign({}, snapshot, {
+            ok: true,
+            event: Object.assign({}, snapshot.event, { locked: true, locked_at: evt.locked_at, locked_by: evt.locked_by, cover_pdf: evt.cover_pdf }),
+            ems: Object.assign({}, snapshot.ems, { mode: 'locked', locked_at: evt.locked_at, locked_by: evt.locked_by })
+          }));
         }
-
-        // Fetch historical actuals from budget Supabase for recent years (per-event)
-        var histActuals = await fetchHistoricalActuals(evType, [2022, 2023, 2024, 2025]);
-
-        // No reconciliation yet (e.g. before the event): send registrants so the client can
-        // build a provisional current-year bar for Registration Historical Data.
-        // Paged because Supabase caps each response at 1,000 rows.
-        var attendeesProvisional = [];
-        if (!(results[15].data || []).length) {
-          for (var attFrom = 0; ; attFrom += 1000) {
-            var { data: attPage, error: attErr } = await sb.from('attendees')
-              .select('type, category, invitation_status, attendance, created_at')
-              .eq('event_code', eventCode)
-              .order('id')
-              .range(attFrom, attFrom + 999);
-            if (attErr || !attPage || !attPage.length) break;
-            attendeesProvisional = attendeesProvisional.concat(attPage);
-            if (attPage.length < 1000) break;
-          }
-        }
-
-        return res.status(200).json({
-          ok: true,
-          event: evt,
-          glossary: results[0].data || [],
-          venues: results[1].data || [],
-          swot: results[2].data || [],
-          market_data: results[3].data || [],
-          financials: financials,
-          financials_source: financialsSource,
-          prepaid_as_of: prepaidAsOf,
-          attendance: results[5].data || [],
-          members: results[6].data || [],
-          sponsors: results[7].data || [],
-          hotel: results[8].data || [],
-          engagement: results[9].data || [],
-          webcasts: results[10].data || [],
-          meetings: results[11].data || [],
-          top_meetings: results[12].data || [],
-          composition: composition,
-          member_history: results[14].data || [],
-          historical_actuals: histActuals,
-          reg_recon: results[15].data || [],
-          cancellations: results[16].data || [],
-          spot_prices: results[17].data || [],
-          attendees_provisional: attendeesProvisional
-        });
+        return res.status(200).json(Object.assign({ ok: true }, await buildFullReport(sb, evt)));
       }
 
       // EMS sync: the recent sync log, and a run on demand (?dry_run=1 previews without writing). Admin only.
@@ -879,6 +912,56 @@ module.exports = async function handler(req, res) {
 
       var body = req.body || {};
       var postAction = body.action;
+
+      // Lock or unlock a PSR. Locking stores the whole report as it stands (live EMS figures, uploads,
+      // budget financials, prices, attendance) and serves that snapshot from then on; unlocking returns
+      // the report to live reads. Either way the change is logged.
+      if (postAction === 'psr-lock') {
+        if (!body.event_code) return res.status(400).json({ ok: false, error: 'event_code is required' });
+        var lockInfo = extractTokenInfo(req.headers.authorization);
+        var { data: lockEvt } = await sb.from('psr_events').select('*').eq('event_code', body.event_code).single();
+        if (!lockEvt) return res.status(404).json({ ok: false, error: 'Event not found' });
+        delete lockEvt.snapshot;
+        if (body.locked) {
+          var snap = await buildFullReport(sb, Object.assign({}, lockEvt, { locked: false }));
+          snap.event = Object.assign({}, snap.event);
+          delete snap.event.cover_pdf;
+          delete snap.event.locked; delete snap.event.locked_at; delete snap.event.locked_by;
+          var lockedAt = new Date().toISOString();
+          var { error: lkErr } = await sb.from('psr_events').update({ locked: true, locked_at: lockedAt, locked_by: lockInfo.email, snapshot: snap }).eq('event_code', body.event_code);
+          if (lkErr) return res.status(500).json({ ok: false, error: lkErr.message });
+          logActivity(sb, { event_code: body.event_code, email: lockInfo.email, role: lockInfo.role, action: 'psr-lock', detail: 'Locked the PSR (EMS: ' + JSON.stringify(snap.ems && snap.ems.sources) + ')', ip: getClientIP(req) });
+          return res.status(200).json({ ok: true, locked: true, locked_at: lockedAt, locked_by: lockInfo.email, sources: snap.ems && snap.ems.sources });
+        }
+        var { error: ulErr } = await sb.from('psr_events').update({ locked: false, locked_at: null, locked_by: null, snapshot: null }).eq('event_code', body.event_code);
+        if (ulErr) return res.status(500).json({ ok: false, error: ulErr.message });
+        logActivity(sb, { event_code: body.event_code, email: lockInfo.email, role: lockInfo.role, action: 'psr-unlock', detail: 'Unlocked the PSR; live reads resume', ip: getClientIP(req) });
+        return res.status(200).json({ ok: true, locked: false });
+      }
+
+      // A locked PSR takes no edits. Actions name their event, or a row whose event we look up;
+      // the market and venue tables are shared across a series and the briefing inputs are not the PSR.
+      var LOCK_TABLE = { 'swot-update': 'psr_swot', 'swot-delete': 'psr_swot', 'swot-reorder': 'psr_swot',
+        'engagement-update': 'psr_engagement', 'engagement-delete': 'psr_engagement', 'engagement-reorder': 'psr_engagement',
+        'hotel-update': 'psr_hotel', 'hotel-delete': 'psr_hotel', 'meeting-update': 'psr_meetings', 'meeting-delete': 'psr_meetings',
+        'top-meeting-update': 'psr_top_meetings', 'top-meeting-delete': 'psr_top_meetings', 'webcast-update': 'psr_webcasts', 'webcast-delete': 'psr_webcasts' };
+      var LOCK_EXEMPT = { 'brief-inputs-save': 1, 'market-add-year': 1, 'market-delete-year': 1, 'market-update': 1, 'venue-update': 1 };
+      if (!LOCK_EXEMPT[postAction]) {
+        var lockCode = body.event_code || null;
+        if (!lockCode && LOCK_TABLE[postAction]) {
+          var rowId = body.id || (Array.isArray(body.items) && body.items[0] && body.items[0].id) || (Array.isArray(body.order) && body.order[0]);
+          if (rowId != null) {
+            var { data: lockRow } = await sb.from(LOCK_TABLE[postAction]).select('event_code').eq('id', rowId).maybeSingle();
+            lockCode = lockRow && lockRow.event_code;
+          }
+        }
+        if (lockCode) {
+          var { data: lockState } = await sb.from('psr_events').select('locked').eq('event_code', lockCode).maybeSingle();
+          if (lockState && lockState.locked) {
+            return res.status(423).json({ ok: false, error: 'The ' + lockCode + ' PSR is locked. Unlock it to make changes.' });
+          }
+        }
+      }
 
       // Log every write action (fire-and-forget)
       var _who = extractTokenInfo(req.headers.authorization);

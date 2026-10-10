@@ -313,6 +313,15 @@ module.exports = async function handler(req, res) {
         return res.status(400).json({ ok: false, error: 'Upload has no data rows' });
       }
 
+      // An event whose PSR is locked takes no new participations or attendees
+      if (target !== 'companies') {
+        var lockedCode = String(target).replace('-attendees', '').toUpperCase();
+        var { data: lockedEvt } = await sb.from('psr_events').select('locked').eq('event_code', lockedCode).maybeSingle();
+        if (lockedEvt && lockedEvt.locked) {
+          return res.status(423).json({ ok: false, error: 'The ' + lockedCode + ' PSR is locked. Unlock it before uploading for this event.' });
+        }
+      }
+
       if (target === 'companies') {
         // CSV/JSON replaces all existing data, but preserves enrichment fields
         // (mineral, country, region, exchange) when incoming values are empty.
