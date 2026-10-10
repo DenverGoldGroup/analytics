@@ -2,6 +2,7 @@
 // GET  /api/psr — Fetch PSR data by section
 const crypto = require('crypto');
 const { createClient } = require('@supabase/supabase-js');
+const EMS = require('./_ems');
 
 const SUPABASE_URL = 'https://ljyogcspkvqgjbiyzfbn.supabase.co';
 
@@ -727,6 +728,34 @@ module.exports = async function handler(req, res) {
           cancellations: results[16].data || [],
           spot_prices: results[17].data || [],
           attendees_provisional: attendeesProvisional
+        });
+      }
+
+      // EMS check: what EMS says about an event, for comparison with the figures the briefings use today.
+      // Admin only, never cached. Each block is null when EMS has no answer for it.
+      if (action === 'ems-compare' && eventCode) {
+        if (!verifyToken(req.headers.authorization)) {
+          return res.status(401).json({ ok: false, error: 'Unauthorized' });
+        }
+        res.setHeader('Cache-Control', 'no-store');
+        var emsEvt = await EMS.eventByCode(eventCode);
+        if (!emsEvt) return res.status(200).json({ ok: true, found: false, event_code: eventCode });
+        var emsParts = await Promise.all([
+          EMS.ems('/events/' + emsEvt.id),
+          EMS.ems('/events/' + emsEvt.id + '/meetings'),
+          EMS.ems('/events/' + emsEvt.id + '/representation'),
+          EMS.ems('/event-partners', { event_id: emsEvt.id }),
+          EMS.ems('/events', { upcoming: 1, days: 60 })
+        ]);
+        var pick = function(e) { return e && { id: e.id, code: e.code, name: e.name, type: e.type, start_date: e.start_date, end_date: e.end_date, timezone: e.timezone, location: e.location, venue: e.venue || null, logo_url: e.logo_url || null }; };
+        return res.status(200).json({
+          ok: true, found: true, event_code: eventCode,
+          event: pick(emsParts[0] ? emsParts[0].data : emsEvt),
+          meetings: emsParts[1] ? emsParts[1].data : null,
+          representation: emsParts[2] ? emsParts[2].data : null,
+          // Partner names only; the rest of each record is not needed for the check
+          partners: emsParts[3] && Array.isArray(emsParts[3].data) ? emsParts[3].data.map(function(p) { return p.name || p.company_name || (p.company && p.company.name) || null; }) : null,
+          upcoming: emsParts[4] && Array.isArray(emsParts[4].data) ? emsParts[4].data.map(pick) : null
         });
       }
 

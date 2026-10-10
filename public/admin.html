@@ -386,6 +386,7 @@
           </div>
           <button class="btn btn-gold" id="ab-generate-btn" onclick="generateBrief('analyst')">Analyst Briefing PDF</button>
           <button class="btn btn-gold" id="mb-generate-btn" onclick="generateBrief('member')">Member &amp; Partner Post-Show Briefing PDF</button>
+          <button class="btn" id="ems-compare-btn" onclick="emsCompare()" title="Read-only: what EMS says about this event next to the figures the briefings use today. Changes nothing.">Compare with EMS</button>
         </div>
         <div id="ab-inputs" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:10px;margin-top:12px;font-size:11px;color:#555">
           <label title="Only used when no attendee data is loaded; otherwise the briefing projects buy-side from the attendee upload, as the attendees page does.">Projected buy-side (fallback)<input type="number" id="ab-buyside" min="0" class="ab-input"></label>
@@ -426,6 +427,7 @@
           <div class="progress-text" id="ab-progress-text">Working...</div>
         </div>
         <div class="upload-result" id="ab-result"></div>
+        <div id="ems-compare" style="display:none;margin-top:12px;font-size:12px"></div>
       </div>
 
       <!-- Member Holdings (shareholder representation) -->
@@ -1380,6 +1382,76 @@
     }
 
     // kind: 'analyst' (sell-side analysts) or 'member' (presenting issuers, after the forum)
+    // Read-only check: EMS's figures for the selected event beside the ones the briefings use today.
+    // Nothing is saved or changed; the EMS key stays on the server (api/_ems.js).
+    async function emsCompare() {
+      var eventCode = document.getElementById('ab-event').value;
+      var box = document.getElementById('ems-compare');
+      box.style.display = 'block';
+      box.textContent = eventCode ? 'Asking EMS...' : 'Choose an event first.';
+      if (!eventCode) return;
+      try {
+        var auth = { headers: { 'Authorization': 'Bearer ' + adminToken } };
+        var got = await Promise.all([
+          fetch('/api/psr?action=ems-compare&event_code=' + encodeURIComponent(eventCode), auth).then(function(r) { return r.json(); }),
+          fetch('/api/psr?action=analyst-brief-data&event_code=' + encodeURIComponent(eventCode), auth).then(function(r) { return r.json(); }),
+          loadBriefLibs()
+        ]);
+        var e = got[0], data = got[1];
+        if (!e.ok) throw new Error(e.error || 'EMS check failed');
+        if (!e.found) { box.textContent = 'EMS has no event with code ' + eventCode + ' (or did not answer). Nothing to compare.'; return; }
+        var s = data.ok ? AnalystBrief.summarise(data) : null;
+        var fmt = function(v) { return v == null || v === '' ? '—' : (typeof v === 'number' ? v.toLocaleString('en-US', { maximumFractionDigits: 2 }) : String(v)); };
+        var rows = [], ev = data.event || {}, m = s && s.meetings, c = s && s.audience && s.audience.csuite, em = e.meetings || {}, er = e.representation || {};
+        var et = em.totals || {};
+        rows.push(['Event', ev.event_name + ' (' + eventCode + ')', e.event.name + ' (' + e.event.code + ', id ' + e.event.id + ')']);
+        rows.push(['Start date', ev.start_date, e.event.start_date]);
+        rows.push(['End date', ev.end_date, e.event.end_date]);
+        rows.push(['Venue', [ev.venue, ev.city].filter(Boolean).join(', '), e.event.venue ? [e.event.venue.name, e.event.venue.location].filter(Boolean).join(', ') : e.event.location]);
+        rows.push(['Accepted 1x1 meetings (before informal estimate)', m && m.total, et.accepted]);
+        rows.push(['Scheduled 1x1 meetings', null, et.scheduled]);
+        rows.push(['Average per issuer taking meetings', m && m.perIssuer != null ? +(m.perIssuer / (m.factor || 1)).toFixed(1) : null, null]);
+        rows.push(['Issuers taking meetings', m && m.issuersWithMeetings, null]);
+        rows.push(['Issuers in C-suite base', c && c.issuers, er.issuers]);
+        rows.push(['Issuers with chief executive', c && c.ceoCompanies, er.with_chief_executive]);
+        rows.push(['Issuers with any C-suite', null, er.with_c_suite]);
+        rows.push(['Corporate delegates', c && c.delegates, er.delegates]);
+        rows.push(['Partners (count)', (data.partners || []).length, e.partners ? e.partners.length : null]);
+        var ours = (data.partners || []).map(function(n) { return n.toLowerCase(); });
+        var theirs = (e.partners || []).filter(Boolean).map(function(n) { return n.toLowerCase(); });
+        var onlyOurs = (data.partners || []).filter(function(n) { return theirs.indexOf(n.toLowerCase()) === -1; });
+        var onlyEms = (e.partners || []).filter(function(n) { return n && ours.indexOf(n.toLowerCase()) === -1; });
+        rows.push(['Partners only on our list', onlyOurs.join('; ') || 'none', '']);
+        rows.push(['Partners only in EMS', '', onlyEms.join('; ') || 'none']);
+        var forumsOurs = AnalystBrief.nextForums(ev.year || new Date().getFullYear()).map(function(f) { return f.event_name + ': ' + f.dates + ', ' + f.venue; }).join('\n');
+        var forumsEms = (e.upcoming || []).map(function(f) { return f.name + ' (' + f.code + '): ' + f.start_date + ' to ' + f.end_date + ', ' + (f.location || ''); }).join('\n');
+        rows.push(['Forums to come', forumsOurs, forumsEms]);
+        var html = '<table style="width:100%;border-collapse:collapse"><thead><tr><th style="text-align:left;padding:4px 6px;border-bottom:2px solid #333">Field</th><th style="text-align:left;padding:4px 6px;border-bottom:2px solid #333">Briefings today</th><th style="text-align:left;padding:4px 6px;border-bottom:2px solid #333">EMS</th></tr></thead><tbody></tbody></table>';
+        box.innerHTML = '<div style="margin-bottom:6px;color:#555">Read-only. Rows where the two differ are highlighted; EMS is the source of truth, so a difference is fixed in EMS or explained, not overridden here.</div>' + html;
+        var tb = box.querySelector('tbody');
+        rows.forEach(function(r) {
+          var tr = document.createElement('tr');
+          var a = fmt(r[1]), b = fmt(r[2]);
+          if (r[1] != null && r[2] != null && r[1] !== '' && r[2] !== '' && a !== b) tr.style.background = '#FFF3D6';
+          [r[0], a, b].forEach(function(v, i) {
+            var td = document.createElement('td');
+            td.textContent = v; td.style.padding = '4px 6px'; td.style.borderBottom = '1px solid #eee'; td.style.whiteSpace = 'pre-wrap';
+            if (i === 0) td.style.fontWeight = '600';
+            tr.appendChild(td);
+          });
+          tb.appendChild(tr);
+        });
+        // The breakdowns EMS returns, as it returns them, for checking the by-stage and by-metal averages
+        var raw = document.createElement('details');
+        raw.style.marginTop = '8px';
+        raw.innerHTML = '<summary style="cursor:pointer">EMS meeting breakdowns and representation, as returned</summary><pre style="font-size:10px;white-space:pre-wrap;max-height:360px;overflow:auto;background:#f7f7f7;padding:8px"></pre>';
+        raw.querySelector('pre').textContent = JSON.stringify({ groups: em.groups, by_stage: em.by_stage, by_metal: em.by_metal, representation: er }, null, 1);
+        box.appendChild(raw);
+      } catch (err) {
+        box.textContent = 'EMS check failed: ' + err.message;
+      }
+    }
+
     async function generateBrief(kind) {
       var isMember = kind === 'member';
       var eventCode = document.getElementById('ab-event').value;
