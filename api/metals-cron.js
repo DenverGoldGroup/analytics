@@ -6,6 +6,7 @@
 // cadence, so all five metals refresh together each run. An admin can force an
 // out-of-cycle refresh via GET /api/metals?refresh=true.
 var https = require('https');
+var crypto = require('crypto');
 var { createClient } = require('@supabase/supabase-js');
 
 var SUPABASE_URL = 'https://ljyogcspkvqgjbiyzfbn.supabase.co';
@@ -55,25 +56,57 @@ async function fetchSpot(apiKey, metal) {
   };
 }
 
+function safeEqual(a, b) {
+  var aBuf = Buffer.from(String(a));
+  var bBuf = Buffer.from(String(b));
+  return aBuf.length === bBuf.length && crypto.timingSafeEqual(aBuf, bBuf);
+}
+
+// True only when CRON_SECRET is configured and the header matches it exactly
+function isVercelCron(authHeader) {
+  var secret = process.env.CRON_SECRET;
+  if (!secret || !authHeader) return false;
+  return safeEqual(authHeader, 'Bearer ' + secret);
+}
+
+// Admin token, same scheme as api/psr.js and api/metals.js:
+// randomBytes.timestamp.emailB64.signature (4 parts) or legacy
+// randomBytes.timestamp.signature (3 parts); HMAC-SHA256 with
+// ADMIN_PASSWORD + SUPABASE_SERVICE_ROLE_KEY, valid for 24 hours.
+function verifyAdminToken(authHeader) {
+  if (!authHeader || authHeader.indexOf('Bearer ') !== 0) return false;
+  if (!process.env.ADMIN_PASSWORD || !process.env.SUPABASE_SERVICE_ROLE_KEY) return false;
+  var secret = process.env.ADMIN_PASSWORD + process.env.SUPABASE_SERVICE_ROLE_KEY;
+  var parts = authHeader.slice(7).split('.');
+  var payload, providedSig;
+  if (parts.length === 4 && parts[0] !== 'psr') {
+    payload = parts[0] + '.' + parts[1] + '.' + parts[2];
+    providedSig = parts[3];
+  } else if (parts.length === 3) {
+    payload = parts[0] + '.' + parts[1];
+    providedSig = parts[2];
+  } else {
+    return false;
+  }
+  var expectedSig = crypto.createHmac('sha256', secret).update(payload).digest('hex');
+  if (!safeEqual(providedSig, expectedSig)) return false;
+  var age = Date.now() - parseInt(parts[1], 10);
+  if (isNaN(age) || age < 0 || age > 24 * 60 * 60 * 1000) return false;
+  return true;
+}
+
 module.exports = async function handler(req, res) {
   // Vercel crons send GET requests; also accept POST for manual triggers
   if (req.method !== 'GET' && req.method !== 'POST') {
     return res.status(405).json({ ok: false, error: 'Method not allowed' });
   }
 
-  // Verify cron secret (Vercel sets this header for cron invocations)
-  var cronSecret = req.headers['authorization'];
-  var isVercelCron = cronSecret === 'Bearer ' + process.env.CRON_SECRET;
-  var isAdmin = false;
-
-  if (!isVercelCron) {
-    // Allow admin token as fallback for manual triggers
-    if (!process.env.ADMIN_PASSWORD || !process.env.SUPABASE_SERVICE_ROLE_KEY) {
-      return res.status(401).json({ ok: false, error: 'Unauthorized' });
-    }
-    // Simple check: just verify it's a valid bearer token (reuse metals.js pattern)
-    isAdmin = !!cronSecret;
-    if (!isAdmin) return res.status(401).json({ ok: false, error: 'Unauthorized' });
+  // Vercel cron invocations carry "Bearer <CRON_SECRET>"; manual triggers need a
+  // signed admin token. Every other caller is refused, so metals.dev is only hit
+  // by the monthly cron or a deliberate admin refresh.
+  var authHeader = req.headers['authorization'];
+  if (!isVercelCron(authHeader) && !verifyAdminToken(authHeader)) {
+    return res.status(401).json({ ok: false, error: 'Unauthorized' });
   }
 
   var apiKey = process.env.METALS_DEV_API_KEY;

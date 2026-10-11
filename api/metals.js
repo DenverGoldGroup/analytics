@@ -86,8 +86,9 @@ module.exports = async function handler(req, res) {
       }
       // Import and call the cron handler's fetch logic
       var cronHandler = require('./metals-cron');
-      // Simulate a cron request
-      var fakeReq = { method: 'POST', headers: { authorization: 'Bearer ' + process.env.CRON_SECRET } };
+      // Simulate a manual trigger, forwarding the admin token verified above
+      // (metals-cron checks it again, so this works without CRON_SECRET too)
+      var fakeReq = { method: 'POST', headers: { authorization: req.headers.authorization } };
       var cronResult = {};
       var fakeRes = {
         status: function(code) { cronResult.status = code; return fakeRes; },
