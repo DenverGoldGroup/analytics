@@ -625,6 +625,27 @@ module.exports = async function handler(req, res) {
       var eventType = req.query.event_type;
 
       // Require auth for all GET endpoints
+      // Export for EMS's reconciliation page (DGG, 11 October 2026): the whole report — the locked snapshot when
+      // locked — to a server presenting the shared PSR_EXPORT_KEY. Nothing a viewer could not see.
+      if (action === 'export' && eventCode) {
+        var exportKey = process.env.PSR_EXPORT_KEY;
+        if (!exportKey) return res.status(503).json({ ok: false, error: 'Not configured' });
+        var givenKey = Buffer.from(String(req.headers.authorization || ''));
+        var expectedKey = Buffer.from('Bearer ' + exportKey);
+        if (givenKey.length !== expectedKey.length || !crypto.timingSafeEqual(givenKey, expectedKey)) {
+          return res.status(401).json({ ok: false, error: 'Unauthorized' });
+        }
+        res.setHeader('Cache-Control', 'no-store');
+        var { data: exEvt } = await sb.from('psr_events').select('*').eq('event_code', eventCode).single();
+        if (!exEvt) return res.status(404).json({ ok: false, error: 'Event not found' });
+        var exSnapshot = exEvt.snapshot;
+        delete exEvt.snapshot;
+        if (exEvt.locked && exSnapshot) {
+          return res.status(200).json(Object.assign({}, exSnapshot, { ok: true, locked: true, locked_at: exEvt.locked_at }));
+        }
+        return res.status(200).json(Object.assign({ ok: true, locked: false }, await buildFullReport(sb, exEvt)));
+      }
+
       if (!verifyReadToken(req.headers.authorization)) {
         return res.status(401).json({ ok: false, error: 'Unauthorized' });
       }
