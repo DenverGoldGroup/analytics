@@ -1,0 +1,62 @@
+[
+ {
+  "metal": "gold",
+  "price": 3875.65,
+  "bid": 3874.02,
+  "ask": 3877.28,
+  "high": 4026.92,
+  "low": 3870.235,
+  "change": -145.77,
+  "change_percent": -3.62,
+  "currency": "USD",
+  "updated_at": "2026-11-01T00:00:31.483+00:00"
+ },
+ {
+  "metal": "silver",
+  "price": 49.135,
+  "bid": 49.109,
+  "ask": 49.161,
+  "high": 52.2365,
+  "low": 48.864,
+  "change": -3.032,
+  "change_percent": -5.81,
+  "currency": "USD",
+  "updated_at": "2026-11-01T00:00:32.833+00:00"
+ },
+ {
+  "metal": "platinum",
+  "price": 1433.4,
+  "bid": 1433.4,
+  "ask": 1439.6,
+  "high": 1493.7,
+  "low": 1423.627,
+  "change": -52.25,
+  "change_percent": -3.52,
+  "currency": "USD",
+  "updated_at": "2026-11-01T00:00:32.986+00:00"
+ },
+ {
+  "metal": "palladium",
+  "price": 975.593,
+  "bid": 975.593,
+  "ask": 985.877,
+  "high": 1006.858,
+  "low": 969.155,
+  "change": -26.02,
+  "change_percent": -2.6,
+  "currency": "USD",
+  "updated_at": "2026-11-01T00:00:33.184+00:00"
+ },
+ {
+  "metal": "copper",
+  "price": 14515.2251,
+  "bid": 14515.2251,
+  "ask": 14520.1414,
+  "high": 14700.5238,
+  "low": 14379.1998,
+  "change": -177.5825,
+  "change_percent": -1.21,
+  "currency": "USD",
+  "updated_at": "2026-11-01T00:00:33.422+00:00"
+ }
+]

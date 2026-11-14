@@ -1,0 +1,29 @@
+[
+ {
+  "event_code": "MFA26",
+  "buyside_projected": 370,
+  "buyside_prior": 292,
+  "meetings_prior_final": 4027,
+  "holdings_ratio_prior": 0.212,
+  "projection_factor": 1.37,
+  "updated_at": "2026-09-30T22:59:15.002139+00:00",
+  "investors_with_meetings": 335,
+  "investor_firms": 422,
+  "investor_meetings_source": "mfa26-meeting-requests-20260930120613.json, 2026-09-30",
+  "investor_meetings_total": 4235,
+  "attendees_projected_total": 1280,
+  "meetings_current": 4577,
+  "attendees_prior": 1005,
+  "informal_factor": 1.18,
+  "webcast_stats": {
+   "source": "webcast platform stats, 2026-09-30 (2026) and full year (2025)",
+   "prior_text": "Status\tTotal Views\tAverage Views\tTotal Duration\tAverage Duration\nProducer\t9,740\t120\t1722h 54m 37s\t10m 37s\nDeveloper (construction/feasibility)\t2,295\t92\t411h 15m 15s\t10m 45s\nDeveloper (PEA/scoping)\t1,063\t106\t199h 57m 28s\t11m 17s\nExplorer (advanced)\t757\t69\t140h 20m 46s\t11m 7s\nExplorer (early-stage)\t0\t\t0s\t\nRoyalty / Streaming\t699\t78\t138h 10m 9s\t11m 52s\nBullion Dealer\t10\t10\t53m 57s\t5m 24s\nAll\t14,564\t106\t2613h 32m 12s\t10m 46s",
+   "current_text": "Status\tTotal Views\tAverage Views\tTotal Duration\tAverage Duration\nProducer\t6,642\t74\t1181h 28m 41s\t10m 40s\nDeveloper (construction/feasibility)\t1,371\t39\t228h 28m 31s\t10m 0s\nDeveloper (PEA/scoping)\t1,070\t54\t186h 27m 18s\t10m 27s\nExplorer (advanced)\t865\t35\t166h 28m 30s\t11m 33s\nExplorer (early-stage)\t164\t21\t23h 37m 2s\t8m 38s\nRoyalty / Streaming\t788\t66\t117h 15m 42s\t8m 56s\nBullion Dealer\t27\t27\t3h 50m 12s\t8m 32s\nAll\t10,927\t57\t1907h 35m 56s\t10m 28s",
+   "same_time_share": 0.65
+  },
+  "site_views": {
+   "prior_text": "2025-09: 19042\n2025-10: 6041",
+   "current_text": "2026-09: 20231"
+  }
+ }
+]

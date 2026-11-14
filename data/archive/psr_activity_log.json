@@ -1,0 +1,4792 @@
+[
+ {
+  "id": 1,
+  "created_at": "2026-04-30T03:40:01.297276+00:00",
+  "event_code": "MFE26",
+  "user_email": "twood@denvergold.org",
+  "user_role": "admin",
+  "action": "view-report",
+  "detail": "Opened PSR report",
+  "ip_address": "67.177.249.202"
+ },
+ {
+  "id": 2,
+  "created_at": "2026-04-30T03:43:41.041795+00:00",
+  "event_code": null,
+  "user_email": "twood@denvergold.org",
+  "user_role": "admin",
+  "action": "swot-update",
+  "detail": "SWOT: update",
+  "ip_address": "67.177.249.202"
+ },
+ {
+  "id": 3,
+  "created_at": "2026-04-30T03:43:42.353661+00:00",
+  "event_code": null,
+  "user_email": "twood@denvergold.org",
+  "user_role": "admin",
+  "action": "swot-delete",
+  "detail": "SWOT: delete",
+  "ip_address": "67.177.249.202"
+ },
+ {
+  "id": 4,
+  "created_at": "2026-04-30T03:43:46.258275+00:00",
+  "event_code": null,
+  "user_email": "twood@denvergold.org",
+  "user_role": "admin",
+  "action": "swot-delete",
+  "detail": "SWOT: delete",
+  "ip_address": "67.177.249.202"
+ },
+ {
+  "id": 5,
+  "created_at": "2026-04-30T03:43:55.990724+00:00",
+  "event_code": null,
+  "user_email": "twood@denvergold.org",
+  "user_role": "admin",
+  "action": "swot-delete",
+  "detail": "SWOT: delete",
+  "ip_address": "67.177.249.202"
+ },
+ {
+  "id": 6,
+  "created_at": "2026-04-30T14:52:39.440828+00:00",
+  "event_code": null,
+  "user_email": "jdill@denvergold.org",
+  "user_role": "admin",
+  "action": "login",
+  "detail": "Magic link login",
+  "ip_address": "76.130.235.87"
+ },
+ {
+  "id": 7,
+  "created_at": "2026-04-30T14:52:42.265411+00:00",
+  "event_code": "MFE26",
+  "user_email": "jdill@denvergold.org",
+  "user_role": "admin",
+  "action": "view-report",
+  "detail": "Opened PSR report",
+  "ip_address": "76.130.235.87"
+ },
+ {
+  "id": 8,
+  "created_at": "2026-05-04T15:30:02.431264+00:00",
+  "event_code": "MFE26",
+  "user_email": "twood@denvergold.org",
+  "user_role": "admin",
+  "action": "view-report",
+  "detail": "Opened PSR report",
+  "ip_address": "73.95.198.18"
+ },
+ {
+  "id": 9,
+  "created_at": "2026-05-04T15:41:15.277217+00:00",
+  "event_code": null,
+  "user_email": "twood@denvergold.org",
+  "user_role": "admin",
+  "action": "login",
+  "detail": "Magic link login",
+  "ip_address": "73.95.198.18"
+ },
+ {
+  "id": 10,
+  "created_at": "2026-05-04T15:41:17.418614+00:00",
+  "event_code": "MFE26",
+  "user_email": "twood@denvergold.org",
+  "user_role": "admin",
+  "action": "view-report",
+  "detail": "Opened PSR report",
+  "ip_address": "73.95.198.18"
+ },
+ {
+  "id": 11,
+  "created_at": "2026-05-04T16:54:11.865184+00:00",
+  "event_code": null,
+  "user_email": "jdill@denvergold.org",
+  "user_role": "admin",
+  "action": "login",
+  "detail": "Magic link login",
+  "ip_address": "73.95.198.18"
+ },
+ {
+  "id": 12,
+  "created_at": "2026-05-04T16:54:14.536038+00:00",
+  "event_code": "MFE26",
+  "user_email": "jdill@denvergold.org",
+  "user_role": "admin",
+  "action": "view-report",
+  "detail": "Opened PSR report",
+  "ip_address": "73.95.198.18"
+ },
+ {
+  "id": 13,
+  "created_at": "2026-05-04T17:03:03.956143+00:00",
+  "event_code": null,
+  "user_email": "jdill@denvergold.org",
+  "user_role": "admin",
+  "action": "swot-delete",
+  "detail": "SWOT: delete",
+  "ip_address": "73.95.198.18"
+ },
+ {
+  "id": 14,
+  "created_at": "2026-05-04T17:04:15.431297+00:00",
+  "event_code": null,
+  "user_email": "jdill@denvergold.org",
+  "user_role": "admin",
+  "action": "swot-update",
+  "detail": "SWOT: update",
+  "ip_address": "73.95.198.18"
+ },
+ {
+  "id": 15,
+  "created_at": "2026-05-04T17:04:19.707879+00:00",
+  "event_code": null,
+  "user_email": "jdill@denvergold.org",
+  "user_role": "admin",
+  "action": "swot-update",
+  "detail": "SWOT: update",
+  "ip_address": "73.95.198.18"
+ },
+ {
+  "id": 16,
+  "created_at": "2026-05-04T17:06:11.215297+00:00",
+  "event_code": null,
+  "user_email": "jdill@denvergold.org",
+  "user_role": "admin",
+  "action": "swot-update",
+  "detail": "SWOT: update",
+  "ip_address": "73.95.198.18"
+ },
+ {
+  "id": 17,
+  "created_at": "2026-05-04T17:07:36.287644+00:00",
+  "event_code": null,
+  "user_email": "jdill@denvergold.org",
+  "user_role": "admin",
+  "action": "swot-update",
+  "detail": "SWOT: update",
+  "ip_address": "73.95.198.18"
+ },
+ {
+  "id": 18,
+  "created_at": "2026-05-04T17:07:36.859001+00:00",
+  "event_code": null,
+  "user_email": "jdill@denvergold.org",
+  "user_role": "admin",
+  "action": "swot-update",
+  "detail": "SWOT: update",
+  "ip_address": "73.95.198.18"
+ },
+ {
+  "id": 19,
+  "created_at": "2026-05-04T17:07:45.370317+00:00",
+  "event_code": null,
+  "user_email": "jdill@denvergold.org",
+  "user_role": "admin",
+  "action": "swot-update",
+  "detail": "SWOT: update",
+  "ip_address": "73.95.198.18"
+ },
+ {
+  "id": 20,
+  "created_at": "2026-05-04T17:09:00.20903+00:00",
+  "event_code": null,
+  "user_email": "jdill@denvergold.org",
+  "user_role": "admin",
+  "action": "swot-update",
+  "detail": "SWOT: update",
+  "ip_address": "73.95.198.18"
+ },
+ {
+  "id": 21,
+  "created_at": "2026-05-04T17:09:58.861718+00:00",
+  "event_code": null,
+  "user_email": "jdill@denvergold.org",
+  "user_role": "admin",
+  "action": "swot-delete",
+  "detail": "SWOT: delete",
+  "ip_address": "73.95.198.18"
+ },
+ {
+  "id": 22,
+  "created_at": "2026-05-04T17:11:20.410721+00:00",
+  "event_code": null,
+  "user_email": "jdill@denvergold.org",
+  "user_role": "admin",
+  "action": "swot-delete",
+  "detail": "SWOT: delete",
+  "ip_address": "73.95.198.18"
+ },
+ {
+  "id": 23,
+  "created_at": "2026-05-04T17:13:49.586322+00:00",
+  "event_code": null,
+  "user_email": "jdill@denvergold.org",
+  "user_role": "admin",
+  "action": "swot-update",
+  "detail": "SWOT: update",
+  "ip_address": "73.95.198.18"
+ },
+ {
+  "id": 24,
+  "created_at": "2026-05-04T17:13:54.642874+00:00",
+  "event_code": null,
+  "user_email": "jdill@denvergold.org",
+  "user_role": "admin",
+  "action": "swot-update",
+  "detail": "SWOT: update",
+  "ip_address": "73.95.198.18"
+ },
+ {
+  "id": 25,
+  "created_at": "2026-05-04T17:14:03.80783+00:00",
+  "event_code": null,
+  "user_email": "jdill@denvergold.org",
+  "user_role": "admin",
+  "action": "swot-update",
+  "detail": "SWOT: update",
+  "ip_address": "73.95.198.18"
+ },
+ {
+  "id": 26,
+  "created_at": "2026-05-05T02:14:20.981699+00:00",
+  "event_code": "MFE26",
+  "user_email": "twood@denvergold.org",
+  "user_role": "admin",
+  "action": "view-report",
+  "detail": "Opened PSR report",
+  "ip_address": "67.177.249.202"
+ },
+ {
+  "id": 27,
+  "created_at": "2026-05-06T18:01:41.647982+00:00",
+  "event_code": null,
+  "user_email": "jdill@denvergold.org",
+  "user_role": "admin",
+  "action": "login",
+  "detail": "Magic link login",
+  "ip_address": "76.130.235.87"
+ },
+ {
+  "id": 28,
+  "created_at": "2026-05-06T18:01:44.725513+00:00",
+  "event_code": "MFE26",
+  "user_email": "jdill@denvergold.org",
+  "user_role": "admin",
+  "action": "view-report",
+  "detail": "Opened PSR report",
+  "ip_address": "76.130.235.87"
+ },
+ {
+  "id": 29,
+  "created_at": "2026-05-07T12:21:29.712738+00:00",
+  "event_code": null,
+  "user_email": "twood@denvergold.org",
+  "user_role": "admin",
+  "action": "login",
+  "detail": "Magic link login",
+  "ip_address": "67.177.249.202"
+ },
+ {
+  "id": 30,
+  "created_at": "2026-05-07T12:21:32.249023+00:00",
+  "event_code": "MFE26",
+  "user_email": "twood@denvergold.org",
+  "user_role": "admin",
+  "action": "view-report",
+  "detail": "Opened PSR report",
+  "ip_address": "67.177.249.202"
+ },
+ {
+  "id": 31,
+  "created_at": "2026-05-07T12:28:00.50218+00:00",
+  "event_code": null,
+  "user_email": "twood@denvergold.org",
+  "user_role": "admin",
+  "action": "engagement-update",
+  "detail": "Engagement: update",
+  "ip_address": "67.177.249.202"
+ },
+ {
+  "id": 32,
+  "created_at": "2026-05-07T12:28:00.730001+00:00",
+  "event_code": null,
+  "user_email": "twood@denvergold.org",
+  "user_role": "admin",
+  "action": "engagement-update",
+  "detail": "Engagement: update",
+  "ip_address": "67.177.249.202"
+ },
+ {
+  "id": 33,
+  "created_at": "2026-05-07T12:28:17.863393+00:00",
+  "event_code": null,
+  "user_email": "twood@denvergold.org",
+  "user_role": "admin",
+  "action": "engagement-update",
+  "detail": "Engagement: update",
+  "ip_address": "67.177.249.202"
+ },
+ {
+  "id": 34,
+  "created_at": "2026-05-07T12:28:18.577801+00:00",
+  "event_code": null,
+  "user_email": "twood@denvergold.org",
+  "user_role": "admin",
+  "action": "engagement-update",
+  "detail": "Engagement: update",
+  "ip_address": "67.177.249.202"
+ },
+ {
+  "id": 35,
+  "created_at": "2026-05-07T12:28:34.33949+00:00",
+  "event_code": null,
+  "user_email": "twood@denvergold.org",
+  "user_role": "admin",
+  "action": "engagement-update",
+  "detail": "Engagement: update",
+  "ip_address": "67.177.249.202"
+ },
+ {
+  "id": 36,
+  "created_at": "2026-05-07T12:28:35.248115+00:00",
+  "event_code": null,
+  "user_email": "twood@denvergold.org",
+  "user_role": "admin",
+  "action": "engagement-update",
+  "detail": "Engagement: update",
+  "ip_address": "67.177.249.202"
+ },
+ {
+  "id": 37,
+  "created_at": "2026-05-07T12:28:35.937909+00:00",
+  "event_code": null,
+  "user_email": "twood@denvergold.org",
+  "user_role": "admin",
+  "action": "engagement-update",
+  "detail": "Engagement: update",
+  "ip_address": "67.177.249.202"
+ },
+ {
+  "id": 38,
+  "created_at": "2026-05-07T12:29:00.533011+00:00",
+  "event_code": null,
+  "user_email": "twood@denvergold.org",
+  "user_role": "admin",
+  "action": "engagement-update",
+  "detail": "Engagement: update",
+  "ip_address": "67.177.249.202"
+ },
+ {
+  "id": 39,
+  "created_at": "2026-05-07T12:29:00.969906+00:00",
+  "event_code": null,
+  "user_email": "twood@denvergold.org",
+  "user_role": "admin",
+  "action": "engagement-update",
+  "detail": "Engagement: update",
+  "ip_address": "67.177.249.202"
+ },
+ {
+  "id": 40,
+  "created_at": "2026-05-07T12:29:12.412519+00:00",
+  "event_code": null,
+  "user_email": "twood@denvergold.org",
+  "user_role": "admin",
+  "action": "engagement-update",
+  "detail": "Engagement: update",
+  "ip_address": "67.177.249.202"
+ },
+ {
+  "id": 41,
+  "created_at": "2026-05-07T12:29:21.149126+00:00",
+  "event_code": null,
+  "user_email": "twood@denvergold.org",
+  "user_role": "admin",
+  "action": "engagement-update",
+  "detail": "Engagement: update",
+  "ip_address": "67.177.249.202"
+ },
+ {
+  "id": 42,
+  "created_at": "2026-05-07T12:29:22.161023+00:00",
+  "event_code": null,
+  "user_email": "twood@denvergold.org",
+  "user_role": "admin",
+  "action": "engagement-update",
+  "detail": "Engagement: update",
+  "ip_address": "67.177.249.202"
+ },
+ {
+  "id": 43,
+  "created_at": "2026-05-07T12:30:50.189704+00:00",
+  "event_code": null,
+  "user_email": "twood@denvergold.org",
+  "user_role": "admin",
+  "action": "engagement-update",
+  "detail": "Engagement: update",
+  "ip_address": "67.177.249.202"
+ },
+ {
+  "id": 44,
+  "created_at": "2026-05-07T12:30:51.272258+00:00",
+  "event_code": null,
+  "user_email": "twood@denvergold.org",
+  "user_role": "admin",
+  "action": "engagement-update",
+  "detail": "Engagement: update",
+  "ip_address": "67.177.249.202"
+ },
+ {
+  "id": 45,
+  "created_at": "2026-05-07T12:32:01.707988+00:00",
+  "event_code": null,
+  "user_email": "twood@denvergold.org",
+  "user_role": "admin",
+  "action": "engagement-update",
+  "detail": "Engagement: update",
+  "ip_address": "67.177.249.202"
+ },
+ {
+  "id": 46,
+  "created_at": "2026-05-07T12:32:02.315444+00:00",
+  "event_code": null,
+  "user_email": "twood@denvergold.org",
+  "user_role": "admin",
+  "action": "engagement-update",
+  "detail": "Engagement: update",
+  "ip_address": "67.177.249.202"
+ },
+ {
+  "id": 47,
+  "created_at": "2026-05-07T12:32:37.779004+00:00",
+  "event_code": null,
+  "user_email": "twood@denvergold.org",
+  "user_role": "admin",
+  "action": "engagement-update",
+  "detail": "Engagement: update",
+  "ip_address": "67.177.249.202"
+ },
+ {
+  "id": 48,
+  "created_at": "2026-05-07T12:32:38.430022+00:00",
+  "event_code": null,
+  "user_email": "twood@denvergold.org",
+  "user_role": "admin",
+  "action": "engagement-update",
+  "detail": "Engagement: update",
+  "ip_address": "67.177.249.202"
+ },
+ {
+  "id": 49,
+  "created_at": "2026-05-07T12:32:51.45709+00:00",
+  "event_code": null,
+  "user_email": "twood@denvergold.org",
+  "user_role": "admin",
+  "action": "engagement-update",
+  "detail": "Engagement: update",
+  "ip_address": "67.177.249.202"
+ },
+ {
+  "id": 50,
+  "created_at": "2026-05-07T12:32:51.894492+00:00",
+  "event_code": null,
+  "user_email": "twood@denvergold.org",
+  "user_role": "admin",
+  "action": "engagement-update",
+  "detail": "Engagement: update",
+  "ip_address": "67.177.249.202"
+ },
+ {
+  "id": 51,
+  "created_at": "2026-05-07T12:33:26.83061+00:00",
+  "event_code": null,
+  "user_email": "twood@denvergold.org",
+  "user_role": "admin",
+  "action": "engagement-update",
+  "detail": "Engagement: update",
+  "ip_address": "67.177.249.202"
+ },
+ {
+  "id": 52,
+  "created_at": "2026-05-07T12:33:27.557333+00:00",
+  "event_code": null,
+  "user_email": "twood@denvergold.org",
+  "user_role": "admin",
+  "action": "engagement-update",
+  "detail": "Engagement: update",
+  "ip_address": "67.177.249.202"
+ },
+ {
+  "id": 53,
+  "created_at": "2026-05-07T12:34:25.080718+00:00",
+  "event_code": null,
+  "user_email": "twood@denvergold.org",
+  "user_role": "admin",
+  "action": "engagement-update",
+  "detail": "Engagement: update",
+  "ip_address": "67.177.249.202"
+ },
+ {
+  "id": 54,
+  "created_at": "2026-05-07T12:34:25.645932+00:00",
+  "event_code": null,
+  "user_email": "twood@denvergold.org",
+  "user_role": "admin",
+  "action": "engagement-update",
+  "detail": "Engagement: update",
+  "ip_address": "67.177.249.202"
+ },
+ {
+  "id": 55,
+  "created_at": "2026-05-07T12:34:38.277608+00:00",
+  "event_code": null,
+  "user_email": "twood@denvergold.org",
+  "user_role": "admin",
+  "action": "engagement-update",
+  "detail": "Engagement: update",
+  "ip_address": "67.177.249.202"
+ },
+ {
+  "id": 56,
+  "created_at": "2026-05-07T12:35:58.880749+00:00",
+  "event_code": null,
+  "user_email": "twood@denvergold.org",
+  "user_role": "admin",
+  "action": "engagement-update",
+  "detail": "Engagement: update",
+  "ip_address": "67.177.249.202"
+ },
+ {
+  "id": 57,
+  "created_at": "2026-05-08T02:41:35.788231+00:00",
+  "event_code": null,
+  "user_email": "twood@denvergold.org",
+  "user_role": "admin",
+  "action": "engagement-update",
+  "detail": "Engagement: update",
+  "ip_address": "67.177.249.202"
+ },
+ {
+  "id": 58,
+  "created_at": "2026-05-08T02:49:35.822563+00:00",
+  "event_code": "MFE26",
+  "user_email": "admin",
+  "user_role": "admin",
+  "action": "upload-member-meetings",
+  "detail": "Uploaded member meetings (71 rows)",
+  "ip_address": "67.177.249.202"
+ },
+ {
+  "id": 59,
+  "created_at": "2026-05-08T02:49:45.113948+00:00",
+  "event_code": "MFE26",
+  "user_email": "admin",
+  "user_role": "admin",
+  "action": "upload-participant-meetings",
+  "detail": "Uploaded participant meetings (126 rows)",
+  "ip_address": "67.177.249.202"
+ },
+ {
+  "id": 60,
+  "created_at": "2026-05-08T02:49:52.95105+00:00",
+  "event_code": "MFE26",
+  "user_email": "admin",
+  "user_role": "admin",
+  "action": "view-report",
+  "detail": "Opened PSR report",
+  "ip_address": "67.177.249.202"
+ },
+ {
+  "id": 61,
+  "created_at": "2026-05-08T02:52:24.77472+00:00",
+  "event_code": null,
+  "user_email": "admin",
+  "user_role": "admin",
+  "action": "top-meeting-delete",
+  "detail": "Meetings: top-meeting-delete",
+  "ip_address": "67.177.249.202"
+ },
+ {
+  "id": 62,
+  "created_at": "2026-05-08T03:10:01.928724+00:00",
+  "event_code": null,
+  "user_email": "twood@denvergold.org",
+  "user_role": "admin",
+  "action": "login",
+  "detail": "Magic link login",
+  "ip_address": "67.177.249.202"
+ },
+ {
+  "id": 63,
+  "created_at": "2026-05-08T03:10:04.724215+00:00",
+  "event_code": "MFE26",
+  "user_email": "twood@denvergold.org",
+  "user_role": "admin",
+  "action": "view-report",
+  "detail": "Opened PSR report",
+  "ip_address": "67.177.249.202"
+ },
+ {
+  "id": 64,
+  "created_at": "2026-05-08T03:11:31.476763+00:00",
+  "event_code": "MFE26",
+  "user_email": "twood@denvergold.org",
+  "user_role": "admin",
+  "action": "view-report",
+  "detail": "Opened PSR report",
+  "ip_address": "67.177.249.202"
+ },
+ {
+  "id": 65,
+  "created_at": "2026-05-08T03:24:27.113352+00:00",
+  "event_code": "MFE26",
+  "user_email": "admin",
+  "user_role": "admin",
+  "action": "upload-webcasts",
+  "detail": "Uploaded webcast metrics (60 rows)",
+  "ip_address": "67.177.249.202"
+ },
+ {
+  "id": 66,
+  "created_at": "2026-05-08T03:24:31.120049+00:00",
+  "event_code": "MFE26",
+  "user_email": "admin",
+  "user_role": "admin",
+  "action": "view-report",
+  "detail": "Opened PSR report",
+  "ip_address": "67.177.249.202"
+ },
+ {
+  "id": 67,
+  "created_at": "2026-05-08T03:30:08.465784+00:00",
+  "event_code": "MFE26",
+  "user_email": "admin",
+  "user_role": "admin",
+  "action": "view-report",
+  "detail": "Opened PSR report",
+  "ip_address": "67.177.249.202"
+ },
+ {
+  "id": 68,
+  "created_at": "2026-05-08T03:30:31.895677+00:00",
+  "event_code": "MFE26",
+  "user_email": "admin",
+  "user_role": "admin",
+  "action": "view-report",
+  "detail": "Opened PSR report",
+  "ip_address": "67.177.249.202"
+ },
+ {
+  "id": 69,
+  "created_at": "2026-05-08T03:34:27.763607+00:00",
+  "event_code": "MFE26",
+  "user_email": "admin",
+  "user_role": "admin",
+  "action": "view-report",
+  "detail": "Opened PSR report",
+  "ip_address": "67.177.249.202"
+ },
+ {
+  "id": 70,
+  "created_at": "2026-05-08T03:36:52.844381+00:00",
+  "event_code": "MFE26",
+  "user_email": "admin",
+  "user_role": "admin",
+  "action": "view-report",
+  "detail": "Opened PSR report",
+  "ip_address": "67.177.249.202"
+ },
+ {
+  "id": 71,
+  "created_at": "2026-05-08T03:52:29.719132+00:00",
+  "event_code": "MFE26",
+  "user_email": "admin",
+  "user_role": "admin",
+  "action": "view-report",
+  "detail": "Opened PSR report",
+  "ip_address": "67.177.249.202"
+ },
+ {
+  "id": 72,
+  "created_at": "2026-05-08T13:44:47.385488+00:00",
+  "event_code": null,
+  "user_email": "admin",
+  "user_role": "admin",
+  "action": "webcast-delete",
+  "detail": "Webcasts: webcast-delete",
+  "ip_address": "67.177.249.202"
+ },
+ {
+  "id": 73,
+  "created_at": "2026-05-08T13:49:23.750092+00:00",
+  "event_code": "MFE26",
+  "user_email": "admin",
+  "user_role": "admin",
+  "action": "view-report",
+  "detail": "Opened PSR report",
+  "ip_address": "67.177.249.202"
+ },
+ {
+  "id": 74,
+  "created_at": "2026-05-08T13:58:42.847005+00:00",
+  "event_code": "MFE26",
+  "user_email": "admin",
+  "user_role": "admin",
+  "action": "view-report",
+  "detail": "Opened PSR report",
+  "ip_address": "67.177.249.202"
+ },
+ {
+  "id": 75,
+  "created_at": "2026-05-08T13:59:16.155192+00:00",
+  "event_code": "MFE26",
+  "user_email": "admin",
+  "user_role": "admin",
+  "action": "view-report",
+  "detail": "Opened PSR report",
+  "ip_address": "67.177.249.202"
+ },
+ {
+  "id": 76,
+  "created_at": "2026-05-08T14:01:27.439553+00:00",
+  "event_code": "MFE26",
+  "user_email": "admin",
+  "user_role": "admin",
+  "action": "view-report",
+  "detail": "Opened PSR report",
+  "ip_address": "67.177.249.202"
+ },
+ {
+  "id": 77,
+  "created_at": "2026-05-08T14:01:42.977822+00:00",
+  "event_code": "MFE26",
+  "user_email": "admin",
+  "user_role": "admin",
+  "action": "view-report",
+  "detail": "Opened PSR report",
+  "ip_address": "67.177.249.202"
+ },
+ {
+  "id": 78,
+  "created_at": "2026-05-08T14:04:03.99066+00:00",
+  "event_code": "MFE26",
+  "user_email": "admin",
+  "user_role": "admin",
+  "action": "view-report",
+  "detail": "Opened PSR report",
+  "ip_address": "67.177.249.202"
+ },
+ {
+  "id": 79,
+  "created_at": "2026-05-08T14:13:47.232947+00:00",
+  "event_code": null,
+  "user_email": "jdill@denvergold.org",
+  "user_role": "admin",
+  "action": "login",
+  "detail": "Magic link login",
+  "ip_address": "76.130.235.87"
+ },
+ {
+  "id": 80,
+  "created_at": "2026-05-08T14:13:48.957064+00:00",
+  "event_code": "MFE26",
+  "user_email": "jdill@denvergold.org",
+  "user_role": "admin",
+  "action": "view-report",
+  "detail": "Opened PSR report",
+  "ip_address": "76.130.235.87"
+ },
+ {
+  "id": 81,
+  "created_at": "2026-05-08T14:16:49.287301+00:00",
+  "event_code": null,
+  "user_email": "jdill@denvergold.org",
+  "user_role": "admin",
+  "action": "swot-update",
+  "detail": "SWOT: update",
+  "ip_address": "76.130.235.87"
+ },
+ {
+  "id": 82,
+  "created_at": "2026-05-08T14:20:53.226219+00:00",
+  "event_code": null,
+  "user_email": "jdill@denvergold.org",
+  "user_role": "admin",
+  "action": "swot-update",
+  "detail": "SWOT: update",
+  "ip_address": "76.130.235.87"
+ },
+ {
+  "id": 83,
+  "created_at": "2026-05-08T14:20:57.358113+00:00",
+  "event_code": "MFE26",
+  "user_email": "jdill@denvergold.org",
+  "user_role": "admin",
+  "action": "swot-add",
+  "detail": "SWOT: add (opportunity)",
+  "ip_address": "76.130.235.87"
+ },
+ {
+  "id": 84,
+  "created_at": "2026-05-08T14:21:01.825183+00:00",
+  "event_code": null,
+  "user_email": "jdill@denvergold.org",
+  "user_role": "admin",
+  "action": "swot-update",
+  "detail": "SWOT: update",
+  "ip_address": "76.130.235.87"
+ },
+ {
+  "id": 85,
+  "created_at": "2026-05-08T14:21:06.461727+00:00",
+  "event_code": null,
+  "user_email": "jdill@denvergold.org",
+  "user_role": "admin",
+  "action": "swot-update",
+  "detail": "SWOT: update",
+  "ip_address": "76.130.235.87"
+ },
+ {
+  "id": 86,
+  "created_at": "2026-05-08T14:22:01.581339+00:00",
+  "event_code": "MFE26",
+  "user_email": "jdill@denvergold.org",
+  "user_role": "admin",
+  "action": "swot-add",
+  "detail": "SWOT: add (opportunity)",
+  "ip_address": "76.130.235.87"
+ },
+ {
+  "id": 87,
+  "created_at": "2026-05-08T14:22:01.577217+00:00",
+  "event_code": null,
+  "user_email": "jdill@denvergold.org",
+  "user_role": "admin",
+  "action": "swot-update",
+  "detail": "SWOT: update",
+  "ip_address": "76.130.235.87"
+ },
+ {
+  "id": 88,
+  "created_at": "2026-05-08T14:22:11.506413+00:00",
+  "event_code": null,
+  "user_email": "jdill@denvergold.org",
+  "user_role": "admin",
+  "action": "swot-update",
+  "detail": "SWOT: update",
+  "ip_address": "76.130.235.87"
+ },
+ {
+  "id": 89,
+  "created_at": "2026-05-18T14:54:13.703728+00:00",
+  "event_code": null,
+  "user_email": "jdill@denvergold.org",
+  "user_role": "admin",
+  "action": "login",
+  "detail": "Magic link login",
+  "ip_address": "73.95.198.18"
+ },
+ {
+  "id": 90,
+  "created_at": "2026-05-18T14:54:16.860138+00:00",
+  "event_code": "MFE26",
+  "user_email": "jdill@denvergold.org",
+  "user_role": "admin",
+  "action": "view-report",
+  "detail": "Opened PSR report",
+  "ip_address": "73.95.198.18"
+ },
+ {
+  "id": 91,
+  "created_at": "2026-05-18T19:12:04.12785+00:00",
+  "event_code": "MFE26",
+  "user_email": "admin",
+  "user_role": "admin",
+  "action": "view-report",
+  "detail": "Opened PSR report",
+  "ip_address": "67.177.249.202"
+ },
+ {
+  "id": 92,
+  "created_at": "2026-05-18T19:12:42.561976+00:00",
+  "event_code": null,
+  "user_email": "admin",
+  "user_role": "admin",
+  "action": "swot-update",
+  "detail": "SWOT: update",
+  "ip_address": "67.177.249.202"
+ },
+ {
+  "id": 93,
+  "created_at": "2026-05-18T19:13:22.328236+00:00",
+  "event_code": null,
+  "user_email": "admin",
+  "user_role": "admin",
+  "action": "swot-delete",
+  "detail": "SWOT: delete",
+  "ip_address": "67.177.249.202"
+ },
+ {
+  "id": 94,
+  "created_at": "2026-05-18T19:13:31.183706+00:00",
+  "event_code": null,
+  "user_email": "admin",
+  "user_role": "admin",
+  "action": "swot-delete",
+  "detail": "SWOT: delete",
+  "ip_address": "67.177.249.202"
+ },
+ {
+  "id": 95,
+  "created_at": "2026-05-18T19:13:40.717133+00:00",
+  "event_code": null,
+  "user_email": "admin",
+  "user_role": "admin",
+  "action": "swot-update",
+  "detail": "SWOT: update",
+  "ip_address": "67.177.249.202"
+ },
+ {
+  "id": 96,
+  "created_at": "2026-05-18T19:13:45.180606+00:00",
+  "event_code": null,
+  "user_email": "admin",
+  "user_role": "admin",
+  "action": "swot-update",
+  "detail": "SWOT: update",
+  "ip_address": "67.177.249.202"
+ },
+ {
+  "id": 97,
+  "created_at": "2026-05-18T19:13:47.501054+00:00",
+  "event_code": null,
+  "user_email": "admin",
+  "user_role": "admin",
+  "action": "swot-update",
+  "detail": "SWOT: update",
+  "ip_address": "67.177.249.202"
+ },
+ {
+  "id": 98,
+  "created_at": "2026-05-18T19:13:51.451951+00:00",
+  "event_code": null,
+  "user_email": "admin",
+  "user_role": "admin",
+  "action": "swot-update",
+  "detail": "SWOT: update",
+  "ip_address": "67.177.249.202"
+ },
+ {
+  "id": 99,
+  "created_at": "2026-05-18T19:14:07.390918+00:00",
+  "event_code": null,
+  "user_email": "admin",
+  "user_role": "admin",
+  "action": "swot-update",
+  "detail": "SWOT: update",
+  "ip_address": "67.177.249.202"
+ },
+ {
+  "id": 100,
+  "created_at": "2026-05-18T19:14:25.517677+00:00",
+  "event_code": null,
+  "user_email": "admin",
+  "user_role": "admin",
+  "action": "swot-update",
+  "detail": "SWOT: update",
+  "ip_address": "67.177.249.202"
+ },
+ {
+  "id": 101,
+  "created_at": "2026-05-18T19:15:22.253306+00:00",
+  "event_code": null,
+  "user_email": "admin",
+  "user_role": "admin",
+  "action": "swot-update",
+  "detail": "SWOT: update",
+  "ip_address": "67.177.249.202"
+ },
+ {
+  "id": 102,
+  "created_at": "2026-05-18T19:15:22.595884+00:00",
+  "event_code": "MFE26",
+  "user_email": "admin",
+  "user_role": "admin",
+  "action": "swot-add",
+  "detail": "SWOT: add (strength)",
+  "ip_address": "67.177.249.202"
+ },
+ {
+  "id": 103,
+  "created_at": "2026-05-18T19:16:43.257853+00:00",
+  "event_code": null,
+  "user_email": "admin",
+  "user_role": "admin",
+  "action": "swot-update",
+  "detail": "SWOT: update",
+  "ip_address": "67.177.249.202"
+ },
+ {
+  "id": 104,
+  "created_at": "2026-05-18T19:16:50.102163+00:00",
+  "event_code": null,
+  "user_email": "admin",
+  "user_role": "admin",
+  "action": "swot-update",
+  "detail": "SWOT: update",
+  "ip_address": "67.177.249.202"
+ },
+ {
+  "id": 105,
+  "created_at": "2026-05-18T19:17:08.260702+00:00",
+  "event_code": null,
+  "user_email": "admin",
+  "user_role": "admin",
+  "action": "swot-update",
+  "detail": "SWOT: update",
+  "ip_address": "67.177.249.202"
+ },
+ {
+  "id": 106,
+  "created_at": "2026-05-18T19:36:02.370268+00:00",
+  "event_code": "MFE26",
+  "user_email": "jdill@denvergold.org",
+  "user_role": "admin",
+  "action": "view-report",
+  "detail": "Opened PSR report",
+  "ip_address": "73.95.198.18"
+ },
+ {
+  "id": 107,
+  "created_at": "2026-05-19T19:20:37.223544+00:00",
+  "event_code": null,
+  "user_email": "jdill@denvergold.org",
+  "user_role": "admin",
+  "action": "login",
+  "detail": "Magic link login",
+  "ip_address": "76.130.235.87"
+ },
+ {
+  "id": 108,
+  "created_at": "2026-05-19T19:20:39.985095+00:00",
+  "event_code": "MFE26",
+  "user_email": "jdill@denvergold.org",
+  "user_role": "admin",
+  "action": "view-report",
+  "detail": "Opened PSR report",
+  "ip_address": "76.130.235.87"
+ },
+ {
+  "id": 109,
+  "created_at": "2026-05-19T19:32:14.156681+00:00",
+  "event_code": null,
+  "user_email": "jdill@denvergold.org",
+  "user_role": "admin",
+  "action": "login",
+  "detail": "Magic link login",
+  "ip_address": "76.130.235.87"
+ },
+ {
+  "id": 110,
+  "created_at": "2026-05-19T19:32:16.388675+00:00",
+  "event_code": "MFE26",
+  "user_email": "jdill@denvergold.org",
+  "user_role": "admin",
+  "action": "view-report",
+  "detail": "Opened PSR report",
+  "ip_address": "76.130.235.87"
+ },
+ {
+  "id": 111,
+  "created_at": "2026-05-19T22:16:35.52659+00:00",
+  "event_code": null,
+  "user_email": "ddenbow@gvtc.com",
+  "user_role": "viewer",
+  "action": "login",
+  "detail": "Magic link login",
+  "ip_address": "96.8.161.39"
+ },
+ {
+  "id": 112,
+  "created_at": "2026-05-19T22:16:37.668505+00:00",
+  "event_code": "MFE26",
+  "user_email": "ddenbow@gvtc.com",
+  "user_role": "viewer",
+  "action": "view-report",
+  "detail": "Opened PSR report",
+  "ip_address": "96.8.161.39"
+ },
+ {
+  "id": 113,
+  "created_at": "2026-05-27T13:00:42.79747+00:00",
+  "event_code": null,
+  "user_email": "ljgleeson@outlook.com",
+  "user_role": "viewer",
+  "action": "login",
+  "detail": "Magic link login",
+  "ip_address": "104.28.108.2"
+ },
+ {
+  "id": 114,
+  "created_at": "2026-05-27T13:00:47.578219+00:00",
+  "event_code": "MFE26",
+  "user_email": "ljgleeson@outlook.com",
+  "user_role": "viewer",
+  "action": "view-report",
+  "detail": "Opened PSR report",
+  "ip_address": "104.28.108.2"
+ },
+ {
+  "id": 115,
+  "created_at": "2026-05-27T14:14:08.209651+00:00",
+  "event_code": null,
+  "user_email": "jdill@denvergold.org",
+  "user_role": "admin",
+  "action": "login",
+  "detail": "Magic link login",
+  "ip_address": "73.95.198.18"
+ },
+ {
+  "id": 116,
+  "created_at": "2026-05-27T14:14:11.547084+00:00",
+  "event_code": "MFE26",
+  "user_email": "jdill@denvergold.org",
+  "user_role": "admin",
+  "action": "view-report",
+  "detail": "Opened PSR report",
+  "ip_address": "73.95.198.18"
+ },
+ {
+  "id": 117,
+  "created_at": "2026-05-27T15:43:06.600205+00:00",
+  "event_code": null,
+  "user_email": "twood@denvergold.org",
+  "user_role": "admin",
+  "action": "login",
+  "detail": "Magic link login",
+  "ip_address": "73.95.198.18"
+ },
+ {
+  "id": 118,
+  "created_at": "2026-05-27T15:43:11.068444+00:00",
+  "event_code": "MFE26",
+  "user_email": "twood@denvergold.org",
+  "user_role": "admin",
+  "action": "view-report",
+  "detail": "Opened PSR report",
+  "ip_address": "73.95.198.18"
+ },
+ {
+  "id": 119,
+  "created_at": "2026-05-27T16:16:27.175327+00:00",
+  "event_code": null,
+  "user_email": "ljgleeson@outlook.com",
+  "user_role": "viewer",
+  "action": "login",
+  "detail": "Magic link login",
+  "ip_address": "60.242.248.77"
+ },
+ {
+  "id": 120,
+  "created_at": "2026-05-27T16:16:31.439926+00:00",
+  "event_code": "MFE26",
+  "user_email": "ljgleeson@outlook.com",
+  "user_role": "viewer",
+  "action": "view-report",
+  "detail": "Opened PSR report",
+  "ip_address": "60.242.248.77"
+ },
+ {
+  "id": 121,
+  "created_at": "2026-08-06T19:36:02.07278+00:00",
+  "event_code": "MFA26",
+  "user_email": "admin@denvergold.org",
+  "user_role": "super_admin",
+  "action": "upload-tracking",
+  "detail": "Uploaded member tracking data",
+  "ip_address": "24.182.124.50"
+ },
+ {
+  "id": 122,
+  "created_at": "2026-08-06T19:44:38.095785+00:00",
+  "event_code": "MFA26",
+  "user_email": "admin@denvergold.org",
+  "user_role": "super_admin",
+  "action": "upload-cancellations",
+  "detail": "Uploaded member cancellations (13 rows)",
+  "ip_address": "24.182.124.50"
+ },
+ {
+  "id": 123,
+  "created_at": "2026-08-06T19:45:17.782328+00:00",
+  "event_code": "MFA26",
+  "user_email": "admin@denvergold.org",
+  "user_role": "super_admin",
+  "action": "view-report",
+  "detail": "Opened PSR report",
+  "ip_address": "24.182.124.50"
+ },
+ {
+  "id": 124,
+  "created_at": "2026-08-06T19:45:39.694985+00:00",
+  "event_code": "MFE26",
+  "user_email": "admin@denvergold.org",
+  "user_role": "super_admin",
+  "action": "view-report",
+  "detail": "Opened PSR report",
+  "ip_address": "24.182.124.50"
+ },
+ {
+  "id": 125,
+  "created_at": "2026-08-06T19:45:49.744792+00:00",
+  "event_code": "MFA26",
+  "user_email": "admin@denvergold.org",
+  "user_role": "super_admin",
+  "action": "view-report",
+  "detail": "Opened PSR report",
+  "ip_address": "24.182.124.50"
+ },
+ {
+  "id": 126,
+  "created_at": "2026-08-06T20:38:22.831967+00:00",
+  "event_code": "MFA26",
+  "user_email": "admin@denvergold.org",
+  "user_role": "super_admin",
+  "action": "upload-tracking",
+  "detail": "Uploaded member tracking data",
+  "ip_address": "24.182.124.50"
+ },
+ {
+  "id": 127,
+  "created_at": "2026-09-14T17:53:50.291727+00:00",
+  "event_code": "MFA26",
+  "user_email": "admin@denvergold.org",
+  "user_role": "super_admin",
+  "action": "view-report",
+  "detail": "Opened PSR report",
+  "ip_address": "67.177.249.202"
+ },
+ {
+  "id": 128,
+  "created_at": "2026-09-14T21:07:11.661833+00:00",
+  "event_code": "MFA26",
+  "user_email": "admin@denvergold.org",
+  "user_role": "super_admin",
+  "action": "view-report",
+  "detail": "Opened PSR report",
+  "ip_address": "67.177.249.202"
+ },
+ {
+  "id": 129,
+  "created_at": "2026-09-14T21:07:37.667944+00:00",
+  "event_code": "MFA26",
+  "user_email": "admin@denvergold.org",
+  "user_role": "super_admin",
+  "action": "view-report",
+  "detail": "Opened PSR report",
+  "ip_address": "67.177.249.202"
+ },
+ {
+  "id": 130,
+  "created_at": "2026-09-14T21:40:48.190425+00:00",
+  "event_code": "MFA26",
+  "user_email": "admin@denvergold.org",
+  "user_role": "super_admin",
+  "action": "view-report",
+  "detail": "Opened PSR report",
+  "ip_address": "67.177.249.202"
+ },
+ {
+  "id": 131,
+  "created_at": "2026-09-14T22:09:36.903418+00:00",
+  "event_code": "MFA26",
+  "user_email": "jdill@denvergold.org",
+  "user_role": "admin",
+  "action": "view-report",
+  "detail": "Opened PSR report",
+  "ip_address": "76.130.235.87"
+ },
+ {
+  "id": 132,
+  "created_at": "2026-09-14T22:14:03.260735+00:00",
+  "event_code": "MFE26",
+  "user_email": "admin@denvergold.org",
+  "user_role": "super_admin",
+  "action": "view-report",
+  "detail": "Opened PSR report",
+  "ip_address": "67.177.249.202"
+ },
+ {
+  "id": 133,
+  "created_at": "2026-09-14T22:14:09.033428+00:00",
+  "event_code": "MFA26",
+  "user_email": "admin@denvergold.org",
+  "user_role": "super_admin",
+  "action": "view-report",
+  "detail": "Opened PSR report",
+  "ip_address": "67.177.249.202"
+ },
+ {
+  "id": 134,
+  "created_at": "2026-09-14T22:14:10.380326+00:00",
+  "event_code": null,
+  "user_email": "jdill@denvergold.org",
+  "user_role": "admin",
+  "action": "login",
+  "detail": "Magic link login",
+  "ip_address": "76.130.235.87"
+ },
+ {
+  "id": 135,
+  "created_at": "2026-09-15T13:04:23.65855+00:00",
+  "event_code": "MFA26",
+  "user_email": "admin@denvergold.org",
+  "user_role": "super_admin",
+  "action": "view-report",
+  "detail": "Opened PSR report",
+  "ip_address": "67.177.249.202"
+ },
+ {
+  "id": 136,
+  "created_at": "2026-09-15T15:50:04.083673+00:00",
+  "event_code": "MFA26",
+  "user_email": "admin@denvergold.org",
+  "user_role": "super_admin",
+  "action": "view-report",
+  "detail": "Opened PSR report",
+  "ip_address": "67.177.249.202"
+ },
+ {
+  "id": 137,
+  "created_at": "2026-09-15T15:55:09.881084+00:00",
+  "event_code": "MFA26",
+  "user_email": "admin@denvergold.org",
+  "user_role": "super_admin",
+  "action": "view-report",
+  "detail": "Opened PSR report",
+  "ip_address": "67.177.249.202"
+ },
+ {
+  "id": 138,
+  "created_at": "2026-09-15T15:57:34.449439+00:00",
+  "event_code": "MFA26",
+  "user_email": "admin@denvergold.org",
+  "user_role": "super_admin",
+  "action": "view-report",
+  "detail": "Opened PSR report",
+  "ip_address": "67.177.249.202"
+ },
+ {
+  "id": 139,
+  "created_at": "2026-09-15T16:05:53.434633+00:00",
+  "event_code": "MFA26",
+  "user_email": "admin@denvergold.org",
+  "user_role": "super_admin",
+  "action": "view-report",
+  "detail": "Opened PSR report",
+  "ip_address": "67.177.249.202"
+ },
+ {
+  "id": 140,
+  "created_at": "2026-09-15T16:38:10.96177+00:00",
+  "event_code": "MFA26",
+  "user_email": "admin@denvergold.org",
+  "user_role": "super_admin",
+  "action": "view-report",
+  "detail": "Opened PSR report",
+  "ip_address": "67.177.249.202"
+ },
+ {
+  "id": 141,
+  "created_at": "2026-09-15T21:17:33.488689+00:00",
+  "event_code": null,
+  "user_email": "twood@denvergold.org",
+  "user_role": "admin",
+  "action": "login",
+  "detail": "Magic link login",
+  "ip_address": "67.177.249.202"
+ },
+ {
+  "id": 142,
+  "created_at": "2026-09-15T21:17:35.676689+00:00",
+  "event_code": "MFE26",
+  "user_email": "twood@denvergold.org",
+  "user_role": "admin",
+  "action": "view-report",
+  "detail": "Opened PSR report",
+  "ip_address": "67.177.249.202"
+ },
+ {
+  "id": 143,
+  "created_at": "2026-09-15T21:17:39.703697+00:00",
+  "event_code": "MFA26",
+  "user_email": "twood@denvergold.org",
+  "user_role": "admin",
+  "action": "view-report",
+  "detail": "Opened PSR report",
+  "ip_address": "67.177.249.202"
+ },
+ {
+  "id": 144,
+  "created_at": "2026-09-15T22:13:59.549877+00:00",
+  "event_code": "MFA26",
+  "user_email": "twood@denvergold.org",
+  "user_role": "admin",
+  "action": "view-report",
+  "detail": "Opened PSR report",
+  "ip_address": "67.177.249.202"
+ },
+ {
+  "id": 145,
+  "created_at": "2026-09-15T22:16:36.999383+00:00",
+  "event_code": "MFA26",
+  "user_email": "twood@denvergold.org",
+  "user_role": "admin",
+  "action": "view-report",
+  "detail": "Opened PSR report",
+  "ip_address": "67.177.249.202"
+ },
+ {
+  "id": 146,
+  "created_at": "2026-09-15T22:20:08.791558+00:00",
+  "event_code": "MFA26",
+  "user_email": "twood@denvergold.org",
+  "user_role": "admin",
+  "action": "view-report",
+  "detail": "Opened PSR report",
+  "ip_address": "67.177.249.202"
+ },
+ {
+  "id": 147,
+  "created_at": "2026-09-16T01:04:50.979282+00:00",
+  "event_code": "MFA26",
+  "user_email": "twood@denvergold.org",
+  "user_role": "admin",
+  "action": "view-report",
+  "detail": "Opened PSR report",
+  "ip_address": "67.177.249.202"
+ },
+ {
+  "id": 148,
+  "created_at": "2026-09-16T01:49:05.679485+00:00",
+  "event_code": "MFA26",
+  "user_email": "twood@denvergold.org",
+  "user_role": "admin",
+  "action": "view-report",
+  "detail": "Opened PSR report",
+  "ip_address": "67.177.249.202"
+ },
+ {
+  "id": 149,
+  "created_at": "2026-09-16T01:54:52.447633+00:00",
+  "event_code": "MFE26",
+  "user_email": "twood@denvergold.org",
+  "user_role": "admin",
+  "action": "view-report",
+  "detail": "Opened PSR report",
+  "ip_address": "67.177.249.202"
+ },
+ {
+  "id": 150,
+  "created_at": "2026-09-16T01:54:57.560797+00:00",
+  "event_code": "MFA26",
+  "user_email": "twood@denvergold.org",
+  "user_role": "admin",
+  "action": "view-report",
+  "detail": "Opened PSR report",
+  "ip_address": "67.177.249.202"
+ },
+ {
+  "id": 151,
+  "created_at": "2026-09-16T01:55:04.700071+00:00",
+  "event_code": "MFE26",
+  "user_email": "twood@denvergold.org",
+  "user_role": "admin",
+  "action": "view-report",
+  "detail": "Opened PSR report",
+  "ip_address": "67.177.249.202"
+ },
+ {
+  "id": 152,
+  "created_at": "2026-09-16T01:55:06.74832+00:00",
+  "event_code": "MFA26",
+  "user_email": "twood@denvergold.org",
+  "user_role": "admin",
+  "action": "view-report",
+  "detail": "Opened PSR report",
+  "ip_address": "67.177.249.202"
+ },
+ {
+  "id": 153,
+  "created_at": "2026-09-16T02:14:21.659438+00:00",
+  "event_code": "MFA26",
+  "user_email": "twood@denvergold.org",
+  "user_role": "admin",
+  "action": "view-report",
+  "detail": "Opened PSR report",
+  "ip_address": "67.177.249.202"
+ },
+ {
+  "id": 154,
+  "created_at": "2026-09-16T13:55:52.810315+00:00",
+  "event_code": "MFA26",
+  "user_email": "twood@denvergold.org",
+  "user_role": "admin",
+  "action": "view-report",
+  "detail": "Opened PSR report",
+  "ip_address": "67.177.249.202"
+ },
+ {
+  "id": 155,
+  "created_at": "2026-09-16T22:38:53.997728+00:00",
+  "event_code": "MFA26",
+  "user_email": "admin@denvergold.org",
+  "user_role": "super_admin",
+  "action": "view-report",
+  "detail": "Opened PSR report",
+  "ip_address": "67.177.249.202"
+ },
+ {
+  "id": 156,
+  "created_at": "2026-09-16T22:50:12.053633+00:00",
+  "event_code": "MFA26",
+  "user_email": "admin@denvergold.org",
+  "user_role": "super_admin",
+  "action": "upload-member-meetings",
+  "detail": "Uploaded member meetings (246 rows)",
+  "ip_address": "67.177.249.202"
+ },
+ {
+  "id": 157,
+  "created_at": "2026-09-16T22:50:21.06296+00:00",
+  "event_code": "MFA26",
+  "user_email": "admin@denvergold.org",
+  "user_role": "super_admin",
+  "action": "upload-participant-meetings",
+  "detail": "Uploaded participant meetings (100 rows)",
+  "ip_address": "67.177.249.202"
+ },
+ {
+  "id": 158,
+  "created_at": "2026-09-16T22:50:46.392716+00:00",
+  "event_code": "MFA26",
+  "user_email": "admin@denvergold.org",
+  "user_role": "super_admin",
+  "action": "view-report",
+  "detail": "Opened PSR report",
+  "ip_address": "67.177.249.202"
+ },
+ {
+  "id": 159,
+  "created_at": "2026-09-18T19:26:15.743193+00:00",
+  "event_code": "MFA26",
+  "user_email": "admin@denvergold.org",
+  "user_role": "super_admin",
+  "action": "brief-inputs-save",
+  "detail": "Saved Analyst Briefing inputs",
+  "ip_address": "67.177.249.202"
+ },
+ {
+  "id": 160,
+  "created_at": "2026-09-18T19:26:17.180522+00:00",
+  "event_code": "MFA26",
+  "user_email": "admin@denvergold.org",
+  "user_role": "super_admin",
+  "action": "analyst-brief",
+  "detail": "Generated analyst briefing PDF",
+  "ip_address": "67.177.249.202"
+ },
+ {
+  "id": 161,
+  "created_at": "2026-09-18T19:27:16.280231+00:00",
+  "event_code": "MFA26",
+  "user_email": "admin@denvergold.org",
+  "user_role": "super_admin",
+  "action": "brief-inputs-save",
+  "detail": "Saved Analyst Briefing inputs",
+  "ip_address": "67.177.249.202"
+ },
+ {
+  "id": 162,
+  "created_at": "2026-09-18T19:27:17.47981+00:00",
+  "event_code": "MFA26",
+  "user_email": "admin@denvergold.org",
+  "user_role": "super_admin",
+  "action": "analyst-brief",
+  "detail": "Generated analyst briefing PDF",
+  "ip_address": "67.177.249.202"
+ },
+ {
+  "id": 163,
+  "created_at": "2026-09-18T19:28:19.315236+00:00",
+  "event_code": "MFA26",
+  "user_email": "admin@denvergold.org",
+  "user_role": "super_admin",
+  "action": "brief-inputs-save",
+  "detail": "Saved Analyst Briefing inputs",
+  "ip_address": "67.177.249.202"
+ },
+ {
+  "id": 164,
+  "created_at": "2026-09-18T19:28:20.391651+00:00",
+  "event_code": "MFA26",
+  "user_email": "admin@denvergold.org",
+  "user_role": "super_admin",
+  "action": "analyst-brief",
+  "detail": "Generated analyst briefing PDF",
+  "ip_address": "67.177.249.202"
+ },
+ {
+  "id": 165,
+  "created_at": "2026-09-18T19:37:41.706435+00:00",
+  "event_code": "MFA26",
+  "user_email": "admin@denvergold.org",
+  "user_role": "super_admin",
+  "action": "brief-inputs-save",
+  "detail": "Saved Analyst Briefing inputs",
+  "ip_address": "67.177.249.202"
+ },
+ {
+  "id": 166,
+  "created_at": "2026-09-18T19:37:47.664022+00:00",
+  "event_code": "MFA26",
+  "user_email": "admin@denvergold.org",
+  "user_role": "super_admin",
+  "action": "analyst-brief",
+  "detail": "Generated analyst briefing PDF",
+  "ip_address": "67.177.249.202"
+ },
+ {
+  "id": 167,
+  "created_at": "2026-09-18T19:38:06.006589+00:00",
+  "event_code": "MFA26",
+  "user_email": "admin@denvergold.org",
+  "user_role": "super_admin",
+  "action": "brief-inputs-save",
+  "detail": "Saved Analyst Briefing inputs",
+  "ip_address": "67.177.249.202"
+ },
+ {
+  "id": 168,
+  "created_at": "2026-09-18T19:38:06.753335+00:00",
+  "event_code": "MFA26",
+  "user_email": "admin@denvergold.org",
+  "user_role": "super_admin",
+  "action": "analyst-brief",
+  "detail": "Generated analyst briefing PDF",
+  "ip_address": "67.177.249.202"
+ },
+ {
+  "id": 169,
+  "created_at": "2026-09-18T19:38:23.205512+00:00",
+  "event_code": "MFA26",
+  "user_email": "admin@denvergold.org",
+  "user_role": "super_admin",
+  "action": "brief-inputs-save",
+  "detail": "Saved Analyst Briefing inputs",
+  "ip_address": "67.177.249.202"
+ },
+ {
+  "id": 170,
+  "created_at": "2026-09-18T19:38:24.076705+00:00",
+  "event_code": "MFA26",
+  "user_email": "admin@denvergold.org",
+  "user_role": "super_admin",
+  "action": "analyst-brief",
+  "detail": "Generated analyst briefing PDF",
+  "ip_address": "67.177.249.202"
+ },
+ {
+  "id": 171,
+  "created_at": "2026-09-18T19:38:44.625512+00:00",
+  "event_code": "MFA26",
+  "user_email": "admin@denvergold.org",
+  "user_role": "super_admin",
+  "action": "brief-inputs-save",
+  "detail": "Saved Analyst Briefing inputs",
+  "ip_address": "67.177.249.202"
+ },
+ {
+  "id": 172,
+  "created_at": "2026-09-18T19:38:45.888377+00:00",
+  "event_code": "MFA26",
+  "user_email": "admin@denvergold.org",
+  "user_role": "super_admin",
+  "action": "analyst-brief",
+  "detail": "Generated analyst briefing PDF",
+  "ip_address": "67.177.249.202"
+ },
+ {
+  "id": 173,
+  "created_at": "2026-09-18T19:39:06.379391+00:00",
+  "event_code": "MFA26",
+  "user_email": "admin@denvergold.org",
+  "user_role": "super_admin",
+  "action": "brief-inputs-save",
+  "detail": "Saved Analyst Briefing inputs",
+  "ip_address": "67.177.249.202"
+ },
+ {
+  "id": 174,
+  "created_at": "2026-09-18T19:39:06.980828+00:00",
+  "event_code": "MFA26",
+  "user_email": "admin@denvergold.org",
+  "user_role": "super_admin",
+  "action": "analyst-brief",
+  "detail": "Generated analyst briefing PDF",
+  "ip_address": "67.177.249.202"
+ },
+ {
+  "id": 175,
+  "created_at": "2026-09-18T19:39:31.239015+00:00",
+  "event_code": "MFA26",
+  "user_email": "admin@denvergold.org",
+  "user_role": "super_admin",
+  "action": "brief-inputs-save",
+  "detail": "Saved Analyst Briefing inputs",
+  "ip_address": "67.177.249.202"
+ },
+ {
+  "id": 176,
+  "created_at": "2026-09-18T19:39:31.84983+00:00",
+  "event_code": "MFA26",
+  "user_email": "admin@denvergold.org",
+  "user_role": "super_admin",
+  "action": "analyst-brief",
+  "detail": "Generated analyst briefing PDF",
+  "ip_address": "67.177.249.202"
+ },
+ {
+  "id": 177,
+  "created_at": "2026-09-18T19:40:21.490789+00:00",
+  "event_code": "MFA26",
+  "user_email": "admin@denvergold.org",
+  "user_role": "super_admin",
+  "action": "brief-inputs-save",
+  "detail": "Saved Analyst Briefing inputs",
+  "ip_address": "67.177.249.202"
+ },
+ {
+  "id": 178,
+  "created_at": "2026-09-18T19:40:22.997886+00:00",
+  "event_code": "MFA26",
+  "user_email": "admin@denvergold.org",
+  "user_role": "super_admin",
+  "action": "analyst-brief",
+  "detail": "Generated analyst briefing PDF",
+  "ip_address": "67.177.249.202"
+ },
+ {
+  "id": 179,
+  "created_at": "2026-09-18T19:40:57.112697+00:00",
+  "event_code": "MFA26",
+  "user_email": "admin@denvergold.org",
+  "user_role": "super_admin",
+  "action": "brief-inputs-save",
+  "detail": "Saved Analyst Briefing inputs",
+  "ip_address": "67.177.249.202"
+ },
+ {
+  "id": 180,
+  "created_at": "2026-09-18T19:40:57.965488+00:00",
+  "event_code": "MFA26",
+  "user_email": "admin@denvergold.org",
+  "user_role": "super_admin",
+  "action": "analyst-brief",
+  "detail": "Generated analyst briefing PDF",
+  "ip_address": "67.177.249.202"
+ },
+ {
+  "id": 181,
+  "created_at": "2026-09-19T02:29:26.924036+00:00",
+  "event_code": "MFE26",
+  "user_email": "admin@denvergold.org",
+  "user_role": "super_admin",
+  "action": "view-report",
+  "detail": "Opened PSR report",
+  "ip_address": "67.177.249.202"
+ },
+ {
+  "id": 182,
+  "created_at": "2026-09-19T17:29:11.282533+00:00",
+  "event_code": "MFE26",
+  "user_email": "admin@denvergold.org",
+  "user_role": "super_admin",
+  "action": "view-report",
+  "detail": "Opened PSR report",
+  "ip_address": "67.177.249.202"
+ },
+ {
+  "id": 183,
+  "created_at": "2026-09-19T19:04:52.826714+00:00",
+  "event_code": "MFA26",
+  "user_email": "admin@denvergold.org",
+  "user_role": "super_admin",
+  "action": "view-report",
+  "detail": "Opened PSR report",
+  "ip_address": "67.177.249.202"
+ },
+ {
+  "id": 184,
+  "created_at": "2026-09-26T19:24:23.111386+00:00",
+  "event_code": "MFE26",
+  "user_email": "admin@denvergold.org",
+  "user_role": "super_admin",
+  "action": "view-report",
+  "detail": "Opened PSR report",
+  "ip_address": "162.245.151.254"
+ },
+ {
+  "id": 185,
+  "created_at": "2026-09-26T19:26:57.771221+00:00",
+  "event_code": "MFA26",
+  "user_email": "admin@denvergold.org",
+  "user_role": "super_admin",
+  "action": "view-report",
+  "detail": "Opened PSR report",
+  "ip_address": "162.245.151.254"
+ },
+ {
+  "id": 186,
+  "created_at": "2026-09-26T19:52:18.555727+00:00",
+  "event_code": "MFE26",
+  "user_email": "admin@denvergold.org",
+  "user_role": "super_admin",
+  "action": "view-report",
+  "detail": "Opened PSR report",
+  "ip_address": "162.245.151.254"
+ },
+ {
+  "id": 187,
+  "created_at": "2026-09-30T18:11:21.286292+00:00",
+  "event_code": "MFA26",
+  "user_email": "admin@denvergold.org",
+  "user_role": "super_admin",
+  "action": "brief-inputs-save",
+  "detail": "Saved Analyst Briefing inputs",
+  "ip_address": "162.245.151.254"
+ },
+ {
+  "id": 188,
+  "created_at": "2026-09-30T18:11:22.443395+00:00",
+  "event_code": "MFA26",
+  "user_email": "admin@denvergold.org",
+  "user_role": "super_admin",
+  "action": "analyst-brief",
+  "detail": "Generated analyst briefing PDF",
+  "ip_address": "162.245.151.254"
+ },
+ {
+  "id": 189,
+  "created_at": "2026-10-06T19:00:09.162721+00:00",
+  "event_code": null,
+  "user_email": "jdill@denvergold.org",
+  "user_role": "admin",
+  "action": "login",
+  "detail": "Magic link login",
+  "ip_address": "76.130.235.87"
+ },
+ {
+  "id": 190,
+  "created_at": "2026-10-06T19:00:12.148916+00:00",
+  "event_code": "MFA26",
+  "user_email": "jdill@denvergold.org",
+  "user_role": "admin",
+  "action": "view-report",
+  "detail": "Opened PSR report",
+  "ip_address": "76.130.235.87"
+ },
+ {
+  "id": 191,
+  "created_at": "2026-10-07T17:16:08.469505+00:00",
+  "event_code": null,
+  "user_email": "jdill@denvergold.org",
+  "user_role": "admin",
+  "action": "login",
+  "detail": "Magic link login",
+  "ip_address": "76.130.235.87"
+ },
+ {
+  "id": 192,
+  "created_at": "2026-10-07T17:16:11.102864+00:00",
+  "event_code": "MFA26",
+  "user_email": "jdill@denvergold.org",
+  "user_role": "admin",
+  "action": "view-report",
+  "detail": "Opened PSR report",
+  "ip_address": "76.130.235.87"
+ },
+ {
+  "id": 193,
+  "created_at": "2026-10-07T17:25:56.988226+00:00",
+  "event_code": null,
+  "user_email": "jdill@denvergold.org",
+  "user_role": "admin",
+  "action": "swot-update",
+  "detail": "SWOT: update",
+  "ip_address": "76.130.235.87"
+ },
+ {
+  "id": 194,
+  "created_at": "2026-10-07T17:25:57.619078+00:00",
+  "event_code": null,
+  "user_email": "jdill@denvergold.org",
+  "user_role": "admin",
+  "action": "swot-update",
+  "detail": "SWOT: update",
+  "ip_address": "76.130.235.87"
+ },
+ {
+  "id": 195,
+  "created_at": "2026-10-07T17:26:36.172066+00:00",
+  "event_code": null,
+  "user_email": "jdill@denvergold.org",
+  "user_role": "admin",
+  "action": "swot-update",
+  "detail": "SWOT: update",
+  "ip_address": "76.130.235.87"
+ },
+ {
+  "id": 196,
+  "created_at": "2026-10-07T17:26:37.992511+00:00",
+  "event_code": null,
+  "user_email": "jdill@denvergold.org",
+  "user_role": "admin",
+  "action": "swot-update",
+  "detail": "SWOT: update",
+  "ip_address": "76.130.235.87"
+ },
+ {
+  "id": 197,
+  "created_at": "2026-10-07T17:29:48.916895+00:00",
+  "event_code": null,
+  "user_email": "jdill@denvergold.org",
+  "user_role": "admin",
+  "action": "swot-update",
+  "detail": "SWOT: update",
+  "ip_address": "76.130.235.87"
+ },
+ {
+  "id": 198,
+  "created_at": "2026-10-07T17:29:50.201684+00:00",
+  "event_code": null,
+  "user_email": "jdill@denvergold.org",
+  "user_role": "admin",
+  "action": "swot-update",
+  "detail": "SWOT: update",
+  "ip_address": "76.130.235.87"
+ },
+ {
+  "id": 199,
+  "created_at": "2026-10-07T17:33:50.599899+00:00",
+  "event_code": null,
+  "user_email": "jdill@denvergold.org",
+  "user_role": "admin",
+  "action": "swot-update",
+  "detail": "SWOT: update",
+  "ip_address": "76.130.235.87"
+ },
+ {
+  "id": 200,
+  "created_at": "2026-10-07T17:33:52.075252+00:00",
+  "event_code": null,
+  "user_email": "jdill@denvergold.org",
+  "user_role": "admin",
+  "action": "swot-update",
+  "detail": "SWOT: update",
+  "ip_address": "76.130.235.87"
+ },
+ {
+  "id": 201,
+  "created_at": "2026-10-07T17:34:32.529328+00:00",
+  "event_code": null,
+  "user_email": "jdill@denvergold.org",
+  "user_role": "admin",
+  "action": "swot-update",
+  "detail": "SWOT: update",
+  "ip_address": "76.130.235.87"
+ },
+ {
+  "id": 202,
+  "created_at": "2026-10-07T17:34:33.842529+00:00",
+  "event_code": null,
+  "user_email": "jdill@denvergold.org",
+  "user_role": "admin",
+  "action": "swot-update",
+  "detail": "SWOT: update",
+  "ip_address": "76.130.235.87"
+ },
+ {
+  "id": 203,
+  "created_at": "2026-10-07T17:34:45.722098+00:00",
+  "event_code": null,
+  "user_email": "jdill@denvergold.org",
+  "user_role": "admin",
+  "action": "swot-update",
+  "detail": "SWOT: update",
+  "ip_address": "76.130.235.87"
+ },
+ {
+  "id": 204,
+  "created_at": "2026-10-07T17:34:46.443521+00:00",
+  "event_code": null,
+  "user_email": "jdill@denvergold.org",
+  "user_role": "admin",
+  "action": "swot-update",
+  "detail": "SWOT: update",
+  "ip_address": "76.130.235.87"
+ },
+ {
+  "id": 205,
+  "created_at": "2026-10-07T17:35:31.290442+00:00",
+  "event_code": null,
+  "user_email": "jdill@denvergold.org",
+  "user_role": "admin",
+  "action": "swot-update",
+  "detail": "SWOT: update",
+  "ip_address": "76.130.235.87"
+ },
+ {
+  "id": 206,
+  "created_at": "2026-10-07T17:35:33.496806+00:00",
+  "event_code": null,
+  "user_email": "jdill@denvergold.org",
+  "user_role": "admin",
+  "action": "swot-update",
+  "detail": "SWOT: update",
+  "ip_address": "76.130.235.87"
+ },
+ {
+  "id": 207,
+  "created_at": "2026-10-07T17:37:31.648871+00:00",
+  "event_code": null,
+  "user_email": "jdill@denvergold.org",
+  "user_role": "admin",
+  "action": "swot-update",
+  "detail": "SWOT: update",
+  "ip_address": "76.130.235.87"
+ },
+ {
+  "id": 208,
+  "created_at": "2026-10-07T17:37:33.635601+00:00",
+  "event_code": null,
+  "user_email": "jdill@denvergold.org",
+  "user_role": "admin",
+  "action": "swot-update",
+  "detail": "SWOT: update",
+  "ip_address": "76.130.235.87"
+ },
+ {
+  "id": 209,
+  "created_at": "2026-10-07T17:39:00.038753+00:00",
+  "event_code": null,
+  "user_email": "jdill@denvergold.org",
+  "user_role": "admin",
+  "action": "swot-update",
+  "detail": "SWOT: update",
+  "ip_address": "76.130.235.87"
+ },
+ {
+  "id": 210,
+  "created_at": "2026-10-07T17:39:26.844808+00:00",
+  "event_code": null,
+  "user_email": "jdill@denvergold.org",
+  "user_role": "admin",
+  "action": "swot-update",
+  "detail": "SWOT: update",
+  "ip_address": "76.130.235.87"
+ },
+ {
+  "id": 211,
+  "created_at": "2026-10-07T17:39:31.005879+00:00",
+  "event_code": null,
+  "user_email": "jdill@denvergold.org",
+  "user_role": "admin",
+  "action": "swot-update",
+  "detail": "SWOT: update",
+  "ip_address": "76.130.235.87"
+ },
+ {
+  "id": 212,
+  "created_at": "2026-10-07T17:40:24.737077+00:00",
+  "event_code": null,
+  "user_email": "jdill@denvergold.org",
+  "user_role": "admin",
+  "action": "swot-update",
+  "detail": "SWOT: update",
+  "ip_address": "76.130.235.87"
+ },
+ {
+  "id": 213,
+  "created_at": "2026-10-07T17:40:32.043907+00:00",
+  "event_code": null,
+  "user_email": "jdill@denvergold.org",
+  "user_role": "admin",
+  "action": "swot-update",
+  "detail": "SWOT: update",
+  "ip_address": "76.130.235.87"
+ },
+ {
+  "id": 214,
+  "created_at": "2026-10-07T17:43:07.404111+00:00",
+  "event_code": null,
+  "user_email": "jdill@denvergold.org",
+  "user_role": "admin",
+  "action": "swot-update",
+  "detail": "SWOT: update",
+  "ip_address": "76.130.235.87"
+ },
+ {
+  "id": 215,
+  "created_at": "2026-10-07T17:43:08.919402+00:00",
+  "event_code": null,
+  "user_email": "jdill@denvergold.org",
+  "user_role": "admin",
+  "action": "swot-update",
+  "detail": "SWOT: update",
+  "ip_address": "76.130.235.87"
+ },
+ {
+  "id": 216,
+  "created_at": "2026-10-07T17:43:14.413324+00:00",
+  "event_code": null,
+  "user_email": "jdill@denvergold.org",
+  "user_role": "admin",
+  "action": "swot-update",
+  "detail": "SWOT: update",
+  "ip_address": "76.130.235.87"
+ },
+ {
+  "id": 217,
+  "created_at": "2026-10-07T17:43:15.495581+00:00",
+  "event_code": null,
+  "user_email": "jdill@denvergold.org",
+  "user_role": "admin",
+  "action": "swot-update",
+  "detail": "SWOT: update",
+  "ip_address": "76.130.235.87"
+ },
+ {
+  "id": 218,
+  "created_at": "2026-10-07T17:43:19.111136+00:00",
+  "event_code": null,
+  "user_email": "jdill@denvergold.org",
+  "user_role": "admin",
+  "action": "swot-update",
+  "detail": "SWOT: update",
+  "ip_address": "76.130.235.87"
+ },
+ {
+  "id": 219,
+  "created_at": "2026-10-07T17:43:22.703929+00:00",
+  "event_code": null,
+  "user_email": "jdill@denvergold.org",
+  "user_role": "admin",
+  "action": "swot-update",
+  "detail": "SWOT: update",
+  "ip_address": "76.130.235.87"
+ },
+ {
+  "id": 220,
+  "created_at": "2026-10-07T17:43:35.740314+00:00",
+  "event_code": null,
+  "user_email": "jdill@denvergold.org",
+  "user_role": "admin",
+  "action": "swot-update",
+  "detail": "SWOT: update",
+  "ip_address": "76.130.235.87"
+ },
+ {
+  "id": 221,
+  "created_at": "2026-10-07T17:43:40.114589+00:00",
+  "event_code": null,
+  "user_email": "jdill@denvergold.org",
+  "user_role": "admin",
+  "action": "swot-update",
+  "detail": "SWOT: update",
+  "ip_address": "76.130.235.87"
+ },
+ {
+  "id": 222,
+  "created_at": "2026-10-07T17:52:23.491768+00:00",
+  "event_code": "MFA25",
+  "user_email": "jdill@denvergold.org",
+  "user_role": "admin",
+  "action": "view-report",
+  "detail": "Opened PSR report",
+  "ip_address": "76.130.235.87"
+ },
+ {
+  "id": 223,
+  "created_at": "2026-10-07T17:52:23.592+00:00",
+  "event_code": null,
+  "user_email": "jdill@denvergold.org",
+  "user_role": "admin",
+  "action": "swot-update",
+  "detail": "SWOT: update",
+  "ip_address": "76.130.235.87"
+ },
+ {
+  "id": 224,
+  "created_at": "2026-10-07T17:53:15.02734+00:00",
+  "event_code": null,
+  "user_email": "jdill@denvergold.org",
+  "user_role": "admin",
+  "action": "swot-update",
+  "detail": "SWOT: update",
+  "ip_address": "76.130.235.87"
+ },
+ {
+  "id": 225,
+  "created_at": "2026-10-07T17:53:36.288377+00:00",
+  "event_code": null,
+  "user_email": "jdill@denvergold.org",
+  "user_role": "admin",
+  "action": "swot-update",
+  "detail": "SWOT: update",
+  "ip_address": "76.130.235.87"
+ },
+ {
+  "id": 226,
+  "created_at": "2026-10-07T17:53:36.929248+00:00",
+  "event_code": null,
+  "user_email": "jdill@denvergold.org",
+  "user_role": "admin",
+  "action": "swot-update",
+  "detail": "SWOT: update",
+  "ip_address": "76.130.235.87"
+ },
+ {
+  "id": 227,
+  "created_at": "2026-10-07T17:53:52.560159+00:00",
+  "event_code": null,
+  "user_email": "jdill@denvergold.org",
+  "user_role": "admin",
+  "action": "swot-update",
+  "detail": "SWOT: update",
+  "ip_address": "76.130.235.87"
+ },
+ {
+  "id": 228,
+  "created_at": "2026-10-07T17:53:54.325532+00:00",
+  "event_code": null,
+  "user_email": "jdill@denvergold.org",
+  "user_role": "admin",
+  "action": "swot-update",
+  "detail": "SWOT: update",
+  "ip_address": "76.130.235.87"
+ },
+ {
+  "id": 229,
+  "created_at": "2026-10-07T17:57:53.496179+00:00",
+  "event_code": null,
+  "user_email": "jdill@denvergold.org",
+  "user_role": "admin",
+  "action": "swot-update",
+  "detail": "SWOT: update",
+  "ip_address": "76.130.235.87"
+ },
+ {
+  "id": 230,
+  "created_at": "2026-10-07T17:57:55.73701+00:00",
+  "event_code": null,
+  "user_email": "jdill@denvergold.org",
+  "user_role": "admin",
+  "action": "swot-update",
+  "detail": "SWOT: update",
+  "ip_address": "76.130.235.87"
+ },
+ {
+  "id": 231,
+  "created_at": "2026-10-07T17:58:10.196557+00:00",
+  "event_code": null,
+  "user_email": "jdill@denvergold.org",
+  "user_role": "admin",
+  "action": "swot-update",
+  "detail": "SWOT: update",
+  "ip_address": "76.130.235.87"
+ },
+ {
+  "id": 232,
+  "created_at": "2026-10-07T17:58:13.230468+00:00",
+  "event_code": null,
+  "user_email": "jdill@denvergold.org",
+  "user_role": "admin",
+  "action": "swot-update",
+  "detail": "SWOT: update",
+  "ip_address": "76.130.235.87"
+ },
+ {
+  "id": 233,
+  "created_at": "2026-10-07T17:58:24.747602+00:00",
+  "event_code": null,
+  "user_email": "jdill@denvergold.org",
+  "user_role": "admin",
+  "action": "swot-update",
+  "detail": "SWOT: update",
+  "ip_address": "76.130.235.87"
+ },
+ {
+  "id": 234,
+  "created_at": "2026-10-07T17:58:26.870812+00:00",
+  "event_code": null,
+  "user_email": "jdill@denvergold.org",
+  "user_role": "admin",
+  "action": "swot-update",
+  "detail": "SWOT: update",
+  "ip_address": "76.130.235.87"
+ },
+ {
+  "id": 235,
+  "created_at": "2026-10-07T17:59:59.935715+00:00",
+  "event_code": null,
+  "user_email": "jdill@denvergold.org",
+  "user_role": "admin",
+  "action": "swot-update",
+  "detail": "SWOT: update",
+  "ip_address": "76.130.235.87"
+ },
+ {
+  "id": 236,
+  "created_at": "2026-10-07T18:00:01.392022+00:00",
+  "event_code": null,
+  "user_email": "jdill@denvergold.org",
+  "user_role": "admin",
+  "action": "swot-update",
+  "detail": "SWOT: update",
+  "ip_address": "76.130.235.87"
+ },
+ {
+  "id": 237,
+  "created_at": "2026-10-07T18:00:20.101818+00:00",
+  "event_code": null,
+  "user_email": "jdill@denvergold.org",
+  "user_role": "admin",
+  "action": "swot-update",
+  "detail": "SWOT: update",
+  "ip_address": "76.130.235.87"
+ },
+ {
+  "id": 238,
+  "created_at": "2026-10-07T18:00:21.764895+00:00",
+  "event_code": null,
+  "user_email": "jdill@denvergold.org",
+  "user_role": "admin",
+  "action": "swot-update",
+  "detail": "SWOT: update",
+  "ip_address": "76.130.235.87"
+ },
+ {
+  "id": 239,
+  "created_at": "2026-10-07T18:02:23.58078+00:00",
+  "event_code": null,
+  "user_email": "jdill@denvergold.org",
+  "user_role": "admin",
+  "action": "swot-update",
+  "detail": "SWOT: update",
+  "ip_address": "76.130.235.87"
+ },
+ {
+  "id": 240,
+  "created_at": "2026-10-07T18:02:29.914062+00:00",
+  "event_code": null,
+  "user_email": "jdill@denvergold.org",
+  "user_role": "admin",
+  "action": "swot-update",
+  "detail": "SWOT: update",
+  "ip_address": "76.130.235.87"
+ },
+ {
+  "id": 241,
+  "created_at": "2026-10-07T18:07:05.465364+00:00",
+  "event_code": null,
+  "user_email": "jdill@denvergold.org",
+  "user_role": "admin",
+  "action": "swot-update",
+  "detail": "SWOT: update",
+  "ip_address": "76.130.235.87"
+ },
+ {
+  "id": 242,
+  "created_at": "2026-10-08T19:55:57.387804+00:00",
+  "event_code": null,
+  "user_email": "jdill@denvergold.org",
+  "user_role": "admin",
+  "action": "login",
+  "detail": "Magic link login",
+  "ip_address": "76.130.235.87"
+ },
+ {
+  "id": 243,
+  "created_at": "2026-10-08T19:55:59.264619+00:00",
+  "event_code": "MFA26",
+  "user_email": "jdill@denvergold.org",
+  "user_role": "admin",
+  "action": "view-report",
+  "detail": "Opened PSR report",
+  "ip_address": "76.130.235.87"
+ },
+ {
+  "id": 244,
+  "created_at": "2026-10-08T19:56:19.073793+00:00",
+  "event_code": "MFA26",
+  "user_email": "jdill@denvergold.org",
+  "user_role": "admin",
+  "action": "swot-add",
+  "detail": "SWOT: add (strength)",
+  "ip_address": "76.130.235.87"
+ },
+ {
+  "id": 245,
+  "created_at": "2026-10-08T19:56:26.037153+00:00",
+  "event_code": null,
+  "user_email": "jdill@denvergold.org",
+  "user_role": "admin",
+  "action": "swot-update",
+  "detail": "SWOT: update",
+  "ip_address": "76.130.235.87"
+ },
+ {
+  "id": 246,
+  "created_at": "2026-10-08T19:56:39.487957+00:00",
+  "event_code": "MFA26",
+  "user_email": "jdill@denvergold.org",
+  "user_role": "admin",
+  "action": "swot-add",
+  "detail": "SWOT: add (strength)",
+  "ip_address": "76.130.235.87"
+ },
+ {
+  "id": 247,
+  "created_at": "2026-10-08T19:56:39.436892+00:00",
+  "event_code": null,
+  "user_email": "jdill@denvergold.org",
+  "user_role": "admin",
+  "action": "swot-update",
+  "detail": "SWOT: update",
+  "ip_address": "76.130.235.87"
+ },
+ {
+  "id": 248,
+  "created_at": "2026-10-08T19:56:42.124359+00:00",
+  "event_code": null,
+  "user_email": "jdill@denvergold.org",
+  "user_role": "admin",
+  "action": "swot-update",
+  "detail": "SWOT: update",
+  "ip_address": "76.130.235.87"
+ },
+ {
+  "id": 249,
+  "created_at": "2026-10-08T19:56:56.561832+00:00",
+  "event_code": "MFA26",
+  "user_email": "jdill@denvergold.org",
+  "user_role": "admin",
+  "action": "swot-add",
+  "detail": "SWOT: add (strength)",
+  "ip_address": "76.130.235.87"
+ },
+ {
+  "id": 250,
+  "created_at": "2026-10-08T19:56:56.639038+00:00",
+  "event_code": null,
+  "user_email": "jdill@denvergold.org",
+  "user_role": "admin",
+  "action": "swot-update",
+  "detail": "SWOT: update",
+  "ip_address": "76.130.235.87"
+ },
+ {
+  "id": 251,
+  "created_at": "2026-10-08T19:56:59.209019+00:00",
+  "event_code": null,
+  "user_email": "jdill@denvergold.org",
+  "user_role": "admin",
+  "action": "swot-update",
+  "detail": "SWOT: update",
+  "ip_address": "76.130.235.87"
+ },
+ {
+  "id": 252,
+  "created_at": "2026-10-08T19:57:05.142817+00:00",
+  "event_code": "MFA26",
+  "user_email": "jdill@denvergold.org",
+  "user_role": "admin",
+  "action": "swot-add",
+  "detail": "SWOT: add (strength)",
+  "ip_address": "76.130.235.87"
+ },
+ {
+  "id": 253,
+  "created_at": "2026-10-08T19:57:05.106518+00:00",
+  "event_code": null,
+  "user_email": "jdill@denvergold.org",
+  "user_role": "admin",
+  "action": "swot-update",
+  "detail": "SWOT: update",
+  "ip_address": "76.130.235.87"
+ },
+ {
+  "id": 254,
+  "created_at": "2026-10-08T19:57:06.682643+00:00",
+  "event_code": null,
+  "user_email": "jdill@denvergold.org",
+  "user_role": "admin",
+  "action": "swot-update",
+  "detail": "SWOT: update",
+  "ip_address": "76.130.235.87"
+ },
+ {
+  "id": 255,
+  "created_at": "2026-10-08T19:57:13.447734+00:00",
+  "event_code": null,
+  "user_email": "jdill@denvergold.org",
+  "user_role": "admin",
+  "action": "swot-update",
+  "detail": "SWOT: update",
+  "ip_address": "76.130.235.87"
+ },
+ {
+  "id": 256,
+  "created_at": "2026-10-08T19:57:13.488757+00:00",
+  "event_code": "MFA26",
+  "user_email": "jdill@denvergold.org",
+  "user_role": "admin",
+  "action": "swot-add",
+  "detail": "SWOT: add (strength)",
+  "ip_address": "76.130.235.87"
+ },
+ {
+  "id": 257,
+  "created_at": "2026-10-08T19:57:46.265686+00:00",
+  "event_code": null,
+  "user_email": "jdill@denvergold.org",
+  "user_role": "admin",
+  "action": "swot-update",
+  "detail": "SWOT: update",
+  "ip_address": "76.130.235.87"
+ },
+ {
+  "id": 258,
+  "created_at": "2026-10-08T19:57:53.879033+00:00",
+  "event_code": null,
+  "user_email": "jdill@denvergold.org",
+  "user_role": "admin",
+  "action": "swot-update",
+  "detail": "SWOT: update",
+  "ip_address": "76.130.235.87"
+ },
+ {
+  "id": 259,
+  "created_at": "2026-10-08T19:57:53.916441+00:00",
+  "event_code": "MFA26",
+  "user_email": "jdill@denvergold.org",
+  "user_role": "admin",
+  "action": "swot-add",
+  "detail": "SWOT: add (strength)",
+  "ip_address": "76.130.235.87"
+ },
+ {
+  "id": 260,
+  "created_at": "2026-10-08T19:58:16.542557+00:00",
+  "event_code": null,
+  "user_email": "jdill@denvergold.org",
+  "user_role": "admin",
+  "action": "swot-update",
+  "detail": "SWOT: update",
+  "ip_address": "76.130.235.87"
+ },
+ {
+  "id": 261,
+  "created_at": "2026-10-08T19:58:26.210739+00:00",
+  "event_code": null,
+  "user_email": "jdill@denvergold.org",
+  "user_role": "admin",
+  "action": "swot-update",
+  "detail": "SWOT: update",
+  "ip_address": "76.130.235.87"
+ },
+ {
+  "id": 262,
+  "created_at": "2026-10-08T19:58:26.298656+00:00",
+  "event_code": "MFA26",
+  "user_email": "jdill@denvergold.org",
+  "user_role": "admin",
+  "action": "swot-add",
+  "detail": "SWOT: add (strength)",
+  "ip_address": "76.130.235.87"
+ },
+ {
+  "id": 263,
+  "created_at": "2026-10-08T19:58:28.187672+00:00",
+  "event_code": null,
+  "user_email": "jdill@denvergold.org",
+  "user_role": "admin",
+  "action": "swot-update",
+  "detail": "SWOT: update",
+  "ip_address": "76.130.235.87"
+ },
+ {
+  "id": 264,
+  "created_at": "2026-10-08T19:58:35.986679+00:00",
+  "event_code": null,
+  "user_email": "jdill@denvergold.org",
+  "user_role": "admin",
+  "action": "swot-update",
+  "detail": "SWOT: update",
+  "ip_address": "76.130.235.87"
+ },
+ {
+  "id": 265,
+  "created_at": "2026-10-08T19:58:36.088871+00:00",
+  "event_code": "MFA26",
+  "user_email": "jdill@denvergold.org",
+  "user_role": "admin",
+  "action": "swot-add",
+  "detail": "SWOT: add (strength)",
+  "ip_address": "76.130.235.87"
+ },
+ {
+  "id": 266,
+  "created_at": "2026-10-08T19:58:37.613396+00:00",
+  "event_code": null,
+  "user_email": "jdill@denvergold.org",
+  "user_role": "admin",
+  "action": "swot-update",
+  "detail": "SWOT: update",
+  "ip_address": "76.130.235.87"
+ },
+ {
+  "id": 267,
+  "created_at": "2026-10-08T19:59:03.980108+00:00",
+  "event_code": "MFA26",
+  "user_email": "jdill@denvergold.org",
+  "user_role": "admin",
+  "action": "swot-add",
+  "detail": "SWOT: add (strength)",
+  "ip_address": "76.130.235.87"
+ },
+ {
+  "id": 268,
+  "created_at": "2026-10-08T19:59:04.14878+00:00",
+  "event_code": null,
+  "user_email": "jdill@denvergold.org",
+  "user_role": "admin",
+  "action": "swot-update",
+  "detail": "SWOT: update",
+  "ip_address": "76.130.235.87"
+ },
+ {
+  "id": 269,
+  "created_at": "2026-10-08T19:59:09.283542+00:00",
+  "event_code": null,
+  "user_email": "jdill@denvergold.org",
+  "user_role": "admin",
+  "action": "swot-update",
+  "detail": "SWOT: update",
+  "ip_address": "76.130.235.87"
+ },
+ {
+  "id": 270,
+  "created_at": "2026-10-08T19:59:19.614777+00:00",
+  "event_code": null,
+  "user_email": "jdill@denvergold.org",
+  "user_role": "admin",
+  "action": "swot-update",
+  "detail": "SWOT: update",
+  "ip_address": "76.130.235.87"
+ },
+ {
+  "id": 271,
+  "created_at": "2026-10-08T19:59:19.643966+00:00",
+  "event_code": "MFA26",
+  "user_email": "jdill@denvergold.org",
+  "user_role": "admin",
+  "action": "swot-add",
+  "detail": "SWOT: add (strength)",
+  "ip_address": "76.130.235.87"
+ },
+ {
+  "id": 272,
+  "created_at": "2026-10-08T19:59:33.052269+00:00",
+  "event_code": null,
+  "user_email": "jdill@denvergold.org",
+  "user_role": "admin",
+  "action": "swot-update",
+  "detail": "SWOT: update",
+  "ip_address": "76.130.235.87"
+ },
+ {
+  "id": 273,
+  "created_at": "2026-10-08T19:59:43.425497+00:00",
+  "event_code": "MFA26",
+  "user_email": "jdill@denvergold.org",
+  "user_role": "admin",
+  "action": "swot-add",
+  "detail": "SWOT: add (strength)",
+  "ip_address": "76.130.235.87"
+ },
+ {
+  "id": 274,
+  "created_at": "2026-10-08T19:59:43.49145+00:00",
+  "event_code": null,
+  "user_email": "jdill@denvergold.org",
+  "user_role": "admin",
+  "action": "swot-update",
+  "detail": "SWOT: update",
+  "ip_address": "76.130.235.87"
+ },
+ {
+  "id": 275,
+  "created_at": "2026-10-08T19:59:45.787817+00:00",
+  "event_code": null,
+  "user_email": "jdill@denvergold.org",
+  "user_role": "admin",
+  "action": "swot-update",
+  "detail": "SWOT: update",
+  "ip_address": "76.130.235.87"
+ },
+ {
+  "id": 276,
+  "created_at": "2026-10-08T20:00:41.694961+00:00",
+  "event_code": null,
+  "user_email": "jdill@denvergold.org",
+  "user_role": "admin",
+  "action": "swot-update",
+  "detail": "SWOT: update",
+  "ip_address": "76.130.235.87"
+ },
+ {
+  "id": 277,
+  "created_at": "2026-10-08T20:00:41.769688+00:00",
+  "event_code": "MFA26",
+  "user_email": "jdill@denvergold.org",
+  "user_role": "admin",
+  "action": "swot-add",
+  "detail": "SWOT: add (weakness)",
+  "ip_address": "76.130.235.87"
+ },
+ {
+  "id": 278,
+  "created_at": "2026-10-08T20:00:44.151338+00:00",
+  "event_code": null,
+  "user_email": "jdill@denvergold.org",
+  "user_role": "admin",
+  "action": "swot-update",
+  "detail": "SWOT: update",
+  "ip_address": "76.130.235.87"
+ },
+ {
+  "id": 279,
+  "created_at": "2026-10-08T20:01:38.810571+00:00",
+  "event_code": "MFA26",
+  "user_email": "jdill@denvergold.org",
+  "user_role": "admin",
+  "action": "swot-add",
+  "detail": "SWOT: add (weakness)",
+  "ip_address": "76.130.235.87"
+ },
+ {
+  "id": 280,
+  "created_at": "2026-10-08T20:01:38.858385+00:00",
+  "event_code": null,
+  "user_email": "jdill@denvergold.org",
+  "user_role": "admin",
+  "action": "swot-update",
+  "detail": "SWOT: update",
+  "ip_address": "76.130.235.87"
+ },
+ {
+  "id": 281,
+  "created_at": "2026-10-08T20:01:40.398894+00:00",
+  "event_code": null,
+  "user_email": "jdill@denvergold.org",
+  "user_role": "admin",
+  "action": "swot-update",
+  "detail": "SWOT: update",
+  "ip_address": "76.130.235.87"
+ },
+ {
+  "id": 282,
+  "created_at": "2026-10-08T20:01:43.252308+00:00",
+  "event_code": null,
+  "user_email": "jdill@denvergold.org",
+  "user_role": "admin",
+  "action": "swot-update",
+  "detail": "SWOT: update",
+  "ip_address": "76.130.235.87"
+ },
+ {
+  "id": 283,
+  "created_at": "2026-10-08T20:01:45.431163+00:00",
+  "event_code": null,
+  "user_email": "jdill@denvergold.org",
+  "user_role": "admin",
+  "action": "swot-update",
+  "detail": "SWOT: update",
+  "ip_address": "76.130.235.87"
+ },
+ {
+  "id": 284,
+  "created_at": "2026-10-08T20:01:47.179819+00:00",
+  "event_code": null,
+  "user_email": "jdill@denvergold.org",
+  "user_role": "admin",
+  "action": "swot-update",
+  "detail": "SWOT: update",
+  "ip_address": "76.130.235.87"
+ },
+ {
+  "id": 285,
+  "created_at": "2026-10-08T20:01:48.748954+00:00",
+  "event_code": null,
+  "user_email": "jdill@denvergold.org",
+  "user_role": "admin",
+  "action": "swot-update",
+  "detail": "SWOT: update",
+  "ip_address": "76.130.235.87"
+ },
+ {
+  "id": 286,
+  "created_at": "2026-10-08T20:01:48.831815+00:00",
+  "event_code": "MFA26",
+  "user_email": "jdill@denvergold.org",
+  "user_role": "admin",
+  "action": "swot-add",
+  "detail": "SWOT: add (weakness)",
+  "ip_address": "76.130.235.87"
+ },
+ {
+  "id": 287,
+  "created_at": "2026-10-08T20:01:50.887758+00:00",
+  "event_code": null,
+  "user_email": "jdill@denvergold.org",
+  "user_role": "admin",
+  "action": "swot-update",
+  "detail": "SWOT: update",
+  "ip_address": "76.130.235.87"
+ },
+ {
+  "id": 288,
+  "created_at": "2026-10-08T20:01:53.190857+00:00",
+  "event_code": null,
+  "user_email": "jdill@denvergold.org",
+  "user_role": "admin",
+  "action": "swot-delete",
+  "detail": "SWOT: delete",
+  "ip_address": "76.130.235.87"
+ },
+ {
+  "id": 289,
+  "created_at": "2026-10-08T20:02:06.013105+00:00",
+  "event_code": "MFA26",
+  "user_email": "jdill@denvergold.org",
+  "user_role": "admin",
+  "action": "swot-add",
+  "detail": "SWOT: add (weakness)",
+  "ip_address": "76.130.235.87"
+ },
+ {
+  "id": 290,
+  "created_at": "2026-10-08T20:02:07.679378+00:00",
+  "event_code": null,
+  "user_email": "jdill@denvergold.org",
+  "user_role": "admin",
+  "action": "swot-update",
+  "detail": "SWOT: update",
+  "ip_address": "76.130.235.87"
+ },
+ {
+  "id": 291,
+  "created_at": "2026-10-08T20:02:17.106097+00:00",
+  "event_code": null,
+  "user_email": "jdill@denvergold.org",
+  "user_role": "admin",
+  "action": "swot-update",
+  "detail": "SWOT: update",
+  "ip_address": "76.130.235.87"
+ },
+ {
+  "id": 292,
+  "created_at": "2026-10-08T20:02:17.702234+00:00",
+  "event_code": "MFA26",
+  "user_email": "jdill@denvergold.org",
+  "user_role": "admin",
+  "action": "swot-add",
+  "detail": "SWOT: add (weakness)",
+  "ip_address": "76.130.235.87"
+ },
+ {
+  "id": 293,
+  "created_at": "2026-10-08T20:02:19.614267+00:00",
+  "event_code": null,
+  "user_email": "jdill@denvergold.org",
+  "user_role": "admin",
+  "action": "swot-update",
+  "detail": "SWOT: update",
+  "ip_address": "76.130.235.87"
+ },
+ {
+  "id": 294,
+  "created_at": "2026-10-08T20:02:27.734291+00:00",
+  "event_code": null,
+  "user_email": "jdill@denvergold.org",
+  "user_role": "admin",
+  "action": "swot-update",
+  "detail": "SWOT: update",
+  "ip_address": "76.130.235.87"
+ },
+ {
+  "id": 295,
+  "created_at": "2026-10-08T20:02:27.832693+00:00",
+  "event_code": "MFA26",
+  "user_email": "jdill@denvergold.org",
+  "user_role": "admin",
+  "action": "swot-add",
+  "detail": "SWOT: add (weakness)",
+  "ip_address": "76.130.235.87"
+ },
+ {
+  "id": 296,
+  "created_at": "2026-10-08T20:02:54.295007+00:00",
+  "event_code": null,
+  "user_email": "jdill@denvergold.org",
+  "user_role": "admin",
+  "action": "swot-update",
+  "detail": "SWOT: update",
+  "ip_address": "76.130.235.87"
+ },
+ {
+  "id": 297,
+  "created_at": "2026-10-08T20:03:01.596649+00:00",
+  "event_code": null,
+  "user_email": "jdill@denvergold.org",
+  "user_role": "admin",
+  "action": "swot-update",
+  "detail": "SWOT: update",
+  "ip_address": "76.130.235.87"
+ },
+ {
+  "id": 298,
+  "created_at": "2026-10-08T20:03:26.612338+00:00",
+  "event_code": null,
+  "user_email": "jdill@denvergold.org",
+  "user_role": "admin",
+  "action": "swot-update",
+  "detail": "SWOT: update",
+  "ip_address": "76.130.235.87"
+ },
+ {
+  "id": 299,
+  "created_at": "2026-10-08T20:03:32.296221+00:00",
+  "event_code": "MFA26",
+  "user_email": "jdill@denvergold.org",
+  "user_role": "admin",
+  "action": "swot-add",
+  "detail": "SWOT: add (weakness)",
+  "ip_address": "76.130.235.87"
+ },
+ {
+  "id": 300,
+  "created_at": "2026-10-08T20:03:32.316126+00:00",
+  "event_code": null,
+  "user_email": "jdill@denvergold.org",
+  "user_role": "admin",
+  "action": "swot-update",
+  "detail": "SWOT: update",
+  "ip_address": "76.130.235.87"
+ },
+ {
+  "id": 301,
+  "created_at": "2026-10-08T20:03:33.63848+00:00",
+  "event_code": null,
+  "user_email": "jdill@denvergold.org",
+  "user_role": "admin",
+  "action": "swot-update",
+  "detail": "SWOT: update",
+  "ip_address": "76.130.235.87"
+ },
+ {
+  "id": 302,
+  "created_at": "2026-10-08T20:03:51.984924+00:00",
+  "event_code": null,
+  "user_email": "jdill@denvergold.org",
+  "user_role": "admin",
+  "action": "swot-update",
+  "detail": "SWOT: update",
+  "ip_address": "76.130.235.87"
+ },
+ {
+  "id": 303,
+  "created_at": "2026-10-08T20:03:52.026657+00:00",
+  "event_code": "MFA26",
+  "user_email": "jdill@denvergold.org",
+  "user_role": "admin",
+  "action": "swot-add",
+  "detail": "SWOT: add (weakness)",
+  "ip_address": "76.130.235.87"
+ },
+ {
+  "id": 304,
+  "created_at": "2026-10-08T20:03:54.130692+00:00",
+  "event_code": null,
+  "user_email": "jdill@denvergold.org",
+  "user_role": "admin",
+  "action": "swot-update",
+  "detail": "SWOT: update",
+  "ip_address": "76.130.235.87"
+ },
+ {
+  "id": 305,
+  "created_at": "2026-10-08T20:04:03.093331+00:00",
+  "event_code": "MFA26",
+  "user_email": "jdill@denvergold.org",
+  "user_role": "admin",
+  "action": "swot-add",
+  "detail": "SWOT: add (weakness)",
+  "ip_address": "76.130.235.87"
+ },
+ {
+  "id": 306,
+  "created_at": "2026-10-08T20:04:03.091858+00:00",
+  "event_code": null,
+  "user_email": "jdill@denvergold.org",
+  "user_role": "admin",
+  "action": "swot-update",
+  "detail": "SWOT: update",
+  "ip_address": "76.130.235.87"
+ },
+ {
+  "id": 307,
+  "created_at": "2026-10-08T20:04:06.987419+00:00",
+  "event_code": null,
+  "user_email": "jdill@denvergold.org",
+  "user_role": "admin",
+  "action": "swot-update",
+  "detail": "SWOT: update",
+  "ip_address": "76.130.235.87"
+ },
+ {
+  "id": 308,
+  "created_at": "2026-10-08T20:04:20.716959+00:00",
+  "event_code": null,
+  "user_email": "jdill@denvergold.org",
+  "user_role": "admin",
+  "action": "swot-update",
+  "detail": "SWOT: update",
+  "ip_address": "76.130.235.87"
+ },
+ {
+  "id": 309,
+  "created_at": "2026-10-08T20:04:22.422206+00:00",
+  "event_code": null,
+  "user_email": "jdill@denvergold.org",
+  "user_role": "admin",
+  "action": "swot-delete",
+  "detail": "SWOT: delete",
+  "ip_address": "76.130.235.87"
+ },
+ {
+  "id": 310,
+  "created_at": "2026-10-08T20:04:29.791698+00:00",
+  "event_code": "MFA26",
+  "user_email": "jdill@denvergold.org",
+  "user_role": "admin",
+  "action": "swot-add",
+  "detail": "SWOT: add (weakness)",
+  "ip_address": "76.130.235.87"
+ },
+ {
+  "id": 311,
+  "created_at": "2026-10-08T20:04:32.034364+00:00",
+  "event_code": null,
+  "user_email": "jdill@denvergold.org",
+  "user_role": "admin",
+  "action": "swot-update",
+  "detail": "SWOT: update",
+  "ip_address": "76.130.235.87"
+ },
+ {
+  "id": 312,
+  "created_at": "2026-10-08T20:04:39.342874+00:00",
+  "event_code": null,
+  "user_email": "jdill@denvergold.org",
+  "user_role": "admin",
+  "action": "swot-update",
+  "detail": "SWOT: update",
+  "ip_address": "76.130.235.87"
+ },
+ {
+  "id": 313,
+  "created_at": "2026-10-08T20:04:39.432897+00:00",
+  "event_code": "MFA26",
+  "user_email": "jdill@denvergold.org",
+  "user_role": "admin",
+  "action": "swot-add",
+  "detail": "SWOT: add (weakness)",
+  "ip_address": "76.130.235.87"
+ },
+ {
+  "id": 314,
+  "created_at": "2026-10-08T20:04:40.811323+00:00",
+  "event_code": null,
+  "user_email": "jdill@denvergold.org",
+  "user_role": "admin",
+  "action": "swot-update",
+  "detail": "SWOT: update",
+  "ip_address": "76.130.235.87"
+ },
+ {
+  "id": 315,
+  "created_at": "2026-10-08T20:04:59.582329+00:00",
+  "event_code": null,
+  "user_email": "jdill@denvergold.org",
+  "user_role": "admin",
+  "action": "swot-update",
+  "detail": "SWOT: update",
+  "ip_address": "76.130.235.87"
+ },
+ {
+  "id": 316,
+  "created_at": "2026-10-08T20:04:59.631059+00:00",
+  "event_code": "MFA26",
+  "user_email": "jdill@denvergold.org",
+  "user_role": "admin",
+  "action": "swot-add",
+  "detail": "SWOT: add (weakness)",
+  "ip_address": "76.130.235.87"
+ },
+ {
+  "id": 317,
+  "created_at": "2026-10-08T20:05:11.956673+00:00",
+  "event_code": null,
+  "user_email": "jdill@denvergold.org",
+  "user_role": "admin",
+  "action": "swot-update",
+  "detail": "SWOT: update",
+  "ip_address": "76.130.235.87"
+ },
+ {
+  "id": 318,
+  "created_at": "2026-10-08T20:05:33.440215+00:00",
+  "event_code": null,
+  "user_email": "jdill@denvergold.org",
+  "user_role": "admin",
+  "action": "swot-update",
+  "detail": "SWOT: update",
+  "ip_address": "76.130.235.87"
+ },
+ {
+  "id": 319,
+  "created_at": "2026-10-08T20:05:39.130741+00:00",
+  "event_code": "MFA26",
+  "user_email": "jdill@denvergold.org",
+  "user_role": "admin",
+  "action": "swot-add",
+  "detail": "SWOT: add (weakness)",
+  "ip_address": "76.130.235.87"
+ },
+ {
+  "id": 320,
+  "created_at": "2026-10-08T20:05:39.142669+00:00",
+  "event_code": null,
+  "user_email": "jdill@denvergold.org",
+  "user_role": "admin",
+  "action": "swot-update",
+  "detail": "SWOT: update",
+  "ip_address": "76.130.235.87"
+ },
+ {
+  "id": 321,
+  "created_at": "2026-10-08T20:05:39.183076+00:00",
+  "event_code": "MFA26",
+  "user_email": "jdill@denvergold.org",
+  "user_role": "admin",
+  "action": "swot-add",
+  "detail": "SWOT: add (weakness)",
+  "ip_address": "76.130.235.87"
+ },
+ {
+  "id": 322,
+  "created_at": "2026-10-08T20:05:39.437295+00:00",
+  "event_code": null,
+  "user_email": "jdill@denvergold.org",
+  "user_role": "admin",
+  "action": "swot-update",
+  "detail": "SWOT: update",
+  "ip_address": "76.130.235.87"
+ },
+ {
+  "id": 323,
+  "created_at": "2026-10-08T20:05:41.175882+00:00",
+  "event_code": null,
+  "user_email": "jdill@denvergold.org",
+  "user_role": "admin",
+  "action": "swot-update",
+  "detail": "SWOT: update",
+  "ip_address": "76.130.235.87"
+ },
+ {
+  "id": 324,
+  "created_at": "2026-10-08T20:05:42.438496+00:00",
+  "event_code": null,
+  "user_email": "jdill@denvergold.org",
+  "user_role": "admin",
+  "action": "swot-delete",
+  "detail": "SWOT: delete",
+  "ip_address": "76.130.235.87"
+ },
+ {
+  "id": 325,
+  "created_at": "2026-10-08T20:06:05.58314+00:00",
+  "event_code": null,
+  "user_email": "jdill@denvergold.org",
+  "user_role": "admin",
+  "action": "swot-update",
+  "detail": "SWOT: update",
+  "ip_address": "76.130.235.87"
+ },
+ {
+  "id": 326,
+  "created_at": "2026-10-08T20:06:10.568741+00:00",
+  "event_code": null,
+  "user_email": "jdill@denvergold.org",
+  "user_role": "admin",
+  "action": "swot-update",
+  "detail": "SWOT: update",
+  "ip_address": "76.130.235.87"
+ },
+ {
+  "id": 327,
+  "created_at": "2026-10-08T20:06:11.754416+00:00",
+  "event_code": null,
+  "user_email": "jdill@denvergold.org",
+  "user_role": "admin",
+  "action": "swot-delete",
+  "detail": "SWOT: delete",
+  "ip_address": "76.130.235.87"
+ },
+ {
+  "id": 328,
+  "created_at": "2026-10-08T20:06:14.140656+00:00",
+  "event_code": null,
+  "user_email": "jdill@denvergold.org",
+  "user_role": "admin",
+  "action": "swot-delete",
+  "detail": "SWOT: delete",
+  "ip_address": "76.130.235.87"
+ },
+ {
+  "id": 329,
+  "created_at": "2026-10-08T20:06:15.936912+00:00",
+  "event_code": null,
+  "user_email": "jdill@denvergold.org",
+  "user_role": "admin",
+  "action": "swot-delete",
+  "detail": "SWOT: delete",
+  "ip_address": "76.130.235.87"
+ },
+ {
+  "id": 330,
+  "created_at": "2026-10-08T20:06:18.03879+00:00",
+  "event_code": null,
+  "user_email": "jdill@denvergold.org",
+  "user_role": "admin",
+  "action": "swot-delete",
+  "detail": "SWOT: delete",
+  "ip_address": "76.130.235.87"
+ },
+ {
+  "id": 331,
+  "created_at": "2026-10-08T20:06:20.116209+00:00",
+  "event_code": null,
+  "user_email": "jdill@denvergold.org",
+  "user_role": "admin",
+  "action": "swot-delete",
+  "detail": "SWOT: delete",
+  "ip_address": "76.130.235.87"
+ },
+ {
+  "id": 332,
+  "created_at": "2026-10-08T20:06:22.204061+00:00",
+  "event_code": null,
+  "user_email": "jdill@denvergold.org",
+  "user_role": "admin",
+  "action": "swot-delete",
+  "detail": "SWOT: delete",
+  "ip_address": "76.130.235.87"
+ },
+ {
+  "id": 333,
+  "created_at": "2026-10-08T20:06:24.446414+00:00",
+  "event_code": null,
+  "user_email": "jdill@denvergold.org",
+  "user_role": "admin",
+  "action": "swot-delete",
+  "detail": "SWOT: delete",
+  "ip_address": "76.130.235.87"
+ },
+ {
+  "id": 334,
+  "created_at": "2026-10-08T20:06:26.376164+00:00",
+  "event_code": null,
+  "user_email": "jdill@denvergold.org",
+  "user_role": "admin",
+  "action": "swot-delete",
+  "detail": "SWOT: delete",
+  "ip_address": "76.130.235.87"
+ },
+ {
+  "id": 335,
+  "created_at": "2026-10-08T20:06:28.697932+00:00",
+  "event_code": null,
+  "user_email": "jdill@denvergold.org",
+  "user_role": "admin",
+  "action": "swot-delete",
+  "detail": "SWOT: delete",
+  "ip_address": "76.130.235.87"
+ },
+ {
+  "id": 336,
+  "created_at": "2026-10-08T20:06:30.786542+00:00",
+  "event_code": null,
+  "user_email": "jdill@denvergold.org",
+  "user_role": "admin",
+  "action": "swot-delete",
+  "detail": "SWOT: delete",
+  "ip_address": "76.130.235.87"
+ },
+ {
+  "id": 337,
+  "created_at": "2026-10-08T20:06:32.91134+00:00",
+  "event_code": null,
+  "user_email": "jdill@denvergold.org",
+  "user_role": "admin",
+  "action": "swot-delete",
+  "detail": "SWOT: delete",
+  "ip_address": "76.130.235.87"
+ },
+ {
+  "id": 338,
+  "created_at": "2026-10-08T20:06:35.405764+00:00",
+  "event_code": null,
+  "user_email": "jdill@denvergold.org",
+  "user_role": "admin",
+  "action": "swot-delete",
+  "detail": "SWOT: delete",
+  "ip_address": "76.130.235.87"
+ },
+ {
+  "id": 339,
+  "created_at": "2026-10-08T20:07:05.76643+00:00",
+  "event_code": null,
+  "user_email": "jdill@denvergold.org",
+  "user_role": "admin",
+  "action": "swot-delete",
+  "detail": "SWOT: delete",
+  "ip_address": "76.130.235.87"
+ },
+ {
+  "id": 340,
+  "created_at": "2026-10-08T20:07:08.460349+00:00",
+  "event_code": null,
+  "user_email": "jdill@denvergold.org",
+  "user_role": "admin",
+  "action": "swot-delete",
+  "detail": "SWOT: delete",
+  "ip_address": "76.130.235.87"
+ },
+ {
+  "id": 341,
+  "created_at": "2026-10-08T20:07:11.34914+00:00",
+  "event_code": null,
+  "user_email": "jdill@denvergold.org",
+  "user_role": "admin",
+  "action": "swot-delete",
+  "detail": "SWOT: delete",
+  "ip_address": "76.130.235.87"
+ },
+ {
+  "id": 342,
+  "created_at": "2026-10-08T20:07:13.919678+00:00",
+  "event_code": null,
+  "user_email": "jdill@denvergold.org",
+  "user_role": "admin",
+  "action": "swot-delete",
+  "detail": "SWOT: delete",
+  "ip_address": "76.130.235.87"
+ },
+ {
+  "id": 343,
+  "created_at": "2026-10-08T20:07:16.501371+00:00",
+  "event_code": null,
+  "user_email": "jdill@denvergold.org",
+  "user_role": "admin",
+  "action": "swot-delete",
+  "detail": "SWOT: delete",
+  "ip_address": "76.130.235.87"
+ },
+ {
+  "id": 344,
+  "created_at": "2026-10-08T20:07:18.920214+00:00",
+  "event_code": null,
+  "user_email": "jdill@denvergold.org",
+  "user_role": "admin",
+  "action": "swot-delete",
+  "detail": "SWOT: delete",
+  "ip_address": "76.130.235.87"
+ },
+ {
+  "id": 345,
+  "created_at": "2026-10-08T20:07:20.995158+00:00",
+  "event_code": null,
+  "user_email": "jdill@denvergold.org",
+  "user_role": "admin",
+  "action": "swot-delete",
+  "detail": "SWOT: delete",
+  "ip_address": "76.130.235.87"
+ },
+ {
+  "id": 346,
+  "created_at": "2026-10-08T20:07:23.334629+00:00",
+  "event_code": null,
+  "user_email": "jdill@denvergold.org",
+  "user_role": "admin",
+  "action": "swot-delete",
+  "detail": "SWOT: delete",
+  "ip_address": "76.130.235.87"
+ },
+ {
+  "id": 347,
+  "created_at": "2026-10-08T20:07:35.728903+00:00",
+  "event_code": "MFA26",
+  "user_email": "jdill@denvergold.org",
+  "user_role": "admin",
+  "action": "swot-add",
+  "detail": "SWOT: add (opportunity)",
+  "ip_address": "76.130.235.87"
+ },
+ {
+  "id": 348,
+  "created_at": "2026-10-08T20:07:37.814301+00:00",
+  "event_code": null,
+  "user_email": "jdill@denvergold.org",
+  "user_role": "admin",
+  "action": "swot-update",
+  "detail": "SWOT: update",
+  "ip_address": "76.130.235.87"
+ },
+ {
+  "id": 349,
+  "created_at": "2026-10-08T20:07:48.756068+00:00",
+  "event_code": null,
+  "user_email": "jdill@denvergold.org",
+  "user_role": "admin",
+  "action": "swot-update",
+  "detail": "SWOT: update",
+  "ip_address": "76.130.235.87"
+ },
+ {
+  "id": 350,
+  "created_at": "2026-10-08T20:07:48.756395+00:00",
+  "event_code": "MFA26",
+  "user_email": "jdill@denvergold.org",
+  "user_role": "admin",
+  "action": "swot-add",
+  "detail": "SWOT: add (opportunity)",
+  "ip_address": "76.130.235.87"
+ },
+ {
+  "id": 351,
+  "created_at": "2026-10-08T20:07:58.905235+00:00",
+  "event_code": null,
+  "user_email": "jdill@denvergold.org",
+  "user_role": "admin",
+  "action": "swot-update",
+  "detail": "SWOT: update",
+  "ip_address": "76.130.235.87"
+ },
+ {
+  "id": 352,
+  "created_at": "2026-10-08T20:08:08.595705+00:00",
+  "event_code": "MFA26",
+  "user_email": "jdill@denvergold.org",
+  "user_role": "admin",
+  "action": "swot-add",
+  "detail": "SWOT: add (opportunity)",
+  "ip_address": "76.130.235.87"
+ },
+ {
+  "id": 353,
+  "created_at": "2026-10-08T20:08:08.621767+00:00",
+  "event_code": null,
+  "user_email": "jdill@denvergold.org",
+  "user_role": "admin",
+  "action": "swot-update",
+  "detail": "SWOT: update",
+  "ip_address": "76.130.235.87"
+ },
+ {
+  "id": 354,
+  "created_at": "2026-10-08T20:08:10.191248+00:00",
+  "event_code": null,
+  "user_email": "jdill@denvergold.org",
+  "user_role": "admin",
+  "action": "swot-update",
+  "detail": "SWOT: update",
+  "ip_address": "76.130.235.87"
+ },
+ {
+  "id": 355,
+  "created_at": "2026-10-08T20:08:15.757033+00:00",
+  "event_code": null,
+  "user_email": "jdill@denvergold.org",
+  "user_role": "admin",
+  "action": "swot-update",
+  "detail": "SWOT: update",
+  "ip_address": "76.130.235.87"
+ },
+ {
+  "id": 356,
+  "created_at": "2026-10-08T20:08:15.863852+00:00",
+  "event_code": "MFA26",
+  "user_email": "jdill@denvergold.org",
+  "user_role": "admin",
+  "action": "swot-add",
+  "detail": "SWOT: add (opportunity)",
+  "ip_address": "76.130.235.87"
+ },
+ {
+  "id": 357,
+  "created_at": "2026-10-08T20:08:17.590068+00:00",
+  "event_code": null,
+  "user_email": "jdill@denvergold.org",
+  "user_role": "admin",
+  "action": "swot-update",
+  "detail": "SWOT: update",
+  "ip_address": "76.130.235.87"
+ },
+ {
+  "id": 358,
+  "created_at": "2026-10-08T20:08:55.195376+00:00",
+  "event_code": null,
+  "user_email": "jdill@denvergold.org",
+  "user_role": "admin",
+  "action": "swot-update",
+  "detail": "SWOT: update",
+  "ip_address": "76.130.235.87"
+ },
+ {
+  "id": 359,
+  "created_at": "2026-10-08T20:09:00.309732+00:00",
+  "event_code": null,
+  "user_email": "jdill@denvergold.org",
+  "user_role": "admin",
+  "action": "swot-update",
+  "detail": "SWOT: update",
+  "ip_address": "76.130.235.87"
+ },
+ {
+  "id": 360,
+  "created_at": "2026-10-08T20:09:00.358935+00:00",
+  "event_code": "MFA26",
+  "user_email": "jdill@denvergold.org",
+  "user_role": "admin",
+  "action": "swot-add",
+  "detail": "SWOT: add (opportunity)",
+  "ip_address": "76.130.235.87"
+ },
+ {
+  "id": 361,
+  "created_at": "2026-10-08T20:09:02.728066+00:00",
+  "event_code": null,
+  "user_email": "jdill@denvergold.org",
+  "user_role": "admin",
+  "action": "swot-update",
+  "detail": "SWOT: update",
+  "ip_address": "76.130.235.87"
+ },
+ {
+  "id": 362,
+  "created_at": "2026-10-08T20:09:26.751758+00:00",
+  "event_code": null,
+  "user_email": "jdill@denvergold.org",
+  "user_role": "admin",
+  "action": "swot-update",
+  "detail": "SWOT: update",
+  "ip_address": "76.130.235.87"
+ },
+ {
+  "id": 363,
+  "created_at": "2026-10-08T20:09:31.72667+00:00",
+  "event_code": null,
+  "user_email": "jdill@denvergold.org",
+  "user_role": "admin",
+  "action": "swot-update",
+  "detail": "SWOT: update",
+  "ip_address": "76.130.235.87"
+ },
+ {
+  "id": 364,
+  "created_at": "2026-10-08T20:09:31.774359+00:00",
+  "event_code": "MFA26",
+  "user_email": "jdill@denvergold.org",
+  "user_role": "admin",
+  "action": "swot-add",
+  "detail": "SWOT: add (opportunity)",
+  "ip_address": "76.130.235.87"
+ },
+ {
+  "id": 365,
+  "created_at": "2026-10-08T20:09:33.47492+00:00",
+  "event_code": null,
+  "user_email": "jdill@denvergold.org",
+  "user_role": "admin",
+  "action": "swot-update",
+  "detail": "SWOT: update",
+  "ip_address": "76.130.235.87"
+ },
+ {
+  "id": 366,
+  "created_at": "2026-10-08T20:10:01.716156+00:00",
+  "event_code": null,
+  "user_email": "jdill@denvergold.org",
+  "user_role": "admin",
+  "action": "swot-update",
+  "detail": "SWOT: update",
+  "ip_address": "76.130.235.87"
+ },
+ {
+  "id": 367,
+  "created_at": "2026-10-08T20:10:01.817279+00:00",
+  "event_code": "MFA26",
+  "user_email": "jdill@denvergold.org",
+  "user_role": "admin",
+  "action": "swot-add",
+  "detail": "SWOT: add (opportunity)",
+  "ip_address": "76.130.235.87"
+ },
+ {
+  "id": 368,
+  "created_at": "2026-10-08T20:10:11.193134+00:00",
+  "event_code": null,
+  "user_email": "jdill@denvergold.org",
+  "user_role": "admin",
+  "action": "swot-update",
+  "detail": "SWOT: update",
+  "ip_address": "76.130.235.87"
+ },
+ {
+  "id": 369,
+  "created_at": "2026-10-08T20:10:23.761729+00:00",
+  "event_code": null,
+  "user_email": "jdill@denvergold.org",
+  "user_role": "admin",
+  "action": "swot-update",
+  "detail": "SWOT: update",
+  "ip_address": "76.130.235.87"
+ },
+ {
+  "id": 370,
+  "created_at": "2026-10-08T20:10:23.813956+00:00",
+  "event_code": "MFA26",
+  "user_email": "jdill@denvergold.org",
+  "user_role": "admin",
+  "action": "swot-add",
+  "detail": "SWOT: add (opportunity)",
+  "ip_address": "76.130.235.87"
+ },
+ {
+  "id": 371,
+  "created_at": "2026-10-08T20:10:28.463583+00:00",
+  "event_code": null,
+  "user_email": "jdill@denvergold.org",
+  "user_role": "admin",
+  "action": "swot-update",
+  "detail": "SWOT: update",
+  "ip_address": "76.130.235.87"
+ },
+ {
+  "id": 372,
+  "created_at": "2026-10-08T20:10:32.813195+00:00",
+  "event_code": null,
+  "user_email": "jdill@denvergold.org",
+  "user_role": "admin",
+  "action": "swot-update",
+  "detail": "SWOT: update",
+  "ip_address": "76.130.235.87"
+ },
+ {
+  "id": 373,
+  "created_at": "2026-10-08T20:10:32.900241+00:00",
+  "event_code": "MFA26",
+  "user_email": "jdill@denvergold.org",
+  "user_role": "admin",
+  "action": "swot-add",
+  "detail": "SWOT: add (opportunity)",
+  "ip_address": "76.130.235.87"
+ },
+ {
+  "id": 374,
+  "created_at": "2026-10-08T20:10:34.777076+00:00",
+  "event_code": null,
+  "user_email": "jdill@denvergold.org",
+  "user_role": "admin",
+  "action": "swot-update",
+  "detail": "SWOT: update",
+  "ip_address": "76.130.235.87"
+ },
+ {
+  "id": 375,
+  "created_at": "2026-10-08T20:10:41.591367+00:00",
+  "event_code": null,
+  "user_email": "jdill@denvergold.org",
+  "user_role": "admin",
+  "action": "swot-update",
+  "detail": "SWOT: update",
+  "ip_address": "76.130.235.87"
+ },
+ {
+  "id": 376,
+  "created_at": "2026-10-08T20:10:41.650371+00:00",
+  "event_code": "MFA26",
+  "user_email": "jdill@denvergold.org",
+  "user_role": "admin",
+  "action": "swot-add",
+  "detail": "SWOT: add (opportunity)",
+  "ip_address": "76.130.235.87"
+ },
+ {
+  "id": 377,
+  "created_at": "2026-10-08T20:10:44.472557+00:00",
+  "event_code": null,
+  "user_email": "jdill@denvergold.org",
+  "user_role": "admin",
+  "action": "swot-update",
+  "detail": "SWOT: update",
+  "ip_address": "76.130.235.87"
+ },
+ {
+  "id": 378,
+  "created_at": "2026-10-08T20:10:45.949637+00:00",
+  "event_code": null,
+  "user_email": "jdill@denvergold.org",
+  "user_role": "admin",
+  "action": "swot-update",
+  "detail": "SWOT: update",
+  "ip_address": "76.130.235.87"
+ },
+ {
+  "id": 379,
+  "created_at": "2026-10-08T20:10:46.106835+00:00",
+  "event_code": "MFA26",
+  "user_email": "jdill@denvergold.org",
+  "user_role": "admin",
+  "action": "swot-add",
+  "detail": "SWOT: add (opportunity)",
+  "ip_address": "76.130.235.87"
+ },
+ {
+  "id": 380,
+  "created_at": "2026-10-08T20:10:50.148652+00:00",
+  "event_code": null,
+  "user_email": "jdill@denvergold.org",
+  "user_role": "admin",
+  "action": "swot-update",
+  "detail": "SWOT: update",
+  "ip_address": "76.130.235.87"
+ },
+ {
+  "id": 381,
+  "created_at": "2026-10-08T20:10:57.444013+00:00",
+  "event_code": null,
+  "user_email": "jdill@denvergold.org",
+  "user_role": "admin",
+  "action": "swot-update",
+  "detail": "SWOT: update",
+  "ip_address": "76.130.235.87"
+ },
+ {
+  "id": 382,
+  "created_at": "2026-10-08T20:10:57.48955+00:00",
+  "event_code": "MFA26",
+  "user_email": "jdill@denvergold.org",
+  "user_role": "admin",
+  "action": "swot-add",
+  "detail": "SWOT: add (threat)",
+  "ip_address": "76.130.235.87"
+ },
+ {
+  "id": 383,
+  "created_at": "2026-10-08T20:11:09.222597+00:00",
+  "event_code": null,
+  "user_email": "jdill@denvergold.org",
+  "user_role": "admin",
+  "action": "swot-update",
+  "detail": "SWOT: update",
+  "ip_address": "76.130.235.87"
+ },
+ {
+  "id": 384,
+  "created_at": "2026-10-08T20:11:13.939032+00:00",
+  "event_code": null,
+  "user_email": "jdill@denvergold.org",
+  "user_role": "admin",
+  "action": "swot-update",
+  "detail": "SWOT: update",
+  "ip_address": "76.130.235.87"
+ },
+ {
+  "id": 385,
+  "created_at": "2026-10-08T20:11:14.02039+00:00",
+  "event_code": "MFA26",
+  "user_email": "jdill@denvergold.org",
+  "user_role": "admin",
+  "action": "swot-add",
+  "detail": "SWOT: add (threat)",
+  "ip_address": "76.130.235.87"
+ },
+ {
+  "id": 386,
+  "created_at": "2026-10-08T20:11:15.383536+00:00",
+  "event_code": null,
+  "user_email": "jdill@denvergold.org",
+  "user_role": "admin",
+  "action": "swot-update",
+  "detail": "SWOT: update",
+  "ip_address": "76.130.235.87"
+ },
+ {
+  "id": 387,
+  "created_at": "2026-10-08T20:11:24.02557+00:00",
+  "event_code": null,
+  "user_email": "jdill@denvergold.org",
+  "user_role": "admin",
+  "action": "swot-update",
+  "detail": "SWOT: update",
+  "ip_address": "76.130.235.87"
+ },
+ {
+  "id": 388,
+  "created_at": "2026-10-08T20:11:24.074357+00:00",
+  "event_code": "MFA26",
+  "user_email": "jdill@denvergold.org",
+  "user_role": "admin",
+  "action": "swot-add",
+  "detail": "SWOT: add (threat)",
+  "ip_address": "76.130.235.87"
+ },
+ {
+  "id": 389,
+  "created_at": "2026-10-08T20:11:25.394642+00:00",
+  "event_code": null,
+  "user_email": "jdill@denvergold.org",
+  "user_role": "admin",
+  "action": "swot-update",
+  "detail": "SWOT: update",
+  "ip_address": "76.130.235.87"
+ },
+ {
+  "id": 390,
+  "created_at": "2026-10-08T20:11:30.422426+00:00",
+  "event_code": null,
+  "user_email": "jdill@denvergold.org",
+  "user_role": "admin",
+  "action": "swot-update",
+  "detail": "SWOT: update",
+  "ip_address": "76.130.235.87"
+ },
+ {
+  "id": 391,
+  "created_at": "2026-10-08T20:11:30.504405+00:00",
+  "event_code": "MFA26",
+  "user_email": "jdill@denvergold.org",
+  "user_role": "admin",
+  "action": "swot-add",
+  "detail": "SWOT: add (threat)",
+  "ip_address": "76.130.235.87"
+ },
+ {
+  "id": 392,
+  "created_at": "2026-10-08T20:11:32.228406+00:00",
+  "event_code": null,
+  "user_email": "jdill@denvergold.org",
+  "user_role": "admin",
+  "action": "swot-update",
+  "detail": "SWOT: update",
+  "ip_address": "76.130.235.87"
+ },
+ {
+  "id": 393,
+  "created_at": "2026-10-08T20:11:40.691427+00:00",
+  "event_code": null,
+  "user_email": "jdill@denvergold.org",
+  "user_role": "admin",
+  "action": "swot-update",
+  "detail": "SWOT: update",
+  "ip_address": "76.130.235.87"
+ },
+ {
+  "id": 394,
+  "created_at": "2026-10-08T20:11:40.784514+00:00",
+  "event_code": "MFA26",
+  "user_email": "jdill@denvergold.org",
+  "user_role": "admin",
+  "action": "swot-add",
+  "detail": "SWOT: add (threat)",
+  "ip_address": "76.130.235.87"
+ },
+ {
+  "id": 395,
+  "created_at": "2026-10-08T20:11:42.302888+00:00",
+  "event_code": null,
+  "user_email": "jdill@denvergold.org",
+  "user_role": "admin",
+  "action": "swot-update",
+  "detail": "SWOT: update",
+  "ip_address": "76.130.235.87"
+ },
+ {
+  "id": 396,
+  "created_at": "2026-10-08T20:11:45.785637+00:00",
+  "event_code": null,
+  "user_email": "jdill@denvergold.org",
+  "user_role": "admin",
+  "action": "swot-update",
+  "detail": "SWOT: update",
+  "ip_address": "76.130.235.87"
+ },
+ {
+  "id": 397,
+  "created_at": "2026-10-08T20:11:45.912442+00:00",
+  "event_code": "MFA26",
+  "user_email": "jdill@denvergold.org",
+  "user_role": "admin",
+  "action": "swot-add",
+  "detail": "SWOT: add (threat)",
+  "ip_address": "76.130.235.87"
+ },
+ {
+  "id": 398,
+  "created_at": "2026-10-08T20:11:47.247331+00:00",
+  "event_code": null,
+  "user_email": "jdill@denvergold.org",
+  "user_role": "admin",
+  "action": "swot-update",
+  "detail": "SWOT: update",
+  "ip_address": "76.130.235.87"
+ },
+ {
+  "id": 399,
+  "created_at": "2026-10-08T20:11:54.255354+00:00",
+  "event_code": null,
+  "user_email": "jdill@denvergold.org",
+  "user_role": "admin",
+  "action": "swot-update",
+  "detail": "SWOT: update",
+  "ip_address": "76.130.235.87"
+ },
+ {
+  "id": 400,
+  "created_at": "2026-10-08T20:11:54.326741+00:00",
+  "event_code": "MFA26",
+  "user_email": "jdill@denvergold.org",
+  "user_role": "admin",
+  "action": "swot-add",
+  "detail": "SWOT: add (threat)",
+  "ip_address": "76.130.235.87"
+ },
+ {
+  "id": 401,
+  "created_at": "2026-10-08T20:11:55.713514+00:00",
+  "event_code": null,
+  "user_email": "jdill@denvergold.org",
+  "user_role": "admin",
+  "action": "swot-update",
+  "detail": "SWOT: update",
+  "ip_address": "76.130.235.87"
+ },
+ {
+  "id": 402,
+  "created_at": "2026-10-08T20:12:02.830583+00:00",
+  "event_code": null,
+  "user_email": "jdill@denvergold.org",
+  "user_role": "admin",
+  "action": "swot-update",
+  "detail": "SWOT: update",
+  "ip_address": "76.130.235.87"
+ },
+ {
+  "id": 403,
+  "created_at": "2026-10-08T20:12:02.924338+00:00",
+  "event_code": "MFA26",
+  "user_email": "jdill@denvergold.org",
+  "user_role": "admin",
+  "action": "swot-add",
+  "detail": "SWOT: add (threat)",
+  "ip_address": "76.130.235.87"
+ },
+ {
+  "id": 404,
+  "created_at": "2026-10-08T20:12:08.783609+00:00",
+  "event_code": null,
+  "user_email": "jdill@denvergold.org",
+  "user_role": "admin",
+  "action": "swot-update",
+  "detail": "SWOT: update",
+  "ip_address": "76.130.235.87"
+ },
+ {
+  "id": 405,
+  "created_at": "2026-10-08T20:12:19.027259+00:00",
+  "event_code": null,
+  "user_email": "jdill@denvergold.org",
+  "user_role": "admin",
+  "action": "swot-update",
+  "detail": "SWOT: update",
+  "ip_address": "76.130.235.87"
+ },
+ {
+  "id": 406,
+  "created_at": "2026-10-08T20:12:19.107157+00:00",
+  "event_code": "MFA26",
+  "user_email": "jdill@denvergold.org",
+  "user_role": "admin",
+  "action": "swot-add",
+  "detail": "SWOT: add (threat)",
+  "ip_address": "76.130.235.87"
+ },
+ {
+  "id": 407,
+  "created_at": "2026-10-08T20:12:20.297144+00:00",
+  "event_code": null,
+  "user_email": "jdill@denvergold.org",
+  "user_role": "admin",
+  "action": "swot-update",
+  "detail": "SWOT: update",
+  "ip_address": "76.130.235.87"
+ },
+ {
+  "id": 408,
+  "created_at": "2026-10-08T20:13:27.12333+00:00",
+  "event_code": null,
+  "user_email": "jdill@denvergold.org",
+  "user_role": "admin",
+  "action": "swot-update",
+  "detail": "SWOT: update",
+  "ip_address": "76.130.235.87"
+ },
+ {
+  "id": 409,
+  "created_at": "2026-10-09T14:50:57.659187+00:00",
+  "event_code": null,
+  "user_email": "jdill@denvergold.org",
+  "user_role": "admin",
+  "action": "login",
+  "detail": "Magic link login",
+  "ip_address": "76.130.235.87"
+ },
+ {
+  "id": 410,
+  "created_at": "2026-10-09T14:50:59.635431+00:00",
+  "event_code": "MFA26",
+  "user_email": "jdill@denvergold.org",
+  "user_role": "admin",
+  "action": "view-report",
+  "detail": "Opened PSR report",
+  "ip_address": "76.130.235.87"
+ },
+ {
+  "id": 411,
+  "created_at": "2026-10-09T14:52:14.251565+00:00",
+  "event_code": null,
+  "user_email": "jdill@denvergold.org",
+  "user_role": "admin",
+  "action": "swot-update",
+  "detail": "SWOT: update",
+  "ip_address": "76.130.235.87"
+ },
+ {
+  "id": 412,
+  "created_at": "2026-10-09T14:52:19.820259+00:00",
+  "event_code": null,
+  "user_email": "jdill@denvergold.org",
+  "user_role": "admin",
+  "action": "swot-update",
+  "detail": "SWOT: update",
+  "ip_address": "76.130.235.87"
+ },
+ {
+  "id": 413,
+  "created_at": "2026-10-09T14:52:19.880372+00:00",
+  "event_code": "MFA26",
+  "user_email": "jdill@denvergold.org",
+  "user_role": "admin",
+  "action": "swot-add",
+  "detail": "SWOT: add (strength)",
+  "ip_address": "76.130.235.87"
+ },
+ {
+  "id": 414,
+  "created_at": "2026-10-09T14:53:53.852239+00:00",
+  "event_code": null,
+  "user_email": "jdill@denvergold.org",
+  "user_role": "admin",
+  "action": "swot-update",
+  "detail": "SWOT: update",
+  "ip_address": "76.130.235.87"
+ },
+ {
+  "id": 415,
+  "created_at": "2026-10-09T14:57:07.785122+00:00",
+  "event_code": "MFA26",
+  "user_email": "jdill@denvergold.org",
+  "user_role": "admin",
+  "action": "swot-add",
+  "detail": "SWOT: add (weakness)",
+  "ip_address": "76.130.235.87"
+ },
+ {
+  "id": 416,
+  "created_at": "2026-10-09T14:57:07.891862+00:00",
+  "event_code": null,
+  "user_email": "jdill@denvergold.org",
+  "user_role": "admin",
+  "action": "swot-update",
+  "detail": "SWOT: update",
+  "ip_address": "76.130.235.87"
+ },
+ {
+  "id": 417,
+  "created_at": "2026-10-09T14:57:21.223596+00:00",
+  "event_code": null,
+  "user_email": "jdill@denvergold.org",
+  "user_role": "admin",
+  "action": "swot-update",
+  "detail": "SWOT: update",
+  "ip_address": "76.130.235.87"
+ },
+ {
+  "id": 418,
+  "created_at": "2026-10-09T14:57:28.631547+00:00",
+  "event_code": null,
+  "user_email": "jdill@denvergold.org",
+  "user_role": "admin",
+  "action": "swot-update",
+  "detail": "SWOT: update",
+  "ip_address": "76.130.235.87"
+ },
+ {
+  "id": 419,
+  "created_at": "2026-10-09T14:57:28.667871+00:00",
+  "event_code": "MFA26",
+  "user_email": "jdill@denvergold.org",
+  "user_role": "admin",
+  "action": "swot-add",
+  "detail": "SWOT: add (weakness)",
+  "ip_address": "76.130.235.87"
+ },
+ {
+  "id": 420,
+  "created_at": "2026-10-09T14:58:43.229095+00:00",
+  "event_code": null,
+  "user_email": "jdill@denvergold.org",
+  "user_role": "admin",
+  "action": "swot-update",
+  "detail": "SWOT: update",
+  "ip_address": "76.130.235.87"
+ },
+ {
+  "id": 421,
+  "created_at": "2026-10-09T14:58:57.862142+00:00",
+  "event_code": null,
+  "user_email": "jdill@denvergold.org",
+  "user_role": "admin",
+  "action": "swot-update",
+  "detail": "SWOT: update",
+  "ip_address": "76.130.235.87"
+ },
+ {
+  "id": 422,
+  "created_at": "2026-10-09T14:59:16.703261+00:00",
+  "event_code": null,
+  "user_email": "jdill@denvergold.org",
+  "user_role": "admin",
+  "action": "swot-update",
+  "detail": "SWOT: update",
+  "ip_address": "76.130.235.87"
+ },
+ {
+  "id": 423,
+  "created_at": "2026-10-09T14:59:16.747066+00:00",
+  "event_code": "MFA26",
+  "user_email": "jdill@denvergold.org",
+  "user_role": "admin",
+  "action": "swot-add",
+  "detail": "SWOT: add (weakness)",
+  "ip_address": "76.130.235.87"
+ },
+ {
+  "id": 424,
+  "created_at": "2026-10-09T14:59:35.841917+00:00",
+  "event_code": null,
+  "user_email": "jdill@denvergold.org",
+  "user_role": "admin",
+  "action": "swot-update",
+  "detail": "SWOT: update",
+  "ip_address": "76.130.235.87"
+ },
+ {
+  "id": 425,
+  "created_at": "2026-10-09T14:59:37.553137+00:00",
+  "event_code": null,
+  "user_email": "jdill@denvergold.org",
+  "user_role": "admin",
+  "action": "swot-delete",
+  "detail": "SWOT: delete",
+  "ip_address": "76.130.235.87"
+ },
+ {
+  "id": 426,
+  "created_at": "2026-10-09T15:00:33.818955+00:00",
+  "event_code": "MFA26",
+  "user_email": "jdill@denvergold.org",
+  "user_role": "admin",
+  "action": "swot-add",
+  "detail": "SWOT: add (opportunity)",
+  "ip_address": "76.130.235.87"
+ },
+ {
+  "id": 427,
+  "created_at": "2026-10-09T15:00:42.488624+00:00",
+  "event_code": null,
+  "user_email": "jdill@denvergold.org",
+  "user_role": "admin",
+  "action": "swot-update",
+  "detail": "SWOT: update",
+  "ip_address": "76.130.235.87"
+ },
+ {
+  "id": 428,
+  "created_at": "2026-10-09T15:00:47.857053+00:00",
+  "event_code": null,
+  "user_email": "jdill@denvergold.org",
+  "user_role": "admin",
+  "action": "swot-update",
+  "detail": "SWOT: update",
+  "ip_address": "76.130.235.87"
+ },
+ {
+  "id": 429,
+  "created_at": "2026-10-09T15:00:47.88736+00:00",
+  "event_code": "MFA26",
+  "user_email": "jdill@denvergold.org",
+  "user_role": "admin",
+  "action": "swot-add",
+  "detail": "SWOT: add (opportunity)",
+  "ip_address": "76.130.235.87"
+ },
+ {
+  "id": 430,
+  "created_at": "2026-10-09T15:00:58.428672+00:00",
+  "event_code": null,
+  "user_email": "jdill@denvergold.org",
+  "user_role": "admin",
+  "action": "swot-update",
+  "detail": "SWOT: update",
+  "ip_address": "76.130.235.87"
+ },
+ {
+  "id": 431,
+  "created_at": "2026-10-09T15:01:02.462124+00:00",
+  "event_code": null,
+  "user_email": "jdill@denvergold.org",
+  "user_role": "admin",
+  "action": "swot-update",
+  "detail": "SWOT: update",
+  "ip_address": "76.130.235.87"
+ },
+ {
+  "id": 432,
+  "created_at": "2026-10-09T15:01:02.774938+00:00",
+  "event_code": "MFA26",
+  "user_email": "jdill@denvergold.org",
+  "user_role": "admin",
+  "action": "swot-add",
+  "detail": "SWOT: add (opportunity)",
+  "ip_address": "76.130.235.87"
+ },
+ {
+  "id": 433,
+  "created_at": "2026-10-09T15:01:09.563907+00:00",
+  "event_code": null,
+  "user_email": "jdill@denvergold.org",
+  "user_role": "admin",
+  "action": "swot-update",
+  "detail": "SWOT: update",
+  "ip_address": "76.130.235.87"
+ },
+ {
+  "id": 434,
+  "created_at": "2026-10-09T15:11:51.239353+00:00",
+  "event_code": null,
+  "user_email": "jdill@denvergold.org",
+  "user_role": "admin",
+  "action": "swot-update",
+  "detail": "SWOT: update",
+  "ip_address": "76.130.235.87"
+ },
+ {
+  "id": 435,
+  "created_at": "2026-10-09T15:11:51.210214+00:00",
+  "event_code": "MFA26",
+  "user_email": "jdill@denvergold.org",
+  "user_role": "admin",
+  "action": "swot-add",
+  "detail": "SWOT: add (strength)",
+  "ip_address": "76.130.235.87"
+ },
+ {
+  "id": 436,
+  "created_at": "2026-10-09T15:12:02.275775+00:00",
+  "event_code": null,
+  "user_email": "jdill@denvergold.org",
+  "user_role": "admin",
+  "action": "swot-update",
+  "detail": "SWOT: update",
+  "ip_address": "76.130.235.87"
+ },
+ {
+  "id": 437,
+  "created_at": "2026-10-09T15:12:10.130693+00:00",
+  "event_code": null,
+  "user_email": "jdill@denvergold.org",
+  "user_role": "admin",
+  "action": "swot-update",
+  "detail": "SWOT: update",
+  "ip_address": "76.130.235.87"
+ },
+ {
+  "id": 438,
+  "created_at": "2026-10-09T15:12:10.214326+00:00",
+  "event_code": "MFA26",
+  "user_email": "jdill@denvergold.org",
+  "user_role": "admin",
+  "action": "swot-add",
+  "detail": "SWOT: add (strength)",
+  "ip_address": "76.130.235.87"
+ },
+ {
+  "id": 439,
+  "created_at": "2026-10-09T15:12:26.58238+00:00",
+  "event_code": null,
+  "user_email": "jdill@denvergold.org",
+  "user_role": "admin",
+  "action": "swot-update",
+  "detail": "SWOT: update",
+  "ip_address": "76.130.235.87"
+ },
+ {
+  "id": 440,
+  "created_at": "2026-10-09T15:12:36.544051+00:00",
+  "event_code": null,
+  "user_email": "jdill@denvergold.org",
+  "user_role": "admin",
+  "action": "swot-update",
+  "detail": "SWOT: update",
+  "ip_address": "76.130.235.87"
+ },
+ {
+  "id": 441,
+  "created_at": "2026-10-09T15:12:36.542754+00:00",
+  "event_code": "MFA26",
+  "user_email": "jdill@denvergold.org",
+  "user_role": "admin",
+  "action": "swot-add",
+  "detail": "SWOT: add (strength)",
+  "ip_address": "76.130.235.87"
+ },
+ {
+  "id": 442,
+  "created_at": "2026-10-09T15:12:51.138452+00:00",
+  "event_code": null,
+  "user_email": "jdill@denvergold.org",
+  "user_role": "admin",
+  "action": "swot-update",
+  "detail": "SWOT: update",
+  "ip_address": "76.130.235.87"
+ },
+ {
+  "id": 443,
+  "created_at": "2026-10-09T15:13:05.305704+00:00",
+  "event_code": null,
+  "user_email": "jdill@denvergold.org",
+  "user_role": "admin",
+  "action": "swot-update",
+  "detail": "SWOT: update",
+  "ip_address": "76.130.235.87"
+ },
+ {
+  "id": 444,
+  "created_at": "2026-10-09T15:13:23.569422+00:00",
+  "event_code": null,
+  "user_email": "jdill@denvergold.org",
+  "user_role": "admin",
+  "action": "swot-update",
+  "detail": "SWOT: update",
+  "ip_address": "76.130.235.87"
+ },
+ {
+  "id": 445,
+  "created_at": "2026-10-09T15:13:33.356171+00:00",
+  "event_code": null,
+  "user_email": "jdill@denvergold.org",
+  "user_role": "admin",
+  "action": "swot-update",
+  "detail": "SWOT: update",
+  "ip_address": "76.130.235.87"
+ },
+ {
+  "id": 446,
+  "created_at": "2026-10-09T15:13:35.585793+00:00",
+  "event_code": null,
+  "user_email": "jdill@denvergold.org",
+  "user_role": "admin",
+  "action": "swot-update",
+  "detail": "SWOT: update",
+  "ip_address": "76.130.235.87"
+ },
+ {
+  "id": 447,
+  "created_at": "2026-10-09T15:14:16.173477+00:00",
+  "event_code": "MFA26",
+  "user_email": "jdill@denvergold.org",
+  "user_role": "admin",
+  "action": "view-report",
+  "detail": "Opened PSR report",
+  "ip_address": "76.130.235.87"
+ },
+ {
+  "id": 448,
+  "created_at": "2026-10-09T15:14:30.661021+00:00",
+  "event_code": null,
+  "user_email": "jdill@denvergold.org",
+  "user_role": "admin",
+  "action": "swot-delete",
+  "detail": "SWOT: delete",
+  "ip_address": "76.130.235.87"
+ },
+ {
+  "id": 449,
+  "created_at": "2026-10-09T15:15:28.224364+00:00",
+  "event_code": null,
+  "user_email": "jdill@denvergold.org",
+  "user_role": "admin",
+  "action": "swot-update",
+  "detail": "SWOT: update",
+  "ip_address": "76.130.235.87"
+ },
+ {
+  "id": 450,
+  "created_at": "2026-10-09T15:16:04.871374+00:00",
+  "event_code": null,
+  "user_email": "jdill@denvergold.org",
+  "user_role": "admin",
+  "action": "swot-update",
+  "detail": "SWOT: update",
+  "ip_address": "76.130.235.87"
+ },
+ {
+  "id": 451,
+  "created_at": "2026-10-09T15:16:05.146805+00:00",
+  "event_code": null,
+  "user_email": "jdill@denvergold.org",
+  "user_role": "admin",
+  "action": "swot-update",
+  "detail": "SWOT: update",
+  "ip_address": "76.130.235.87"
+ },
+ {
+  "id": 452,
+  "created_at": "2026-10-09T15:16:18.242788+00:00",
+  "event_code": null,
+  "user_email": "jdill@denvergold.org",
+  "user_role": "admin",
+  "action": "swot-delete",
+  "detail": "SWOT: delete",
+  "ip_address": "76.130.235.87"
+ },
+ {
+  "id": 453,
+  "created_at": "2026-10-09T15:16:24.130989+00:00",
+  "event_code": "MFA26",
+  "user_email": "jdill@denvergold.org",
+  "user_role": "admin",
+  "action": "swot-add",
+  "detail": "SWOT: add (strength)",
+  "ip_address": "76.130.235.87"
+ },
+ {
+  "id": 454,
+  "created_at": "2026-10-09T15:16:29.125674+00:00",
+  "event_code": null,
+  "user_email": "jdill@denvergold.org",
+  "user_role": "admin",
+  "action": "swot-update",
+  "detail": "SWOT: update",
+  "ip_address": "76.130.235.87"
+ },
+ {
+  "id": 455,
+  "created_at": "2026-10-09T15:16:36.083504+00:00",
+  "event_code": null,
+  "user_email": "jdill@denvergold.org",
+  "user_role": "admin",
+  "action": "swot-update",
+  "detail": "SWOT: update",
+  "ip_address": "76.130.235.87"
+ },
+ {
+  "id": 456,
+  "created_at": "2026-10-09T15:16:36.191554+00:00",
+  "event_code": "MFA26",
+  "user_email": "jdill@denvergold.org",
+  "user_role": "admin",
+  "action": "swot-add",
+  "detail": "SWOT: add (strength)",
+  "ip_address": "76.130.235.87"
+ },
+ {
+  "id": 457,
+  "created_at": "2026-10-09T15:17:29.309561+00:00",
+  "event_code": null,
+  "user_email": "jdill@denvergold.org",
+  "user_role": "admin",
+  "action": "swot-update",
+  "detail": "SWOT: update",
+  "ip_address": "76.130.235.87"
+ },
+ {
+  "id": 458,
+  "created_at": "2026-10-09T15:17:33.446294+00:00",
+  "event_code": null,
+  "user_email": "jdill@denvergold.org",
+  "user_role": "admin",
+  "action": "swot-update",
+  "detail": "SWOT: update",
+  "ip_address": "76.130.235.87"
+ },
+ {
+  "id": 459,
+  "created_at": "2026-10-09T15:18:04.090834+00:00",
+  "event_code": null,
+  "user_email": "jdill@denvergold.org",
+  "user_role": "admin",
+  "action": "swot-update",
+  "detail": "SWOT: update",
+  "ip_address": "76.130.235.87"
+ },
+ {
+  "id": 460,
+  "created_at": "2026-10-09T15:18:08.81533+00:00",
+  "event_code": null,
+  "user_email": "jdill@denvergold.org",
+  "user_role": "admin",
+  "action": "swot-update",
+  "detail": "SWOT: update",
+  "ip_address": "76.130.235.87"
+ },
+ {
+  "id": 461,
+  "created_at": "2026-10-09T15:20:10.764311+00:00",
+  "event_code": null,
+  "user_email": "jdill@denvergold.org",
+  "user_role": "admin",
+  "action": "swot-update",
+  "detail": "SWOT: update",
+  "ip_address": "76.130.235.87"
+ },
+ {
+  "id": 462,
+  "created_at": "2026-10-09T15:20:22.783019+00:00",
+  "event_code": null,
+  "user_email": "jdill@denvergold.org",
+  "user_role": "admin",
+  "action": "swot-update",
+  "detail": "SWOT: update",
+  "ip_address": "76.130.235.87"
+ },
+ {
+  "id": 463,
+  "created_at": "2026-10-09T15:20:33.187481+00:00",
+  "event_code": null,
+  "user_email": "jdill@denvergold.org",
+  "user_role": "admin",
+  "action": "swot-update",
+  "detail": "SWOT: update",
+  "ip_address": "76.130.235.87"
+ },
+ {
+  "id": 464,
+  "created_at": "2026-10-09T15:20:46.976436+00:00",
+  "event_code": null,
+  "user_email": "jdill@denvergold.org",
+  "user_role": "admin",
+  "action": "swot-update",
+  "detail": "SWOT: update",
+  "ip_address": "76.130.235.87"
+ },
+ {
+  "id": 465,
+  "created_at": "2026-10-09T18:15:51.415423+00:00",
+  "event_code": null,
+  "user_email": "jdill@denvergold.org",
+  "user_role": "admin",
+  "action": "login",
+  "detail": "Magic link login",
+  "ip_address": "76.130.235.87"
+ },
+ {
+  "id": 466,
+  "created_at": "2026-10-09T18:15:53.379618+00:00",
+  "event_code": "MFA26",
+  "user_email": "jdill@denvergold.org",
+  "user_role": "admin",
+  "action": "view-report",
+  "detail": "Opened PSR report",
+  "ip_address": "76.130.235.87"
+ },
+ {
+  "id": 467,
+  "created_at": "2026-10-09T22:30:37.628331+00:00",
+  "event_code": "MFA26",
+  "user_email": "admin@denvergold.org",
+  "user_role": "super_admin",
+  "action": "view-report",
+  "detail": "Opened PSR report",
+  "ip_address": "67.177.249.202"
+ },
+ {
+  "id": 468,
+  "created_at": "2026-10-10T03:49:24.726483+00:00",
+  "event_code": "MFA26",
+  "user_email": "admin@denvergold.org",
+  "user_role": "super_admin",
+  "action": "analyst-brief",
+  "detail": "Generated analyst briefing PDF",
+  "ip_address": "67.177.249.202"
+ },
+ {
+  "id": 469,
+  "created_at": "2026-10-10T04:12:11.978262+00:00",
+  "event_code": null,
+  "user_email": "admin@denvergold.org",
+  "user_role": "super_admin",
+  "action": "ems-sync",
+  "detail": "Ran the EMS sync from /admin",
+  "ip_address": "67.177.249.202"
+ },
+ {
+  "id": 470,
+  "created_at": "2026-10-10T04:12:25.036338+00:00",
+  "event_code": "MFA26",
+  "user_email": "admin@denvergold.org",
+  "user_role": "super_admin",
+  "action": "view-report",
+  "detail": "Opened PSR report",
+  "ip_address": "67.177.249.202"
+ },
+ {
+  "id": 471,
+  "created_at": "2026-10-10T04:29:50.491801+00:00",
+  "event_code": "MFA26",
+  "user_email": "admin@denvergold.org",
+  "user_role": "super_admin",
+  "action": "view-report",
+  "detail": "Opened PSR report",
+  "ip_address": "67.177.249.202"
+ },
+ {
+  "id": 472,
+  "created_at": "2026-10-10T13:58:28.788673+00:00",
+  "event_code": "MFA26",
+  "user_email": "admin@denvergold.org",
+  "user_role": "super_admin",
+  "action": "meeting-add",
+  "detail": "Meetings: meeting-add",
+  "ip_address": "67.177.249.202"
+ },
+ {
+  "id": 473,
+  "created_at": "2026-10-10T16:11:13.676245+00:00",
+  "event_code": null,
+  "user_email": "admin@denvergold.org",
+  "user_role": "super_admin",
+  "action": "ems-sync",
+  "detail": "Ran the EMS sync from /admin",
+  "ip_address": "67.177.249.202"
+ },
+ {
+  "id": 474,
+  "created_at": "2026-10-11T01:18:17.886151+00:00",
+  "event_code": null,
+  "user_email": "twood@denvergold.org",
+  "user_role": "admin",
+  "action": "login",
+  "detail": "Magic link login",
+  "ip_address": "67.177.249.202"
+ },
+ {
+  "id": 475,
+  "created_at": "2026-10-11T01:18:20.346235+00:00",
+  "event_code": "MFA26",
+  "user_email": "twood@denvergold.org",
+  "user_role": "admin",
+  "action": "view-report",
+  "detail": "Opened PSR report",
+  "ip_address": "67.177.249.202"
+ },
+ {
+  "id": 476,
+  "created_at": "2026-10-11T14:29:41.106495+00:00",
+  "event_code": "MFA26",
+  "user_email": "admin@denvergold.org",
+  "user_role": "super_admin",
+  "action": "view-report",
+  "detail": "Opened PSR report",
+  "ip_address": "67.177.249.202"
+ },
+ {
+  "id": 477,
+  "created_at": "2026-10-12T00:20:03.565124+00:00",
+  "event_code": "MFA26",
+  "user_email": "twood@denvergold.org",
+  "user_role": "admin",
+  "action": "view-report",
+  "detail": "Opened PSR report",
+  "ip_address": "67.177.249.202"
+ },
+ {
+  "id": 478,
+  "created_at": "2026-10-13T01:27:49.636743+00:00",
+  "event_code": null,
+  "user_email": "twood@denvergold.org",
+  "user_role": "admin",
+  "action": "login",
+  "detail": "Magic link login",
+  "ip_address": "67.177.249.202"
+ },
+ {
+  "id": 479,
+  "created_at": "2026-10-13T01:27:52.169569+00:00",
+  "event_code": "MFA26",
+  "user_email": "twood@denvergold.org",
+  "user_role": "admin",
+  "action": "view-report",
+  "detail": "Opened PSR report",
+  "ip_address": "67.177.249.202"
+ }
+]

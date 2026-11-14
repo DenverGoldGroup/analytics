@@ -1,0 +1,234 @@
+[
+ {
+  "id": 8,
+  "event_code": "MFE26",
+  "metric": "DGG & Mining Forum total page views",
+  "value_current": 778858,
+  "value_prior": 562910,
+  "sort_order": 1
+ },
+ {
+  "id": 9,
+  "event_code": "MFE26",
+  "metric": "Visits",
+  "value_current": 209180,
+  "value_prior": 104750,
+  "sort_order": 2
+ },
+ {
+  "id": 10,
+  "event_code": "MFE26",
+  "metric": "Requests (million)",
+  "value_current": 2.71,
+  "value_prior": 1.9,
+  "sort_order": 3
+ },
+ {
+  "id": 11,
+  "event_code": "MFE26",
+  "metric": "Data served (GB)",
+  "value_current": 69.12,
+  "value_prior": 63.7,
+  "sort_order": 4
+ },
+ {
+  "id": 12,
+  "event_code": "MFE26",
+  "metric": "Webcast views",
+  "value_current": 4231,
+  "value_prior": 1292,
+  "sort_order": 5
+ },
+ {
+  "id": 13,
+  "event_code": "MFE26",
+  "metric": "E-mails delivered",
+  "value_current": 17062,
+  "value_prior": 19864,
+  "sort_order": 6
+ },
+ {
+  "id": 14,
+  "event_code": "MFE26",
+  "metric": "E-mail delivery yield %",
+  "value_current": 94.4,
+  "value_prior": 95,
+  "sort_order": 7
+ },
+ {
+  "id": 15,
+  "event_code": "MFE26",
+  "metric": "MiningForum.Live Views",
+  "value_current": 15527,
+  "value_prior": 7772,
+  "sort_order": 8
+ },
+ {
+  "id": 16,
+  "event_code": "MFE26",
+  "metric": "MiningForum.Live Followers",
+  "value_current": 5051,
+  "value_prior": 1448,
+  "sort_order": 9
+ },
+ {
+  "id": 17,
+  "event_code": "MFE26",
+  "metric": "LinkedIn Views",
+  "value_current": 242704,
+  "value_prior": 112786,
+  "sort_order": 10
+ },
+ {
+  "id": 18,
+  "event_code": "MFE26",
+  "metric": "LinkedIn Engagement",
+  "value_current": 0.01,
+  "value_prior": 0.01,
+  "sort_order": 11
+ },
+ {
+  "id": 19,
+  "event_code": "MFE26",
+  "metric": "X Views",
+  "value_current": 161512,
+  "value_prior": 1141,
+  "sort_order": 13
+ },
+ {
+  "id": 20,
+  "event_code": "MFE26",
+  "metric": "X Engagement",
+  "value_current": 7.1,
+  "value_prior": 2.1,
+  "sort_order": 14
+ },
+ {
+  "id": 21,
+  "event_code": "MFE26",
+  "metric": "X Followers",
+  "value_current": 371,
+  "value_prior": 54,
+  "sort_order": 15
+ },
+ {
+  "id": 22,
+  "event_code": "MFE26",
+  "metric": "LinkedIn Followers",
+  "value_current": 3426,
+  "value_prior": 2675,
+  "sort_order": 12
+ },
+ {
+  "id": 23,
+  "event_code": "MFA25",
+  "metric": "DGG & Mining Forum total page views",
+  "value_current": 664740,
+  "value_prior": 613470,
+  "sort_order": 1
+ },
+ {
+  "id": 24,
+  "event_code": "MFA25",
+  "metric": "Visits",
+  "value_current": 261570,
+  "value_prior": 468060,
+  "sort_order": 2
+ },
+ {
+  "id": 25,
+  "event_code": "MFA25",
+  "metric": "Requests (million)",
+  "value_current": 3.53,
+  "value_prior": 3.22,
+  "sort_order": 3
+ },
+ {
+  "id": 26,
+  "event_code": "MFA25",
+  "metric": "Data served (GB)",
+  "value_current": 128.34,
+  "value_prior": 96,
+  "sort_order": 4
+ },
+ {
+  "id": 27,
+  "event_code": "MFA25",
+  "metric": "Webcast views",
+  "value_current": 11931,
+  "value_prior": 8845,
+  "sort_order": 5
+ },
+ {
+  "id": 28,
+  "event_code": "MFA25",
+  "metric": "E-mails delivered",
+  "value_current": 45865,
+  "value_prior": 49600,
+  "sort_order": 6
+ },
+ {
+  "id": 29,
+  "event_code": "MFA25",
+  "metric": "MiningForum.Live Views",
+  "value_current": 19200,
+  "value_prior": 3800,
+  "sort_order": 8
+ },
+ {
+  "id": 30,
+  "event_code": "MFA25",
+  "metric": "MiningForum.Live Followers",
+  "value_current": 2587,
+  "value_prior": 106,
+  "sort_order": 9
+ },
+ {
+  "id": 31,
+  "event_code": "MFA25",
+  "metric": "LinkedIn Views",
+  "value_current": 164190,
+  "value_prior": 18781,
+  "sort_order": 10
+ },
+ {
+  "id": 32,
+  "event_code": "MFA25",
+  "metric": "LinkedIn Engagement",
+  "value_current": 1245,
+  "value_prior": 181,
+  "sort_order": 11
+ },
+ {
+  "id": 33,
+  "event_code": "MFA25",
+  "metric": "LinkedIn Followers",
+  "value_current": 2858,
+  "value_prior": 1572,
+  "sort_order": 12
+ },
+ {
+  "id": 34,
+  "event_code": "MFA25",
+  "metric": "X Views",
+  "value_current": 30900,
+  "value_prior": 3900,
+  "sort_order": 13
+ },
+ {
+  "id": 35,
+  "event_code": "MFA25",
+  "metric": "X Engagement",
+  "value_current": 1400,
+  "value_prior": 76,
+  "sort_order": 14
+ },
+ {
+  "id": 36,
+  "event_code": "MFA25",
+  "metric": "X Followers",
+  "value_current": 341,
+  "value_prior": 97,
+  "sort_order": 15
+ }
+]

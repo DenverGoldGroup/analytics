@@ -1,0 +1,112 @@
+[
+ {
+  "id": 6,
+  "event_code": "MFA26",
+  "mc_range": "Large Cap: $10 billion to $200 billion",
+  "sort_order": 1,
+  "members": 27,
+  "total_mc": 896860000000,
+  "average_mc": 33220000000,
+  "attendee_holdings": 194860000000,
+  "updated_at": "2026-09-30T15:26:53.769334+00:00"
+ },
+ {
+  "id": 7,
+  "event_code": "MFA26",
+  "mc_range": "Mid Cap: $2 billion to $10 billion",
+  "sort_order": 2,
+  "members": 43,
+  "total_mc": 191710000000,
+  "average_mc": 4460000000,
+  "attendee_holdings": 63730000000,
+  "updated_at": "2026-09-30T15:26:53.769334+00:00"
+ },
+ {
+  "id": 8,
+  "event_code": "MFA26",
+  "mc_range": "Small Cap: $300 million to $2 billion",
+  "sort_order": 3,
+  "members": 79,
+  "total_mc": 64910000000,
+  "average_mc": 821630000,
+  "attendee_holdings": 13780000000,
+  "updated_at": "2026-09-30T15:26:53.769334+00:00"
+ },
+ {
+  "id": 9,
+  "event_code": "MFA26",
+  "mc_range": "Micro Cap: $50 million to $300 million",
+  "sort_order": 4,
+  "members": 47,
+  "total_mc": 7470000000,
+  "average_mc": 159040000,
+  "attendee_holdings": 3170000000,
+  "updated_at": "2026-09-30T15:26:53.769334+00:00"
+ },
+ {
+  "id": 10,
+  "event_code": "MFA26",
+  "mc_range": "Nano Cap: Under $50 million",
+  "sort_order": 5,
+  "members": 7,
+  "total_mc": 157670000,
+  "average_mc": 22520000,
+  "attendee_holdings": 21110000,
+  "updated_at": "2026-09-30T15:26:53.769334+00:00"
+ },
+ {
+  "id": 11,
+  "event_code": "MFA25",
+  "mc_range": "Large Cap: $10 billion to $200 billion",
+  "sort_order": 1,
+  "members": 27,
+  "total_mc": 898150000000,
+  "average_mc": 33260000000,
+  "attendee_holdings": 173360000000,
+  "updated_at": "2026-09-30T16:06:09.77941+00:00"
+ },
+ {
+  "id": 12,
+  "event_code": "MFA25",
+  "mc_range": "Mid Cap: $2 billion to $10 billion",
+  "sort_order": 2,
+  "members": 44,
+  "total_mc": 197420000000,
+  "average_mc": 4490000000,
+  "attendee_holdings": 58940000000,
+  "updated_at": "2026-09-30T16:06:09.77941+00:00"
+ },
+ {
+  "id": 13,
+  "event_code": "MFA25",
+  "mc_range": "Small Cap: $300 million to $2 billion",
+  "sort_order": 3,
+  "members": 56,
+  "total_mc": 47620000000,
+  "average_mc": 850380000,
+  "attendee_holdings": 10350000000,
+  "updated_at": "2026-09-30T16:06:09.77941+00:00"
+ },
+ {
+  "id": 14,
+  "event_code": "MFA25",
+  "mc_range": "Micro Cap: $50 million to $300 million",
+  "sort_order": 4,
+  "members": 19,
+  "total_mc": 2930000000,
+  "average_mc": 154080000,
+  "attendee_holdings": 388370000,
+  "updated_at": "2026-09-30T16:06:09.77941+00:00"
+ },
+ {
+  "id": 15,
+  "event_code": "MFA25",
+  "mc_range": "Nano Cap: Under $50 million",
+  "sort_order": 5,
+  "members": 2,
+  "total_mc": 52970000,
+  "average_mc": 26490000,
+  "attendee_holdings": 9570000,
+  "updated_at": "2026-09-30T16:06:09.77941+00:00"
+ }
+]

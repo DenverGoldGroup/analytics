@@ -1,0 +1,143 @@
+{
+  "exported": "2026-11-14",
+  "project": "ljyogcspkvqgjbiyzfbn",
+  "tables": [
+    {
+      "table": "admin_magic_links",
+      "rows": 0,
+      "skipped": "session tokens"
+    },
+    {
+      "table": "admin_users",
+      "rows": 2,
+      "dropped": [
+        "password_hash"
+      ]
+    },
+    {
+      "table": "attendees",
+      "rows": 1684
+    },
+    {
+      "table": "companies",
+      "rows": 225
+    },
+    {
+      "table": "deals",
+      "rows": 5
+    },
+    {
+      "table": "ems_sync_log",
+      "rows": 76
+    },
+    {
+      "table": "event_participations",
+      "rows": 424
+    },
+    {
+      "table": "metal_prices",
+      "rows": 5
+    },
+    {
+      "table": "psr_activity_log",
+      "rows": 479
+    },
+    {
+      "table": "psr_attendance",
+      "rows": 103
+    },
+    {
+      "table": "psr_brief_inputs",
+      "rows": 1
+    },
+    {
+      "table": "psr_cancellations",
+      "rows": 29
+    },
+    {
+      "table": "psr_engagement",
+      "rows": 29
+    },
+    {
+      "table": "psr_events",
+      "rows": 3
+    },
+    {
+      "table": "psr_financials",
+      "rows": 13
+    },
+    {
+      "table": "psr_glossary",
+      "rows": 16
+    },
+    {
+      "table": "psr_hotel",
+      "rows": 11
+    },
+    {
+      "table": "psr_magic_links",
+      "rows": 0,
+      "skipped": "session tokens"
+    },
+    {
+      "table": "psr_market_data",
+      "rows": 216
+    },
+    {
+      "table": "psr_meetings",
+      "rows": 33
+    },
+    {
+      "table": "psr_member_history",
+      "rows": 36
+    },
+    {
+      "table": "psr_member_holdings",
+      "rows": 10
+    },
+    {
+      "table": "psr_members",
+      "rows": 313
+    },
+    {
+      "table": "psr_reg_recon",
+      "rows": 74
+    },
+    {
+      "table": "psr_sponsors",
+      "rows": 39
+    },
+    {
+      "table": "psr_swot",
+      "rows": 168
+    },
+    {
+      "table": "psr_top_meetings",
+      "rows": 549
+    },
+    {
+      "table": "psr_users",
+      "rows": 8
+    },
+    {
+      "table": "psr_venue_history",
+      "rows": 77
+    },
+    {
+      "table": "psr_webcasts",
+      "rows": 115
+    },
+    {
+      "table": "session_configs",
+      "rows": 1
+    },
+    {
+      "table": "session_definitions",
+      "rows": 2
+    },
+    {
+      "table": "session_slots",
+      "rows": 396
+    }
+  ]
+}

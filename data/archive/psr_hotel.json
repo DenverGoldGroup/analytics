@@ -1,0 +1,90 @@
+[
+ {
+  "id": 6,
+  "event_code": "MFE26",
+  "hotel_name": "Park Hyatt Zürich",
+  "night_date": "2026-04-12",
+  "contracted": 10,
+  "actual": 22
+ },
+ {
+  "id": 7,
+  "event_code": "MFE26",
+  "hotel_name": "Park Hyatt Zürich",
+  "night_date": "2026-04-13",
+  "contracted": 50,
+  "actual": 47
+ },
+ {
+  "id": 8,
+  "event_code": "MFE26",
+  "hotel_name": "Park Hyatt Zürich",
+  "night_date": "2026-04-14",
+  "contracted": 50,
+  "actual": 46
+ },
+ {
+  "id": 9,
+  "event_code": "MFE26",
+  "hotel_name": "Park Hyatt Zürich",
+  "night_date": "2026-04-15",
+  "contracted": 40,
+  "actual": 25
+ },
+ {
+  "id": 11,
+  "event_code": "MFA25",
+  "hotel_name": "The Broadmoor",
+  "night_date": "2025-09-11",
+  "contracted": 4,
+  "actual": 3
+ },
+ {
+  "id": 12,
+  "event_code": "MFA25",
+  "hotel_name": "The Broadmoor",
+  "night_date": "2025-09-12",
+  "contracted": 75,
+  "actual": 73
+ },
+ {
+  "id": 13,
+  "event_code": "MFA25",
+  "hotel_name": "The Broadmoor",
+  "night_date": "2025-09-13",
+  "contracted": 270,
+  "actual": 309
+ },
+ {
+  "id": 14,
+  "event_code": "MFA25",
+  "hotel_name": "The Broadmoor",
+  "night_date": "2025-09-14",
+  "contracted": 767,
+  "actual": 702
+ },
+ {
+  "id": 15,
+  "event_code": "MFA25",
+  "hotel_name": "The Broadmoor",
+  "night_date": "2025-09-15",
+  "contracted": 767,
+  "actual": 711
+ },
+ {
+  "id": 16,
+  "event_code": "MFA25",
+  "hotel_name": "The Broadmoor",
+  "night_date": "2025-09-16",
+  "contracted": 600,
+  "actual": 575
+ },
+ {
+  "id": 17,
+  "event_code": "MFA25",
+  "hotel_name": "The Broadmoor",
+  "night_date": "2025-09-17",
+  "contracted": 25,
+  "actual": 38
+ }
+]

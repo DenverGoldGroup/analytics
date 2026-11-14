@@ -1,0 +1,299 @@
+[
+ {
+  "id": 17,
+  "event_code": "MFE26",
+  "section": "status",
+  "metric": "Formal meetings",
+  "value_current": 970,
+  "value_prior": 803,
+  "sort_order": 1
+ },
+ {
+  "id": 18,
+  "event_code": "MFE26",
+  "section": "mean",
+  "metric": "Average member meetings",
+  "value_current": 12.5,
+  "value_prior": 17.5,
+  "sort_order": 1
+ },
+ {
+  "id": 19,
+  "event_code": "MFE26",
+  "section": "fundamentals",
+  "metric": "Designated meeting rooms",
+  "value_current": 6,
+  "value_prior": 8,
+  "sort_order": 1
+ },
+ {
+  "id": 20,
+  "event_code": "MFE26",
+  "section": "mean",
+  "metric": "Average participant meetings",
+  "value_current": 3.2,
+  "value_prior": 5.4,
+  "sort_order": 2
+ },
+ {
+  "id": 21,
+  "event_code": "MFE26",
+  "section": "status",
+  "metric": "Informal meetings (est.)",
+  "value_current": 200,
+  "value_prior": 128,
+  "sort_order": 2
+ },
+ {
+  "id": 22,
+  "event_code": "MFE26",
+  "section": "fundamentals",
+  "metric": "Undesignated meeting rooms",
+  "value_current": 58,
+  "value_prior": 56,
+  "sort_order": 2
+ },
+ {
+  "id": 23,
+  "event_code": "MFE26",
+  "section": "mean",
+  "metric": "Participants with meetings %",
+  "value_current": 46,
+  "value_prior": 45,
+  "sort_order": 3
+ },
+ {
+  "id": 24,
+  "event_code": "MFE26",
+  "section": "status",
+  "metric": "All completed meetings",
+  "value_current": 0,
+  "value_prior": 931,
+  "sort_order": 3
+ },
+ {
+  "id": 25,
+  "event_code": "MFE26",
+  "section": "fundamentals",
+  "metric": "Total meeting locations",
+  "value_current": 64,
+  "value_prior": 64,
+  "sort_order": 3
+ },
+ {
+  "id": 26,
+  "event_code": "MFE26",
+  "section": "fundamentals",
+  "metric": "Total meeting slots",
+  "value_current": 38,
+  "value_prior": 48,
+  "sort_order": 4
+ },
+ {
+  "id": 27,
+  "event_code": "MFE26",
+  "section": "status",
+  "metric": "Declined",
+  "value_current": 399,
+  "value_prior": 540,
+  "sort_order": 4
+ },
+ {
+  "id": 28,
+  "event_code": "MFE26",
+  "section": "status",
+  "metric": "Cancelled",
+  "value_current": 157,
+  "value_prior": 174,
+  "sort_order": 5
+ },
+ {
+  "id": 29,
+  "event_code": "MFE26",
+  "section": "fundamentals",
+  "metric": "Max meeting capacity",
+  "value_current": 0,
+  "value_prior": 3072,
+  "sort_order": 5
+ },
+ {
+  "id": 30,
+  "event_code": "MFE26",
+  "section": "status",
+  "metric": "Unfulfilled",
+  "value_current": 1952,
+  "value_prior": 692,
+  "sort_order": 6
+ },
+ {
+  "id": 31,
+  "event_code": "MFE26",
+  "section": "fundamentals",
+  "metric": "Capacity utilization %",
+  "value_current": 0,
+  "value_prior": 30,
+  "sort_order": 6
+ },
+ {
+  "id": 32,
+  "event_code": "MFE26",
+  "section": "status",
+  "metric": "Total transactions",
+  "value_current": 0,
+  "value_prior": 2337,
+  "sort_order": 7
+ },
+ {
+  "id": 33,
+  "event_code": "MFA25",
+  "section": "status",
+  "metric": "Formal meetings",
+  "value_current": 3378,
+  "value_prior": 2936,
+  "sort_order": 1
+ },
+ {
+  "id": 34,
+  "event_code": "MFA25",
+  "section": "status",
+  "metric": "Informal meetings (est.)",
+  "value_current": 649,
+  "value_prior": 551,
+  "sort_order": 2
+ },
+ {
+  "id": 35,
+  "event_code": "MFA25",
+  "section": "status",
+  "metric": "All completed meetings",
+  "value_current": 4027,
+  "value_prior": 3487,
+  "sort_order": 3
+ },
+ {
+  "id": 36,
+  "event_code": "MFA25",
+  "section": "status",
+  "metric": "Declined",
+  "value_current": 228,
+  "value_prior": 1766,
+  "sort_order": 4
+ },
+ {
+  "id": 37,
+  "event_code": "MFA25",
+  "section": "status",
+  "metric": "Cancelled",
+  "value_current": 419,
+  "value_prior": 625,
+  "sort_order": 5
+ },
+ {
+  "id": 38,
+  "event_code": "MFA25",
+  "section": "status",
+  "metric": "Unfulfilled",
+  "value_current": 63,
+  "value_prior": 2472,
+  "sort_order": 6
+ },
+ {
+  "id": 39,
+  "event_code": "MFA25",
+  "section": "status",
+  "metric": "Total transactions",
+  "value_current": 4737,
+  "value_prior": 8350,
+  "sort_order": 7
+ },
+ {
+  "id": 40,
+  "event_code": "MFA25",
+  "section": "mean",
+  "metric": "Average member meetings",
+  "value_current": 19.1,
+  "value_prior": 18,
+  "sort_order": 1
+ },
+ {
+  "id": 41,
+  "event_code": "MFA25",
+  "section": "mean",
+  "metric": "Average participant meetings",
+  "value_current": 7.4,
+  "value_prior": 7,
+  "sort_order": 2
+ },
+ {
+  "id": 42,
+  "event_code": "MFA25",
+  "section": "mean",
+  "metric": "Participants with meetings %",
+  "value_current": 74,
+  "value_prior": 76,
+  "sort_order": 3
+ },
+ {
+  "id": 43,
+  "event_code": "MFA25",
+  "section": "fundamentals",
+  "metric": "Designated meeting rooms",
+  "value_current": 54,
+  "value_prior": 51,
+  "sort_order": 1
+ },
+ {
+  "id": 44,
+  "event_code": "MFA25",
+  "section": "fundamentals",
+  "metric": "Undesignated meeting rooms",
+  "value_current": 130,
+  "value_prior": 110,
+  "sort_order": 2
+ },
+ {
+  "id": 45,
+  "event_code": "MFA25",
+  "section": "fundamentals",
+  "metric": "Total meeting locations",
+  "value_current": 184,
+  "value_prior": 161,
+  "sort_order": 3
+ },
+ {
+  "id": 46,
+  "event_code": "MFA25",
+  "section": "fundamentals",
+  "metric": "Total meeting slots",
+  "value_current": 49,
+  "value_prior": 51,
+  "sort_order": 4
+ },
+ {
+  "id": 47,
+  "event_code": "MFA25",
+  "section": "fundamentals",
+  "metric": "Max meeting capacity",
+  "value_current": 9016,
+  "value_prior": 8211,
+  "sort_order": 5
+ },
+ {
+  "id": 48,
+  "event_code": "MFA25",
+  "section": "fundamentals",
+  "metric": "Capacity utilization %",
+  "value_current": 37,
+  "value_prior": 36,
+  "sort_order": 6
+ },
+ {
+  "id": 49,
+  "event_code": "MFA26",
+  "section": "status",
+  "metric": "New Metric",
+  "value_current": 0,
+  "value_prior": 0,
+  "sort_order": 1
+ }
+]

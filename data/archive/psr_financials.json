@@ -1,0 +1,132 @@
+[
+ {
+  "id": 7,
+  "event_code": "MFE26",
+  "category": "revenue",
+  "line_item": "Member company fees",
+  "actual_amount": 0,
+  "budget_amount": 0,
+  "prior_year_amount": 445000,
+  "sort_order": 1
+ },
+ {
+  "id": 8,
+  "event_code": "MFE26",
+  "category": "expense",
+  "line_item": "Total event expenses",
+  "actual_amount": 0,
+  "budget_amount": 0,
+  "prior_year_amount": -626000,
+  "sort_order": 1
+ },
+ {
+  "id": 9,
+  "event_code": "MFE26",
+  "category": "revenue",
+  "line_item": "Event sponsorship fees",
+  "actual_amount": 0,
+  "budget_amount": 0,
+  "prior_year_amount": 10000,
+  "sort_order": 2
+ },
+ {
+  "id": 10,
+  "event_code": "MFE26",
+  "category": "revenue",
+  "line_item": "Member delegate fees",
+  "actual_amount": 0,
+  "budget_amount": 0,
+  "prior_year_amount": 1600,
+  "sort_order": 3
+ },
+ {
+  "id": 11,
+  "event_code": "MFE26",
+  "category": "revenue",
+  "line_item": "Participant fees",
+  "actual_amount": 0,
+  "budget_amount": 0,
+  "prior_year_amount": 30000,
+  "sort_order": 4
+ },
+ {
+  "id": 12,
+  "event_code": "MFE26",
+  "category": "revenue",
+  "line_item": "All other revenue",
+  "actual_amount": 0,
+  "budget_amount": 0,
+  "prior_year_amount": 67000,
+  "sort_order": 5
+ },
+ {
+  "id": 13,
+  "event_code": "MFA25",
+  "category": "revenue",
+  "line_item": "Member company fees",
+  "actual_amount": 1589650,
+  "budget_amount": null,
+  "prior_year_amount": 1554676,
+  "sort_order": 1
+ },
+ {
+  "id": 14,
+  "event_code": "MFA25",
+  "category": "revenue",
+  "line_item": "Event partner fees",
+  "actual_amount": 386250,
+  "budget_amount": null,
+  "prior_year_amount": 269750,
+  "sort_order": 2
+ },
+ {
+  "id": 15,
+  "event_code": "MFA25",
+  "category": "revenue",
+  "line_item": "Member delegate fees",
+  "actual_amount": 79100,
+  "budget_amount": null,
+  "prior_year_amount": 65550,
+  "sort_order": 3
+ },
+ {
+  "id": 16,
+  "event_code": "MFA25",
+  "category": "revenue",
+  "line_item": "Participant fees",
+  "actual_amount": 347400,
+  "budget_amount": null,
+  "prior_year_amount": 190400,
+  "sort_order": 4
+ },
+ {
+  "id": 17,
+  "event_code": "MFA25",
+  "category": "revenue",
+  "line_item": "All other revenue",
+  "actual_amount": 87741,
+  "budget_amount": null,
+  "prior_year_amount": 140797,
+  "sort_order": 5
+ },
+ {
+  "id": 18,
+  "event_code": "MFA25",
+  "category": "revenue",
+  "line_item": "Venue incentives",
+  "actual_amount": 93000,
+  "budget_amount": null,
+  "prior_year_amount": 88000,
+  "sort_order": 6
+ },
+ {
+  "id": 19,
+  "event_code": "MFA25",
+  "category": "expense",
+  "line_item": "Total event expenses",
+  "actual_amount": -2760000,
+  "budget_amount": null,
+  "prior_year_amount": -2018356,
+  "sort_order": 1
+ }
+]

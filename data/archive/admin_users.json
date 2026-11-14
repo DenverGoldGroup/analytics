@@ -1,0 +1,20 @@
+[
+ {
+  "id": "3ca1cc4d-ae2e-44eb-8813-0a6a4faffa85",
+  "email": "jdill@denvergold.org",
+  "name": "Julie Dill",
+  "active": true,
+  "created_at": "2026-05-20T16:24:07.64505+00:00",
+  "updated_at": "2026-05-20T16:24:07.64505+00:00",
+  "role": "admin"
+ },
+ {
+  "id": "700cfbf4-fb78-4722-8231-ffb9152afeb3",
+  "email": "admin@denvergold.org",
+  "name": "Tim Wood",
+  "active": true,
+  "created_at": "2026-05-20T15:36:07.918471+00:00",
+  "updated_at": "2026-05-20T15:49:58.790528+00:00",
+  "role": "super_admin"
+ }
+]

@@ -1,0 +1,1514 @@
+[
+ {
+  "id": 1,
+  "event_type": "MFE",
+  "year": 2016,
+  "metric": "gold_price",
+  "value": 1250.9
+ },
+ {
+  "id": 2,
+  "event_type": "MFE",
+  "year": 2017,
+  "metric": "gold_price",
+  "value": 1163
+ },
+ {
+  "id": 3,
+  "event_type": "MFE",
+  "year": 2018,
+  "metric": "gold_price",
+  "value": 1336
+ },
+ {
+  "id": 4,
+  "event_type": "MFE",
+  "year": 2019,
+  "metric": "gold_price",
+  "value": 1289
+ },
+ {
+  "id": 5,
+  "event_type": "MFE",
+  "year": 2020,
+  "metric": "gold_price",
+  "value": 1551
+ },
+ {
+  "id": 6,
+  "event_type": "MFE",
+  "year": 2021,
+  "metric": "gold_price",
+  "value": 1859
+ },
+ {
+  "id": 7,
+  "event_type": "MFE",
+  "year": 2022,
+  "metric": "gold_price",
+  "value": 1967
+ },
+ {
+  "id": 8,
+  "event_type": "MFE",
+  "year": 2023,
+  "metric": "gold_price",
+  "value": 1991
+ },
+ {
+  "id": 9,
+  "event_type": "MFE",
+  "year": 2024,
+  "metric": "gold_price",
+  "value": 2356
+ },
+ {
+  "id": 10,
+  "event_type": "MFE",
+  "year": 2025,
+  "metric": "gold_price",
+  "value": 3115
+ },
+ {
+  "id": 11,
+  "event_type": "MFE",
+  "year": 2016,
+  "metric": "silver_price",
+  "value": 16.93
+ },
+ {
+  "id": 12,
+  "event_type": "MFE",
+  "year": 2017,
+  "metric": "silver_price",
+  "value": 16.58
+ },
+ {
+  "id": 13,
+  "event_type": "MFE",
+  "year": 2018,
+  "metric": "silver_price",
+  "value": 17.21
+ },
+ {
+  "id": 14,
+  "event_type": "MFE",
+  "year": 2019,
+  "metric": "silver_price",
+  "value": 15.62
+ },
+ {
+  "id": 15,
+  "event_type": "MFE",
+  "year": 2020,
+  "metric": "silver_price",
+  "value": 17.99
+ },
+ {
+  "id": 16,
+  "event_type": "MFE",
+  "year": 2021,
+  "metric": "silver_price",
+  "value": 25.16
+ },
+ {
+  "id": 17,
+  "event_type": "MFE",
+  "year": 2022,
+  "metric": "silver_price",
+  "value": 25.41
+ },
+ {
+  "id": 18,
+  "event_type": "MFE",
+  "year": 2023,
+  "metric": "silver_price",
+  "value": 24.89
+ },
+ {
+  "id": 19,
+  "event_type": "MFE",
+  "year": 2024,
+  "metric": "silver_price",
+  "value": 27.97
+ },
+ {
+  "id": 20,
+  "event_type": "MFE",
+  "year": 2025,
+  "metric": "silver_price",
+  "value": 34.06
+ },
+ {
+  "id": 21,
+  "event_type": "MFE",
+  "year": 2016,
+  "metric": "platinum_price",
+  "value": 1013.5
+ },
+ {
+  "id": 22,
+  "event_type": "MFE",
+  "year": 2017,
+  "metric": "platinum_price",
+  "value": 942
+ },
+ {
+  "id": 23,
+  "event_type": "MFE",
+  "year": 2018,
+  "metric": "platinum_price",
+  "value": 1002
+ },
+ {
+  "id": 24,
+  "event_type": "MFE",
+  "year": 2019,
+  "metric": "platinum_price",
+  "value": 821
+ },
+ {
+  "id": 25,
+  "event_type": "MFE",
+  "year": 2020,
+  "metric": "platinum_price",
+  "value": 994
+ },
+ {
+  "id": 26,
+  "event_type": "MFE",
+  "year": 2021,
+  "metric": "platinum_price",
+  "value": 1083
+ },
+ {
+  "id": 27,
+  "event_type": "MFE",
+  "year": 2022,
+  "metric": "platinum_price",
+  "value": 970
+ },
+ {
+  "id": 28,
+  "event_type": "MFE",
+  "year": 2023,
+  "metric": "platinum_price",
+  "value": 998
+ },
+ {
+  "id": 29,
+  "event_type": "MFE",
+  "year": 2024,
+  "metric": "platinum_price",
+  "value": 946
+ },
+ {
+  "id": 30,
+  "event_type": "MFE",
+  "year": 2025,
+  "metric": "platinum_price",
+  "value": 993
+ },
+ {
+  "id": 31,
+  "event_type": "MFE",
+  "year": 2016,
+  "metric": "palladium_price",
+  "value": 582
+ },
+ {
+  "id": 32,
+  "event_type": "MFE",
+  "year": 2017,
+  "metric": "palladium_price",
+  "value": 735
+ },
+ {
+  "id": 33,
+  "event_type": "MFE",
+  "year": 2018,
+  "metric": "palladium_price",
+  "value": 1104
+ },
+ {
+  "id": 34,
+  "event_type": "MFE",
+  "year": 2019,
+  "metric": "palladium_price",
+  "value": 1339
+ },
+ {
+  "id": 35,
+  "event_type": "MFE",
+  "year": 2020,
+  "metric": "palladium_price",
+  "value": 2420
+ },
+ {
+  "id": 36,
+  "event_type": "MFE",
+  "year": 2021,
+  "metric": "palladium_price",
+  "value": 2376
+ },
+ {
+  "id": 37,
+  "event_type": "MFE",
+  "year": 2022,
+  "metric": "palladium_price",
+  "value": 2328
+ },
+ {
+  "id": 38,
+  "event_type": "MFE",
+  "year": 2023,
+  "metric": "palladium_price",
+  "value": 1422
+ },
+ {
+  "id": 39,
+  "event_type": "MFE",
+  "year": 2024,
+  "metric": "palladium_price",
+  "value": 1037
+ },
+ {
+  "id": 40,
+  "event_type": "MFE",
+  "year": 2025,
+  "metric": "palladium_price",
+  "value": 986
+ },
+ {
+  "id": 41,
+  "event_type": "MFE",
+  "year": 2016,
+  "metric": "gold_mcap_bn",
+  "value": 51
+ },
+ {
+  "id": 42,
+  "event_type": "MFE",
+  "year": 2017,
+  "metric": "gold_mcap_bn",
+  "value": 74
+ },
+ {
+  "id": 43,
+  "event_type": "MFE",
+  "year": 2018,
+  "metric": "gold_mcap_bn",
+  "value": 62
+ },
+ {
+  "id": 44,
+  "event_type": "MFE",
+  "year": 2019,
+  "metric": "gold_mcap_bn",
+  "value": 104
+ },
+ {
+  "id": 45,
+  "event_type": "MFE",
+  "year": 2020,
+  "metric": "gold_mcap_bn",
+  "value": 244
+ },
+ {
+  "id": 46,
+  "event_type": "MFE",
+  "year": 2021,
+  "metric": "gold_mcap_bn",
+  "value": 204
+ },
+ {
+  "id": 47,
+  "event_type": "MFE",
+  "year": 2022,
+  "metric": "gold_mcap_bn",
+  "value": 104
+ },
+ {
+  "id": 48,
+  "event_type": "MFE",
+  "year": 2023,
+  "metric": "gold_mcap_bn",
+  "value": 70
+ },
+ {
+  "id": 49,
+  "event_type": "MFE",
+  "year": 2024,
+  "metric": "gold_mcap_bn",
+  "value": 95
+ },
+ {
+  "id": 50,
+  "event_type": "MFE",
+  "year": 2025,
+  "metric": "gold_mcap_bn",
+  "value": 181
+ },
+ {
+  "id": 51,
+  "event_type": "MFE",
+  "year": 2016,
+  "metric": "silver_mcap_bn",
+  "value": 22
+ },
+ {
+  "id": 52,
+  "event_type": "MFE",
+  "year": 2017,
+  "metric": "silver_mcap_bn",
+  "value": 13
+ },
+ {
+  "id": 53,
+  "event_type": "MFE",
+  "year": 2018,
+  "metric": "silver_mcap_bn",
+  "value": 9
+ },
+ {
+  "id": 54,
+  "event_type": "MFE",
+  "year": 2019,
+  "metric": "silver_mcap_bn",
+  "value": 7
+ },
+ {
+  "id": 55,
+  "event_type": "MFE",
+  "year": 2020,
+  "metric": "silver_mcap_bn",
+  "value": 8
+ },
+ {
+  "id": 56,
+  "event_type": "MFE",
+  "year": 2021,
+  "metric": "silver_mcap_bn",
+  "value": 21
+ },
+ {
+  "id": 57,
+  "event_type": "MFE",
+  "year": 2022,
+  "metric": "silver_mcap_bn",
+  "value": 5
+ },
+ {
+  "id": 58,
+  "event_type": "MFE",
+  "year": 2023,
+  "metric": "silver_mcap_bn",
+  "value": 10
+ },
+ {
+  "id": 59,
+  "event_type": "MFE",
+  "year": 2024,
+  "metric": "silver_mcap_bn",
+  "value": 6
+ },
+ {
+  "id": 60,
+  "event_type": "MFE",
+  "year": 2025,
+  "metric": "silver_mcap_bn",
+  "value": 13
+ },
+ {
+  "id": 61,
+  "event_type": "MFE",
+  "year": 2016,
+  "metric": "hui_index",
+  "value": 207.2
+ },
+ {
+  "id": 62,
+  "event_type": "MFE",
+  "year": 2017,
+  "metric": "hui_index",
+  "value": 204.7
+ },
+ {
+  "id": 63,
+  "event_type": "MFE",
+  "year": 2018,
+  "metric": "hui_index",
+  "value": 171.7
+ },
+ {
+  "id": 64,
+  "event_type": "MFE",
+  "year": 2019,
+  "metric": "hui_index",
+  "value": 174.2
+ },
+ {
+  "id": 65,
+  "event_type": "MFE",
+  "year": 2020,
+  "metric": "hui_index",
+  "value": 255.1
+ },
+ {
+  "id": 66,
+  "event_type": "MFE",
+  "year": 2021,
+  "metric": "hui_index",
+  "value": 281.4
+ },
+ {
+  "id": 67,
+  "event_type": "MFE",
+  "year": 2022,
+  "metric": "hui_index",
+  "value": 323.2
+ },
+ {
+  "id": 68,
+  "event_type": "MFE",
+  "year": 2023,
+  "metric": "hui_index",
+  "value": 270.4
+ },
+ {
+  "id": 69,
+  "event_type": "MFE",
+  "year": 2024,
+  "metric": "hui_index",
+  "value": 267.6
+ },
+ {
+  "id": 70,
+  "event_type": "MFE",
+  "year": 2025,
+  "metric": "hui_index",
+  "value": 360.5
+ },
+ {
+  "id": 71,
+  "event_type": "MFE",
+  "year": 2016,
+  "metric": "dji_index",
+  "value": 18004
+ },
+ {
+  "id": 72,
+  "event_type": "MFE",
+  "year": 2017,
+  "metric": "dji_index",
+  "value": 20663
+ },
+ {
+  "id": 73,
+  "event_type": "MFE",
+  "year": 2018,
+  "metric": "dji_index",
+  "value": 24786
+ },
+ {
+  "id": 74,
+  "event_type": "MFE",
+  "year": 2019,
+  "metric": "dji_index",
+  "value": 26150
+ },
+ {
+  "id": 75,
+  "event_type": "MFE",
+  "year": 2020,
+  "metric": "dji_index",
+  "value": 27077
+ },
+ {
+  "id": 76,
+  "event_type": "MFE",
+  "year": 2021,
+  "metric": "dji_index",
+  "value": 27148
+ },
+ {
+  "id": 77,
+  "event_type": "MFE",
+  "year": 2022,
+  "metric": "dji_index",
+  "value": 34220
+ },
+ {
+  "id": 78,
+  "event_type": "MFE",
+  "year": 2023,
+  "metric": "dji_index",
+  "value": 33683
+ },
+ {
+  "id": 79,
+  "event_type": "MFE",
+  "year": 2024,
+  "metric": "dji_index",
+  "value": 38884
+ },
+ {
+  "id": 80,
+  "event_type": "MFE",
+  "year": 2025,
+  "metric": "dji_index",
+  "value": 42002
+ },
+ {
+  "id": 81,
+  "event_type": "MFE",
+  "year": 2016,
+  "metric": "au_ag_ratio",
+  "value": 73.9
+ },
+ {
+  "id": 82,
+  "event_type": "MFE",
+  "year": 2017,
+  "metric": "au_ag_ratio",
+  "value": 70.1
+ },
+ {
+  "id": 83,
+  "event_type": "MFE",
+  "year": 2018,
+  "metric": "au_ag_ratio",
+  "value": 77.6
+ },
+ {
+  "id": 84,
+  "event_type": "MFE",
+  "year": 2019,
+  "metric": "au_ag_ratio",
+  "value": 82.5
+ },
+ {
+  "id": 85,
+  "event_type": "MFE",
+  "year": 2020,
+  "metric": "au_ag_ratio",
+  "value": 86.2
+ },
+ {
+  "id": 86,
+  "event_type": "MFE",
+  "year": 2021,
+  "metric": "au_ag_ratio",
+  "value": 73.9
+ },
+ {
+  "id": 87,
+  "event_type": "MFE",
+  "year": 2022,
+  "metric": "au_ag_ratio",
+  "value": 77.4
+ },
+ {
+  "id": 88,
+  "event_type": "MFE",
+  "year": 2023,
+  "metric": "au_ag_ratio",
+  "value": 80
+ },
+ {
+  "id": 89,
+  "event_type": "MFE",
+  "year": 2024,
+  "metric": "au_ag_ratio",
+  "value": 84.3
+ },
+ {
+  "id": 90,
+  "event_type": "MFE",
+  "year": 2025,
+  "metric": "au_ag_ratio",
+  "value": 91.5
+ },
+ {
+  "id": 91,
+  "event_type": "MFE",
+  "year": 2003,
+  "metric": "gold_price",
+  "value": 330
+ },
+ {
+  "id": 92,
+  "event_type": "MFE",
+  "year": 2003,
+  "metric": "silver_price",
+  "value": 4.6
+ },
+ {
+  "id": 93,
+  "event_type": "MFE",
+  "year": 2003,
+  "metric": "platinum_price",
+  "value": 680
+ },
+ {
+  "id": 94,
+  "event_type": "MFE",
+  "year": 2003,
+  "metric": "palladium_price",
+  "value": 170
+ },
+ {
+  "id": 95,
+  "event_type": "MFE",
+  "year": 2003,
+  "metric": "au_ag_ratio",
+  "value": 71.7
+ },
+ {
+  "id": 96,
+  "event_type": "MFE",
+  "year": 2003,
+  "metric": "hui_index",
+  "value": 148
+ },
+ {
+  "id": 97,
+  "event_type": "MFE",
+  "year": 2003,
+  "metric": "dji_index",
+  "value": 8291
+ },
+ {
+  "id": 98,
+  "event_type": "MFE",
+  "year": 2003,
+  "metric": "gold_mcap_bn",
+  "value": 53
+ },
+ {
+  "id": 99,
+  "event_type": "MFE",
+  "year": 2003,
+  "metric": "silver_mcap_bn",
+  "value": 5
+ },
+ {
+  "id": 100,
+  "event_type": "MFE",
+  "year": 2004,
+  "metric": "gold_price",
+  "value": 400
+ },
+ {
+  "id": 101,
+  "event_type": "MFE",
+  "year": 2004,
+  "metric": "silver_price",
+  "value": 7.1
+ },
+ {
+  "id": 102,
+  "event_type": "MFE",
+  "year": 2004,
+  "metric": "platinum_price",
+  "value": 905
+ },
+ {
+  "id": 103,
+  "event_type": "MFE",
+  "year": 2004,
+  "metric": "palladium_price",
+  "value": 280
+ },
+ {
+  "id": 104,
+  "event_type": "MFE",
+  "year": 2004,
+  "metric": "au_ag_ratio",
+  "value": 56.3
+ },
+ {
+  "id": 105,
+  "event_type": "MFE",
+  "year": 2004,
+  "metric": "hui_index",
+  "value": 225
+ },
+ {
+  "id": 106,
+  "event_type": "MFE",
+  "year": 2004,
+  "metric": "dji_index",
+  "value": 10317
+ },
+ {
+  "id": 107,
+  "event_type": "MFE",
+  "year": 2004,
+  "metric": "gold_mcap_bn",
+  "value": 99
+ },
+ {
+  "id": 108,
+  "event_type": "MFE",
+  "year": 2004,
+  "metric": "silver_mcap_bn",
+  "value": 10
+ },
+ {
+  "id": 109,
+  "event_type": "MFE",
+  "year": 2005,
+  "metric": "gold_price",
+  "value": 435
+ },
+ {
+  "id": 110,
+  "event_type": "MFE",
+  "year": 2005,
+  "metric": "silver_price",
+  "value": 7.18
+ },
+ {
+  "id": 111,
+  "event_type": "MFE",
+  "year": 2005,
+  "metric": "platinum_price",
+  "value": 870
+ },
+ {
+  "id": 112,
+  "event_type": "MFE",
+  "year": 2005,
+  "metric": "palladium_price",
+  "value": 195
+ },
+ {
+  "id": 113,
+  "event_type": "MFE",
+  "year": 2005,
+  "metric": "au_ag_ratio",
+  "value": 60.6
+ },
+ {
+  "id": 114,
+  "event_type": "MFE",
+  "year": 2005,
+  "metric": "hui_index",
+  "value": 205
+ },
+ {
+  "id": 115,
+  "event_type": "MFE",
+  "year": 2005,
+  "metric": "dji_index",
+  "value": 10012
+ },
+ {
+  "id": 116,
+  "event_type": "MFE",
+  "year": 2005,
+  "metric": "gold_mcap_bn",
+  "value": 88
+ },
+ {
+  "id": 117,
+  "event_type": "MFE",
+  "year": 2005,
+  "metric": "silver_mcap_bn",
+  "value": 9
+ },
+ {
+  "id": 118,
+  "event_type": "MFE",
+  "year": 2006,
+  "metric": "gold_price",
+  "value": 610
+ },
+ {
+  "id": 119,
+  "event_type": "MFE",
+  "year": 2006,
+  "metric": "silver_price",
+  "value": 12.3
+ },
+ {
+  "id": 120,
+  "event_type": "MFE",
+  "year": 2006,
+  "metric": "platinum_price",
+  "value": 1075
+ },
+ {
+  "id": 121,
+  "event_type": "MFE",
+  "year": 2006,
+  "metric": "palladium_price",
+  "value": 340
+ },
+ {
+  "id": 122,
+  "event_type": "MFE",
+  "year": 2006,
+  "metric": "au_ag_ratio",
+  "value": 49.6
+ },
+ {
+  "id": 123,
+  "event_type": "MFE",
+  "year": 2006,
+  "metric": "hui_index",
+  "value": 340
+ },
+ {
+  "id": 124,
+  "event_type": "MFE",
+  "year": 2006,
+  "metric": "dji_index",
+  "value": 11352
+ },
+ {
+  "id": 125,
+  "event_type": "MFE",
+  "year": 2006,
+  "metric": "gold_mcap_bn",
+  "value": 168
+ },
+ {
+  "id": 126,
+  "event_type": "MFE",
+  "year": 2006,
+  "metric": "silver_mcap_bn",
+  "value": 17
+ },
+ {
+  "id": 127,
+  "event_type": "MFE",
+  "year": 2007,
+  "metric": "gold_price",
+  "value": 688
+ },
+ {
+  "id": 128,
+  "event_type": "MFE",
+  "year": 2007,
+  "metric": "silver_price",
+  "value": 13.96
+ },
+ {
+  "id": 129,
+  "event_type": "MFE",
+  "year": 2007,
+  "metric": "platinum_price",
+  "value": 1270
+ },
+ {
+  "id": 130,
+  "event_type": "MFE",
+  "year": 2007,
+  "metric": "palladium_price",
+  "value": 373
+ },
+ {
+  "id": 131,
+  "event_type": "MFE",
+  "year": 2007,
+  "metric": "au_ag_ratio",
+  "value": 49.3
+ },
+ {
+  "id": 132,
+  "event_type": "MFE",
+  "year": 2007,
+  "metric": "hui_index",
+  "value": 365.1
+ },
+ {
+  "id": 133,
+  "event_type": "MFE",
+  "year": 2007,
+  "metric": "dji_index",
+  "value": 12803
+ },
+ {
+  "id": 134,
+  "event_type": "MFE",
+  "year": 2007,
+  "metric": "gold_mcap_bn",
+  "value": 183
+ },
+ {
+  "id": 135,
+  "event_type": "MFE",
+  "year": 2007,
+  "metric": "silver_mcap_bn",
+  "value": 19
+ },
+ {
+  "id": 136,
+  "event_type": "MFE",
+  "year": 2008,
+  "metric": "gold_price",
+  "value": 915
+ },
+ {
+  "id": 137,
+  "event_type": "MFE",
+  "year": 2008,
+  "metric": "silver_price",
+  "value": 18
+ },
+ {
+  "id": 138,
+  "event_type": "MFE",
+  "year": 2008,
+  "metric": "platinum_price",
+  "value": 2004
+ },
+ {
+  "id": 139,
+  "event_type": "MFE",
+  "year": 2008,
+  "metric": "palladium_price",
+  "value": 450
+ },
+ {
+  "id": 140,
+  "event_type": "MFE",
+  "year": 2008,
+  "metric": "au_ag_ratio",
+  "value": 50.8
+ },
+ {
+  "id": 141,
+  "event_type": "MFE",
+  "year": 2008,
+  "metric": "hui_index",
+  "value": 445.1
+ },
+ {
+  "id": 142,
+  "event_type": "MFE",
+  "year": 2008,
+  "metric": "dji_index",
+  "value": 12576
+ },
+ {
+  "id": 143,
+  "event_type": "MFE",
+  "year": 2008,
+  "metric": "gold_mcap_bn",
+  "value": 231
+ },
+ {
+  "id": 144,
+  "event_type": "MFE",
+  "year": 2008,
+  "metric": "silver_mcap_bn",
+  "value": 24
+ },
+ {
+  "id": 145,
+  "event_type": "MFE",
+  "year": 2009,
+  "metric": "gold_price",
+  "value": 907.5
+ },
+ {
+  "id": 146,
+  "event_type": "MFE",
+  "year": 2009,
+  "metric": "silver_price",
+  "value": 12.98
+ },
+ {
+  "id": 147,
+  "event_type": "MFE",
+  "year": 2009,
+  "metric": "platinum_price",
+  "value": 1145
+ },
+ {
+  "id": 148,
+  "event_type": "MFE",
+  "year": 2009,
+  "metric": "palladium_price",
+  "value": 226
+ },
+ {
+  "id": 149,
+  "event_type": "MFE",
+  "year": 2009,
+  "metric": "au_ag_ratio",
+  "value": 69.9
+ },
+ {
+  "id": 150,
+  "event_type": "MFE",
+  "year": 2009,
+  "metric": "hui_index",
+  "value": 309.5
+ },
+ {
+  "id": 151,
+  "event_type": "MFE",
+  "year": 2009,
+  "metric": "dji_index",
+  "value": 8016
+ },
+ {
+  "id": 152,
+  "event_type": "MFE",
+  "year": 2009,
+  "metric": "gold_mcap_bn",
+  "value": 150
+ },
+ {
+  "id": 153,
+  "event_type": "MFE",
+  "year": 2009,
+  "metric": "silver_mcap_bn",
+  "value": 15
+ },
+ {
+  "id": 154,
+  "event_type": "MFE",
+  "year": 2010,
+  "metric": "gold_price",
+  "value": 1148.25
+ },
+ {
+  "id": 155,
+  "event_type": "MFE",
+  "year": 2010,
+  "metric": "silver_price",
+  "value": 18.16
+ },
+ {
+  "id": 156,
+  "event_type": "MFE",
+  "year": 2010,
+  "metric": "platinum_price",
+  "value": 1714
+ },
+ {
+  "id": 157,
+  "event_type": "MFE",
+  "year": 2010,
+  "metric": "palladium_price",
+  "value": 518
+ },
+ {
+  "id": 158,
+  "event_type": "MFE",
+  "year": 2010,
+  "metric": "au_ag_ratio",
+  "value": 63.2
+ },
+ {
+  "id": 159,
+  "event_type": "MFE",
+  "year": 2010,
+  "metric": "hui_index",
+  "value": 438.8
+ },
+ {
+  "id": 160,
+  "event_type": "MFE",
+  "year": 2010,
+  "metric": "dji_index",
+  "value": 11019
+ },
+ {
+  "id": 161,
+  "event_type": "MFE",
+  "year": 2010,
+  "metric": "gold_mcap_bn",
+  "value": 227
+ },
+ {
+  "id": 162,
+  "event_type": "MFE",
+  "year": 2010,
+  "metric": "silver_mcap_bn",
+  "value": 23
+ },
+ {
+  "id": 163,
+  "event_type": "MFE",
+  "year": 2011,
+  "metric": "gold_price",
+  "value": 1450.5
+ },
+ {
+  "id": 164,
+  "event_type": "MFE",
+  "year": 2011,
+  "metric": "silver_price",
+  "value": 40.44
+ },
+ {
+  "id": 165,
+  "event_type": "MFE",
+  "year": 2011,
+  "metric": "platinum_price",
+  "value": 1785
+ },
+ {
+  "id": 166,
+  "event_type": "MFE",
+  "year": 2011,
+  "metric": "palladium_price",
+  "value": 783
+ },
+ {
+  "id": 167,
+  "event_type": "MFE",
+  "year": 2011,
+  "metric": "au_ag_ratio",
+  "value": 35.9
+ },
+ {
+  "id": 168,
+  "event_type": "MFE",
+  "year": 2011,
+  "metric": "hui_index",
+  "value": 580.9
+ },
+ {
+  "id": 169,
+  "event_type": "MFE",
+  "year": 2011,
+  "metric": "dji_index",
+  "value": 12263
+ },
+ {
+  "id": 170,
+  "event_type": "MFE",
+  "year": 2011,
+  "metric": "gold_mcap_bn",
+  "value": 312
+ },
+ {
+  "id": 171,
+  "event_type": "MFE",
+  "year": 2011,
+  "metric": "silver_mcap_bn",
+  "value": 32
+ },
+ {
+  "id": 172,
+  "event_type": "MFE",
+  "year": 2012,
+  "metric": "gold_price",
+  "value": 1635.5
+ },
+ {
+  "id": 173,
+  "event_type": "MFE",
+  "year": 2012,
+  "metric": "silver_price",
+  "value": 31.64
+ },
+ {
+  "id": 174,
+  "event_type": "MFE",
+  "year": 2012,
+  "metric": "platinum_price",
+  "value": 1574
+ },
+ {
+  "id": 175,
+  "event_type": "MFE",
+  "year": 2012,
+  "metric": "palladium_price",
+  "value": 653
+ },
+ {
+  "id": 176,
+  "event_type": "MFE",
+  "year": 2012,
+  "metric": "au_ag_ratio",
+  "value": 51.7
+ },
+ {
+  "id": 177,
+  "event_type": "MFE",
+  "year": 2012,
+  "metric": "hui_index",
+  "value": 451
+ },
+ {
+  "id": 178,
+  "event_type": "MFE",
+  "year": 2012,
+  "metric": "dji_index",
+  "value": 12922
+ },
+ {
+  "id": 179,
+  "event_type": "MFE",
+  "year": 2012,
+  "metric": "gold_mcap_bn",
+  "value": 235
+ },
+ {
+  "id": 180,
+  "event_type": "MFE",
+  "year": 2012,
+  "metric": "silver_mcap_bn",
+  "value": 24
+ },
+ {
+  "id": 181,
+  "event_type": "MFE",
+  "year": 2013,
+  "metric": "gold_price",
+  "value": 1380
+ },
+ {
+  "id": 182,
+  "event_type": "MFE",
+  "year": 2013,
+  "metric": "silver_price",
+  "value": 23.47
+ },
+ {
+  "id": 183,
+  "event_type": "MFE",
+  "year": 2013,
+  "metric": "platinum_price",
+  "value": 1446
+ },
+ {
+  "id": 184,
+  "event_type": "MFE",
+  "year": 2013,
+  "metric": "palladium_price",
+  "value": 681
+ },
+ {
+  "id": 185,
+  "event_type": "MFE",
+  "year": 2013,
+  "metric": "au_ag_ratio",
+  "value": 58.8
+ },
+ {
+  "id": 186,
+  "event_type": "MFE",
+  "year": 2013,
+  "metric": "hui_index",
+  "value": 271.1
+ },
+ {
+  "id": 187,
+  "event_type": "MFE",
+  "year": 2013,
+  "metric": "dji_index",
+  "value": 14599
+ },
+ {
+  "id": 188,
+  "event_type": "MFE",
+  "year": 2013,
+  "metric": "gold_mcap_bn",
+  "value": 127
+ },
+ {
+  "id": 189,
+  "event_type": "MFE",
+  "year": 2013,
+  "metric": "silver_mcap_bn",
+  "value": 13
+ },
+ {
+  "id": 190,
+  "event_type": "MFE",
+  "year": 2014,
+  "metric": "gold_price",
+  "value": 1306
+ },
+ {
+  "id": 191,
+  "event_type": "MFE",
+  "year": 2014,
+  "metric": "silver_price",
+  "value": 19.64
+ },
+ {
+  "id": 192,
+  "event_type": "MFE",
+  "year": 2014,
+  "metric": "platinum_price",
+  "value": 1450
+ },
+ {
+  "id": 193,
+  "event_type": "MFE",
+  "year": 2014,
+  "metric": "palladium_price",
+  "value": 817
+ },
+ {
+  "id": 194,
+  "event_type": "MFE",
+  "year": 2014,
+  "metric": "au_ag_ratio",
+  "value": 66.5
+ },
+ {
+  "id": 195,
+  "event_type": "MFE",
+  "year": 2014,
+  "metric": "hui_index",
+  "value": 223.9
+ },
+ {
+  "id": 196,
+  "event_type": "MFE",
+  "year": 2014,
+  "metric": "dji_index",
+  "value": 16396
+ },
+ {
+  "id": 197,
+  "event_type": "MFE",
+  "year": 2014,
+  "metric": "gold_mcap_bn",
+  "value": 99
+ },
+ {
+  "id": 198,
+  "event_type": "MFE",
+  "year": 2014,
+  "metric": "silver_mcap_bn",
+  "value": 10
+ },
+ {
+  "id": 199,
+  "event_type": "MFE",
+  "year": 2015,
+  "metric": "gold_price",
+  "value": 1191.45
+ },
+ {
+  "id": 200,
+  "event_type": "MFE",
+  "year": 2015,
+  "metric": "silver_price",
+  "value": 16.08
+ },
+ {
+  "id": 201,
+  "event_type": "MFE",
+  "year": 2015,
+  "metric": "platinum_price",
+  "value": 1147
+ },
+ {
+  "id": 202,
+  "event_type": "MFE",
+  "year": 2015,
+  "metric": "palladium_price",
+  "value": 757
+ },
+ {
+  "id": 203,
+  "event_type": "MFE",
+  "year": 2015,
+  "metric": "au_ag_ratio",
+  "value": 74.3
+ },
+ {
+  "id": 204,
+  "event_type": "MFE",
+  "year": 2015,
+  "metric": "hui_index",
+  "value": 172.1
+ },
+ {
+  "id": 205,
+  "event_type": "MFE",
+  "year": 2015,
+  "metric": "dji_index",
+  "value": 17826
+ },
+ {
+  "id": 206,
+  "event_type": "MFE",
+  "year": 2015,
+  "metric": "gold_mcap_bn",
+  "value": 33
+ },
+ {
+  "id": 207,
+  "event_type": "MFE",
+  "year": 2015,
+  "metric": "silver_mcap_bn",
+  "value": 8
+ },
+ {
+  "id": 208,
+  "event_type": "MFE",
+  "year": 2026,
+  "metric": "gold_price",
+  "value": 4748
+ },
+ {
+  "id": 209,
+  "event_type": "MFE",
+  "year": 2026,
+  "metric": "silver_price",
+  "value": 75.86
+ },
+ {
+  "id": 210,
+  "event_type": "MFE",
+  "year": 2026,
+  "metric": "platinum_price",
+  "value": 2047
+ },
+ {
+  "id": 211,
+  "event_type": "MFE",
+  "year": 2026,
+  "metric": "palladium_price",
+  "value": 1511
+ },
+ {
+  "id": 212,
+  "event_type": "MFE",
+  "year": 2026,
+  "metric": "au_ag_ratio",
+  "value": 62.6
+ },
+ {
+  "id": 213,
+  "event_type": "MFE",
+  "year": 2026,
+  "metric": "gold_mcap_bn",
+  "value": 469
+ },
+ {
+  "id": 214,
+  "event_type": "MFE",
+  "year": 2026,
+  "metric": "silver_mcap_bn",
+  "value": 30
+ },
+ {
+  "id": 215,
+  "event_type": "MFE",
+  "year": 2026,
+  "metric": "hui_index",
+  "value": 845.7
+ },
+ {
+  "id": 216,
+  "event_type": "MFE",
+  "year": 2026,
+  "metric": "dji_index",
+  "value": 47916.57
+ }
+]

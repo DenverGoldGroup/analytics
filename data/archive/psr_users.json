@@ -1,0 +1,66 @@
+[
+ {
+  "id": 1,
+  "email": "twood@denvergold.org",
+  "name": "timjwood",
+  "role": "admin",
+  "created_at": "2026-04-12T08:54:03.548077+00:00",
+  "updated_at": "2026-04-12T08:54:03.548077+00:00"
+ },
+ {
+  "id": 2,
+  "email": "jdill@denvergold.org",
+  "name": "Julie Dill",
+  "role": "admin",
+  "created_at": "2026-04-12T08:54:22.862059+00:00",
+  "updated_at": "2026-04-12T08:54:22.862059+00:00"
+ },
+ {
+  "id": 3,
+  "email": "ddenbow@gvtc.com",
+  "name": "Dan Denbow",
+  "role": "viewer",
+  "created_at": "2026-04-13T07:38:25.094923+00:00",
+  "updated_at": "2026-04-13T07:38:25.094923+00:00"
+ },
+ {
+  "id": 4,
+  "email": "orutten@mackenzieinvestments.com",
+  "name": "Onno Rutten",
+  "role": "viewer",
+  "created_at": "2026-04-13T07:38:42.542211+00:00",
+  "updated_at": "2026-04-13T07:38:42.542211+00:00"
+ },
+ {
+  "id": 5,
+  "email": "dbreeze@rgldgoldag.ch",
+  "name": "Dan Breeze",
+  "role": "viewer",
+  "created_at": "2026-04-13T07:40:24.467832+00:00",
+  "updated_at": "2026-04-13T07:40:24.467832+00:00"
+ },
+ {
+  "id": 6,
+  "email": "rbrown@hecla.com",
+  "name": "Rob Brown",
+  "role": "viewer",
+  "created_at": "2026-04-13T07:40:43.506034+00:00",
+  "updated_at": "2026-04-13T07:40:43.506034+00:00"
+ },
+ {
+  "id": 7,
+  "email": "ljgleeson@outlook.com",
+  "name": "Luke Gleeson",
+  "role": "viewer",
+  "created_at": "2026-04-13T07:41:01.07565+00:00",
+  "updated_at": "2026-04-13T07:41:01.07565+00:00"
+ },
+ {
+  "id": 8,
+  "email": "rachelgoldman088@gmail.com",
+  "name": "Rachel Goldman",
+  "role": "viewer",
+  "created_at": "2026-04-13T07:41:37.055347+00:00",
+  "updated_at": "2026-04-13T07:41:37.055347+00:00"
+ }
+]

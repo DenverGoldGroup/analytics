@@ -1,0 +1,695 @@
+[
+ {
+  "id": 1,
+  "event_type": "MFE",
+  "year": 1998,
+  "venue": "Hotel Baur au Lac",
+  "is_future": false,
+  "program_dates": null,
+  "sort_order": 1
+ },
+ {
+  "id": 2,
+  "event_type": "MFE",
+  "year": 2002,
+  "venue": "Hotel Baur au Lac",
+  "is_future": false,
+  "program_dates": null,
+  "sort_order": 2
+ },
+ {
+  "id": 3,
+  "event_type": "MFE",
+  "year": 2003,
+  "venue": "Hotel Baur au Lac",
+  "is_future": false,
+  "program_dates": "April 14-15, 2003",
+  "sort_order": 3
+ },
+ {
+  "id": 4,
+  "event_type": "MFE",
+  "year": 2004,
+  "venue": "Hotel Baur au Lac",
+  "is_future": false,
+  "program_dates": "April 21-22, 2004",
+  "sort_order": 4
+ },
+ {
+  "id": 5,
+  "event_type": "MFE",
+  "year": 2005,
+  "venue": "Park Hyatt, Zürich",
+  "is_future": false,
+  "program_dates": "April 19-20, 2005",
+  "sort_order": 5
+ },
+ {
+  "id": 6,
+  "event_type": "MFE",
+  "year": 2006,
+  "venue": "Park Hyatt, Zürich",
+  "is_future": false,
+  "program_dates": "April 26-27, 2006",
+  "sort_order": 6
+ },
+ {
+  "id": 7,
+  "event_type": "MFE",
+  "year": 2007,
+  "venue": "Park Hyatt, Zürich",
+  "is_future": false,
+  "program_dates": "April 17-18, 2007",
+  "sort_order": 7
+ },
+ {
+  "id": 8,
+  "event_type": "MFE",
+  "year": 2008,
+  "venue": "Park Hyatt, Zürich",
+  "is_future": false,
+  "program_dates": "April 8-9, 2008",
+  "sort_order": 8
+ },
+ {
+  "id": 9,
+  "event_type": "MFE",
+  "year": 2009,
+  "venue": "Park Hyatt, Zürich",
+  "is_future": false,
+  "program_dates": "April 27-28, 2009",
+  "sort_order": 9
+ },
+ {
+  "id": 10,
+  "event_type": "MFE",
+  "year": 2010,
+  "venue": "Park Hyatt, Zürich",
+  "is_future": false,
+  "program_dates": "April 13-14, 2010",
+  "sort_order": 10
+ },
+ {
+  "id": 11,
+  "event_type": "MFE",
+  "year": 2011,
+  "venue": "Park Hyatt, Zürich",
+  "is_future": false,
+  "program_dates": "April 12-13, 2011",
+  "sort_order": 11
+ },
+ {
+  "id": 12,
+  "event_type": "MFE",
+  "year": 2012,
+  "venue": "Park Hyatt, Zürich",
+  "is_future": false,
+  "program_dates": "April 17-18, 2012",
+  "sort_order": 12
+ },
+ {
+  "id": 13,
+  "event_type": "MFE",
+  "year": 2013,
+  "venue": "Park Hyatt, Zürich",
+  "is_future": false,
+  "program_dates": "April 16-17, 2013",
+  "sort_order": 13
+ },
+ {
+  "id": 14,
+  "event_type": "MFE",
+  "year": 2014,
+  "venue": "Park Hyatt, Zürich",
+  "is_future": false,
+  "program_dates": "May 6-7, 2014",
+  "sort_order": 14
+ },
+ {
+  "id": 15,
+  "event_type": "MFE",
+  "year": 2015,
+  "venue": "Park Hyatt, Zürich",
+  "is_future": false,
+  "program_dates": "April 14-15, 2015",
+  "sort_order": 15
+ },
+ {
+  "id": 16,
+  "event_type": "MFE",
+  "year": 2016,
+  "venue": "Park Hyatt, Zürich",
+  "is_future": false,
+  "program_dates": "April 19-20, 2016",
+  "sort_order": 16
+ },
+ {
+  "id": 17,
+  "event_type": "MFE",
+  "year": 2017,
+  "venue": "Park Hyatt, Zürich",
+  "is_future": false,
+  "program_dates": "April 4-5, 2017",
+  "sort_order": 17
+ },
+ {
+  "id": 18,
+  "event_type": "MFE",
+  "year": 2018,
+  "venue": "Park Hyatt, Zürich",
+  "is_future": false,
+  "program_dates": "April 17-18, 2018",
+  "sort_order": 18
+ },
+ {
+  "id": 19,
+  "event_type": "MFE",
+  "year": 2019,
+  "venue": "Park Hyatt, Zürich",
+  "is_future": false,
+  "program_dates": "April 9-12, 2019",
+  "sort_order": 19
+ },
+ {
+  "id": 20,
+  "event_type": "MFE",
+  "year": 2020,
+  "venue": "Virtual (World Gold Forum)",
+  "is_future": false,
+  "program_dates": "April 18-19, 2020",
+  "sort_order": 20
+ },
+ {
+  "id": 21,
+  "event_type": "MFE",
+  "year": 2021,
+  "venue": "Virtual (World Gold Forum)",
+  "is_future": false,
+  "program_dates": "April 13-14, 2021",
+  "sort_order": 21
+ },
+ {
+  "id": 22,
+  "event_type": "MFE",
+  "year": 2022,
+  "venue": "Virtual",
+  "is_future": false,
+  "program_dates": "April 14-15, 2022",
+  "sort_order": 22
+ },
+ {
+  "id": 23,
+  "event_type": "MFE",
+  "year": 2023,
+  "venue": "Park Hyatt, Zürich",
+  "is_future": false,
+  "program_dates": "April 11-12, 2023",
+  "sort_order": 23
+ },
+ {
+  "id": 24,
+  "event_type": "MFE",
+  "year": 2024,
+  "venue": "Park Hyatt, Zürich",
+  "is_future": false,
+  "program_dates": "April 8-10, 2024",
+  "sort_order": 24
+ },
+ {
+  "id": 25,
+  "event_type": "MFE",
+  "year": 2025,
+  "venue": "Park Hyatt, Zürich",
+  "is_future": false,
+  "program_dates": "March 31 - April 2, 2025",
+  "sort_order": 25
+ },
+ {
+  "id": 26,
+  "event_type": "MFE",
+  "year": 2026,
+  "venue": "Park Hyatt, Zürich",
+  "is_future": true,
+  "program_dates": "April 13-15, 2026",
+  "sort_order": 26
+ },
+ {
+  "id": 27,
+  "event_type": "MFE",
+  "year": 2027,
+  "venue": "Park Hyatt, Zürich",
+  "is_future": true,
+  "program_dates": "April 12-15, 2027",
+  "sort_order": 27
+ },
+ {
+  "id": 28,
+  "event_type": "MFE",
+  "year": 2028,
+  "venue": "Park Hyatt, Zürich",
+  "is_future": true,
+  "program_dates": "March 27-30, 2028",
+  "sort_order": 28
+ },
+ {
+  "id": 29,
+  "event_type": "MFE",
+  "year": 2029,
+  "venue": "Park Hyatt, Zürich",
+  "is_future": true,
+  "program_dates": "March 19-22, 2029",
+  "sort_order": 29
+ },
+ {
+  "id": 30,
+  "event_type": "MFE",
+  "year": 2030,
+  "venue": "Park Hyatt, Zürich",
+  "is_future": true,
+  "program_dates": "March 25-28, 2030",
+  "sort_order": 30
+ },
+ {
+  "id": 31,
+  "event_type": "MFA",
+  "year": 1989,
+  "venue": "Hyatt Regency Denver",
+  "is_future": false,
+  "program_dates": null,
+  "sort_order": 1989
+ },
+ {
+  "id": 32,
+  "event_type": "MFA",
+  "year": 1990,
+  "venue": "Hyatt Regency Tech Center",
+  "is_future": false,
+  "program_dates": null,
+  "sort_order": 1990
+ },
+ {
+  "id": 33,
+  "event_type": "MFA",
+  "year": 1991,
+  "venue": "Hyatt Regency Tech Center",
+  "is_future": false,
+  "program_dates": null,
+  "sort_order": 1991
+ },
+ {
+  "id": 34,
+  "event_type": "MFA",
+  "year": 1992,
+  "venue": "Radisson Denver",
+  "is_future": false,
+  "program_dates": null,
+  "sort_order": 1992
+ },
+ {
+  "id": 35,
+  "event_type": "MFA",
+  "year": 2009,
+  "venue": "Grand Hyatt Denver",
+  "is_future": false,
+  "program_dates": null,
+  "sort_order": 2009
+ },
+ {
+  "id": 36,
+  "event_type": "MFA",
+  "year": 2010,
+  "venue": "Hyatt Regency Denver",
+  "is_future": false,
+  "program_dates": null,
+  "sort_order": 2010
+ },
+ {
+  "id": 37,
+  "event_type": "MFA",
+  "year": 2011,
+  "venue": "Broadmoor, Colorado Springs",
+  "is_future": false,
+  "program_dates": null,
+  "sort_order": 2011
+ },
+ {
+  "id": 38,
+  "event_type": "MFA",
+  "year": 2012,
+  "venue": "Hyatt Regency Denver",
+  "is_future": false,
+  "program_dates": null,
+  "sort_order": 2012
+ },
+ {
+  "id": 39,
+  "event_type": "MFA",
+  "year": 2013,
+  "venue": "Hyatt Regency Denver",
+  "is_future": false,
+  "program_dates": null,
+  "sort_order": 2013
+ },
+ {
+  "id": 40,
+  "event_type": "MFA",
+  "year": 2014,
+  "venue": "Hyatt Regency Denver",
+  "is_future": false,
+  "program_dates": null,
+  "sort_order": 2014
+ },
+ {
+  "id": 41,
+  "event_type": "MFA",
+  "year": 2015,
+  "venue": "Hyatt Regency Denver",
+  "is_future": false,
+  "program_dates": null,
+  "sort_order": 2015
+ },
+ {
+  "id": 42,
+  "event_type": "MFA",
+  "year": 2016,
+  "venue": "Broadmoor, Colorado Springs",
+  "is_future": false,
+  "program_dates": null,
+  "sort_order": 2016
+ },
+ {
+  "id": 43,
+  "event_type": "MFA",
+  "year": 2017,
+  "venue": "Broadmoor, Colorado Springs",
+  "is_future": false,
+  "program_dates": null,
+  "sort_order": 2017
+ },
+ {
+  "id": 44,
+  "event_type": "MFA",
+  "year": 2018,
+  "venue": "Broadmoor, Colorado Springs",
+  "is_future": false,
+  "program_dates": null,
+  "sort_order": 2018
+ },
+ {
+  "id": 45,
+  "event_type": "MFA",
+  "year": 2019,
+  "venue": "Hyatt Regency Denver",
+  "is_future": false,
+  "program_dates": null,
+  "sort_order": 2019
+ },
+ {
+  "id": 46,
+  "event_type": "MFA",
+  "year": 2020,
+  "venue": "Virtual (Broadmoor)",
+  "is_future": false,
+  "program_dates": null,
+  "sort_order": 2020
+ },
+ {
+  "id": 47,
+  "event_type": "MFA",
+  "year": 2021,
+  "venue": "Hybrid (Broadmoor - first use Bartolin Hall)",
+  "is_future": false,
+  "program_dates": null,
+  "sort_order": 2021
+ },
+ {
+  "id": 48,
+  "event_type": "MFA",
+  "year": 2022,
+  "venue": "Broadmoor, Colorado Springs (Presentations Broadmoor Hall; Meetings Bartolin Hall)",
+  "is_future": false,
+  "program_dates": null,
+  "sort_order": 2022
+ },
+ {
+  "id": 49,
+  "event_type": "MFA",
+  "year": 2023,
+  "venue": "Broadmoor, Colorado Springs (Presentations Broadmoor Hall; Meetings Bartolin Hall)",
+  "is_future": false,
+  "program_dates": null,
+  "sort_order": 2023
+ },
+ {
+  "id": 50,
+  "event_type": "MFA",
+  "year": 2024,
+  "venue": "Broadmoor, Colorado Springs (100% in Bartolin Hall)",
+  "is_future": false,
+  "program_dates": null,
+  "sort_order": 2024
+ },
+ {
+  "id": 51,
+  "event_type": "MFA",
+  "year": 2025,
+  "venue": "Broadmoor, Bartolin Hall and BH A",
+  "is_future": false,
+  "program_dates": null,
+  "sort_order": 2025
+ },
+ {
+  "id": 52,
+  "event_type": "MFA",
+  "year": 1993,
+  "venue": "Westin Denver",
+  "is_future": false,
+  "program_dates": null,
+  "sort_order": 1993
+ },
+ {
+  "id": 53,
+  "event_type": "MFA",
+  "year": 1994,
+  "venue": "Westin Denver",
+  "is_future": false,
+  "program_dates": null,
+  "sort_order": 1994
+ },
+ {
+  "id": 54,
+  "event_type": "MFA",
+  "year": 1995,
+  "venue": "Westin Denver",
+  "is_future": false,
+  "program_dates": null,
+  "sort_order": 1995
+ },
+ {
+  "id": 55,
+  "event_type": "MFA",
+  "year": 1996,
+  "venue": "Westin Denver",
+  "is_future": false,
+  "program_dates": null,
+  "sort_order": 1996
+ },
+ {
+  "id": 56,
+  "event_type": "MFA",
+  "year": 1997,
+  "venue": "Westin Denver",
+  "is_future": false,
+  "program_dates": null,
+  "sort_order": 1997
+ },
+ {
+  "id": 57,
+  "event_type": "MFA",
+  "year": 1998,
+  "venue": "Westin Denver",
+  "is_future": false,
+  "program_dates": null,
+  "sort_order": 1998
+ },
+ {
+  "id": 58,
+  "event_type": "MFA",
+  "year": 1999,
+  "venue": "Westin Denver",
+  "is_future": false,
+  "program_dates": null,
+  "sort_order": 1999
+ },
+ {
+  "id": 59,
+  "event_type": "MFA",
+  "year": 2000,
+  "venue": "Westin Denver",
+  "is_future": false,
+  "program_dates": null,
+  "sort_order": 2000
+ },
+ {
+  "id": 60,
+  "event_type": "MFA",
+  "year": 2001,
+  "venue": "Westin Denver",
+  "is_future": false,
+  "program_dates": null,
+  "sort_order": 2001
+ },
+ {
+  "id": 61,
+  "event_type": "MFA",
+  "year": 2002,
+  "venue": "Westin Denver",
+  "is_future": false,
+  "program_dates": null,
+  "sort_order": 2002
+ },
+ {
+  "id": 62,
+  "event_type": "MFA",
+  "year": 2003,
+  "venue": "Westin Denver",
+  "is_future": false,
+  "program_dates": null,
+  "sort_order": 2003
+ },
+ {
+  "id": 63,
+  "event_type": "MFA",
+  "year": 2004,
+  "venue": "Westin Denver",
+  "is_future": false,
+  "program_dates": null,
+  "sort_order": 2004
+ },
+ {
+  "id": 64,
+  "event_type": "MFA",
+  "year": 2005,
+  "venue": "Westin Denver",
+  "is_future": false,
+  "program_dates": null,
+  "sort_order": 2005
+ },
+ {
+  "id": 65,
+  "event_type": "MFA",
+  "year": 2006,
+  "venue": "Westin Denver",
+  "is_future": false,
+  "program_dates": null,
+  "sort_order": 2006
+ },
+ {
+  "id": 66,
+  "event_type": "MFA",
+  "year": 2007,
+  "venue": "Westin Denver",
+  "is_future": false,
+  "program_dates": null,
+  "sort_order": 2007
+ },
+ {
+  "id": 67,
+  "event_type": "MFA",
+  "year": 2008,
+  "venue": "Westin Denver",
+  "is_future": false,
+  "program_dates": null,
+  "sort_order": 2008
+ },
+ {
+  "id": 68,
+  "event_type": "MFA",
+  "year": 2026,
+  "venue": "Broadmoor",
+  "is_future": true,
+  "program_dates": "September 27-30, 2026",
+  "sort_order": 2026
+ },
+ {
+  "id": 69,
+  "event_type": "MFA",
+  "year": 2027,
+  "venue": "Broadmoor",
+  "is_future": true,
+  "program_dates": "September 19-22, 2027",
+  "sort_order": 2027
+ },
+ {
+  "id": 70,
+  "event_type": "MFA",
+  "year": 2028,
+  "venue": "Broadmoor",
+  "is_future": true,
+  "program_dates": "September 24-27, 2028**",
+  "sort_order": 2028
+ },
+ {
+  "id": 71,
+  "event_type": "MFA",
+  "year": 2029,
+  "venue": "Broadmoor",
+  "is_future": true,
+  "program_dates": "September 23-26, 2029**",
+  "sort_order": 2029
+ },
+ {
+  "id": 72,
+  "event_type": "MFA",
+  "year": 2030,
+  "venue": "Broadmoor",
+  "is_future": true,
+  "program_dates": "September 22-25, 2030**",
+  "sort_order": 2030
+ },
+ {
+  "id": 73,
+  "event_type": "MFA",
+  "year": 2031,
+  "venue": "Broadmoor",
+  "is_future": true,
+  "program_dates": "September 21-24, 2031**",
+  "sort_order": 2031
+ },
+ {
+  "id": 74,
+  "event_type": "MFA",
+  "year": 2032,
+  "venue": "Broadmoor",
+  "is_future": true,
+  "program_dates": "September 19-22, 2032**",
+  "sort_order": 2032
+ },
+ {
+  "id": 75,
+  "event_type": "MFA",
+  "year": 2033,
+  "venue": "Broadmoor",
+  "is_future": true,
+  "program_dates": "September 18-21, 2033**",
+  "sort_order": 2033
+ },
+ {
+  "id": 76,
+  "event_type": "MFA",
+  "year": 2034,
+  "venue": "Broadmoor",
+  "is_future": true,
+  "program_dates": "September 17-20, 2034**",
+  "sort_order": 2034
+ },
+ {
+  "id": 77,
+  "event_type": "MFA",
+  "year": 2035,
+  "venue": "Broadmoor",
+  "is_future": true,
+  "program_dates": "September 16-19, 2035**",
+  "sort_order": 2035
+ }
+]

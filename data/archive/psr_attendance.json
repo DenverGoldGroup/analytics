@@ -1,0 +1,1032 @@
+[
+ {
+  "id": 54,
+  "event_code": "MFE26",
+  "section": "members",
+  "metric": "total_event_members",
+  "value_current": 70,
+  "value_prior": 44,
+  "value_budget": null,
+  "sort_order": 1
+ },
+ {
+  "id": 55,
+  "event_code": "MFE26",
+  "section": "members_mineral",
+  "metric": "Gold",
+  "value_current": 57,
+  "value_prior": 37,
+  "value_budget": null,
+  "sort_order": 1
+ },
+ {
+  "id": 56,
+  "event_code": "MFE26",
+  "section": "members_status",
+  "metric": "Producer",
+  "value_current": 39,
+  "value_prior": 24,
+  "value_budget": null,
+  "sort_order": 1
+ },
+ {
+  "id": 57,
+  "event_code": "MFE26",
+  "section": "registration",
+  "metric": "invited",
+  "value_current": 3777,
+  "value_prior": 2900,
+  "value_budget": null,
+  "sort_order": 1
+ },
+ {
+  "id": 58,
+  "event_code": "MFE26",
+  "section": "attendee_class",
+  "metric": "Buy-Side",
+  "value_current": 248,
+  "value_prior": 187,
+  "value_budget": null,
+  "sort_order": 1
+ },
+ {
+  "id": 59,
+  "event_code": "MFE26",
+  "section": "attendee_country",
+  "metric": "Switzerland",
+  "value_current": 165,
+  "value_prior": 125,
+  "value_budget": null,
+  "sort_order": 1
+ },
+ {
+  "id": 60,
+  "event_code": "MFE26",
+  "section": "market_metals",
+  "metric": "gold_price_usd",
+  "value_current": 0,
+  "value_prior": 3115.1,
+  "value_budget": null,
+  "sort_order": 1
+ },
+ {
+  "id": 61,
+  "event_code": "MFE26",
+  "section": "market_equities",
+  "metric": "total_mcap_gold_bn",
+  "value_current": 469,
+  "value_prior": 181,
+  "value_budget": null,
+  "sort_order": 1
+ },
+ {
+  "id": 62,
+  "event_code": "MFE26",
+  "section": "registration",
+  "metric": "no_response",
+  "value_current": -3240,
+  "value_prior": -2488,
+  "value_budget": null,
+  "sort_order": 2
+ },
+ {
+  "id": 63,
+  "event_code": "MFE26",
+  "section": "members_mineral",
+  "metric": "Silver",
+  "value_current": 10,
+  "value_prior": 7,
+  "value_budget": null,
+  "sort_order": 2
+ },
+ {
+  "id": 64,
+  "event_code": "MFE26",
+  "section": "attendee_country",
+  "metric": "Canada",
+  "value_current": 111,
+  "value_prior": 82,
+  "value_budget": null,
+  "sort_order": 2
+ },
+ {
+  "id": 65,
+  "event_code": "MFE26",
+  "section": "attendee_class",
+  "metric": "Sell-Side",
+  "value_current": 14,
+  "value_prior": 12,
+  "value_budget": null,
+  "sort_order": 2
+ },
+ {
+  "id": 66,
+  "event_code": "MFE26",
+  "section": "members_status",
+  "metric": "Developer",
+  "value_current": 19,
+  "value_prior": 10,
+  "value_budget": null,
+  "sort_order": 2
+ },
+ {
+  "id": 67,
+  "event_code": "MFE26",
+  "section": "market_equities",
+  "metric": "total_mcap_silver_bn",
+  "value_current": 30,
+  "value_prior": 13,
+  "value_budget": null,
+  "sort_order": 2
+ },
+ {
+  "id": 68,
+  "event_code": "MFE26",
+  "section": "members",
+  "metric": "presenting_members",
+  "value_current": 63,
+  "value_prior": 44,
+  "value_budget": null,
+  "sort_order": 2
+ },
+ {
+  "id": 69,
+  "event_code": "MFE26",
+  "section": "market_metals",
+  "metric": "gold_price_eur",
+  "value_current": 0,
+  "value_prior": 2882.71,
+  "value_budget": null,
+  "sort_order": 2
+ },
+ {
+  "id": 70,
+  "event_code": "MFE26",
+  "section": "members_mineral",
+  "metric": "Copper",
+  "value_current": 2,
+  "value_prior": 0,
+  "value_budget": null,
+  "sort_order": 3
+ },
+ {
+  "id": 71,
+  "event_code": "MFE26",
+  "section": "market_equities",
+  "metric": "grand_total_mcap_bn",
+  "value_current": 501,
+  "value_prior": 194,
+  "value_budget": null,
+  "sort_order": 3
+ },
+ {
+  "id": 72,
+  "event_code": "MFE26",
+  "section": "members_status",
+  "metric": "Explorer",
+  "value_current": 10,
+  "value_prior": 6,
+  "value_budget": null,
+  "sort_order": 3
+ },
+ {
+  "id": 73,
+  "event_code": "MFE26",
+  "section": "registration",
+  "metric": "declined",
+  "value_current": -21,
+  "value_prior": -17,
+  "value_budget": null,
+  "sort_order": 3
+ },
+ {
+  "id": 74,
+  "event_code": "MFE26",
+  "section": "attendee_class",
+  "metric": "VIPs",
+  "value_current": 0,
+  "value_prior": 0,
+  "value_budget": null,
+  "sort_order": 3
+ },
+ {
+  "id": 75,
+  "event_code": "MFE26",
+  "section": "attendee_country",
+  "metric": "United States",
+  "value_current": 51,
+  "value_prior": 30,
+  "value_budget": null,
+  "sort_order": 3
+ },
+ {
+  "id": 76,
+  "event_code": "MFE26",
+  "section": "market_metals",
+  "metric": "gold_90d_change",
+  "value_current": 0,
+  "value_prior": 499.15,
+  "value_budget": null,
+  "sort_order": 3
+ },
+ {
+  "id": 77,
+  "event_code": "MFE26",
+  "section": "members",
+  "metric": "presentation_slots",
+  "value_current": 63,
+  "value_prior": 44,
+  "value_budget": null,
+  "sort_order": 3
+ },
+ {
+  "id": 78,
+  "event_code": "MFE26",
+  "section": "members_mineral",
+  "metric": "PGMs",
+  "value_current": 0,
+  "value_prior": 0,
+  "value_budget": null,
+  "sort_order": 4
+ },
+ {
+  "id": 79,
+  "event_code": "MFE26",
+  "section": "market_metals",
+  "metric": "silver_price_usd",
+  "value_current": 0,
+  "value_prior": 34.06,
+  "value_budget": null,
+  "sort_order": 4
+ },
+ {
+  "id": 80,
+  "event_code": "MFE26",
+  "section": "attendee_class",
+  "metric": "Member Delegates",
+  "value_current": 136,
+  "value_prior": 90,
+  "value_budget": null,
+  "sort_order": 4
+ },
+ {
+  "id": 81,
+  "event_code": "MFE26",
+  "section": "members_status",
+  "metric": "Royalty / Streaming",
+  "value_current": 3,
+  "value_prior": 4,
+  "value_budget": null,
+  "sort_order": 4
+ },
+ {
+  "id": 82,
+  "event_code": "MFE26",
+  "section": "members",
+  "metric": "event_sponsors",
+  "value_current": 0,
+  "value_prior": 1,
+  "value_budget": null,
+  "sort_order": 4
+ },
+ {
+  "id": 83,
+  "event_code": "MFE26",
+  "section": "registration",
+  "metric": "opted_out",
+  "value_current": 0,
+  "value_prior": 0,
+  "value_budget": null,
+  "sort_order": 4
+ },
+ {
+  "id": 84,
+  "event_code": "MFE26",
+  "section": "attendee_country",
+  "metric": "United Kingdom",
+  "value_current": 28,
+  "value_prior": 26,
+  "value_budget": null,
+  "sort_order": 4
+ },
+ {
+  "id": 85,
+  "event_code": "MFE26",
+  "section": "market_equities",
+  "metric": "median_mcap_gold_m",
+  "value_current": 1576,
+  "value_prior": 1427,
+  "value_budget": null,
+  "sort_order": 4
+ },
+ {
+  "id": 86,
+  "event_code": "MFE26",
+  "section": "members_mineral",
+  "metric": "Other",
+  "value_current": 2,
+  "value_prior": 0,
+  "value_budget": null,
+  "sort_order": 5
+ },
+ {
+  "id": 87,
+  "event_code": "MFE26",
+  "section": "market_equities",
+  "metric": "median_mcap_silver_m",
+  "value_current": 991,
+  "value_prior": 311,
+  "value_budget": null,
+  "sort_order": 5
+ },
+ {
+  "id": 88,
+  "event_code": "MFE26",
+  "section": "market_metals",
+  "metric": "silver_price_eur",
+  "value_current": 0,
+  "value_prior": 31.47,
+  "value_budget": null,
+  "sort_order": 5
+ },
+ {
+  "id": 89,
+  "event_code": "MFE26",
+  "section": "attendee_country",
+  "metric": "Germany",
+  "value_current": 16,
+  "value_prior": 13,
+  "value_budget": null,
+  "sort_order": 5
+ },
+ {
+  "id": 90,
+  "event_code": "MFE26",
+  "section": "registration",
+  "metric": "accepted_cancelled",
+  "value_current": -46,
+  "value_prior": -39,
+  "value_budget": null,
+  "sort_order": 6
+ },
+ {
+  "id": 91,
+  "event_code": "MFE26",
+  "section": "attendee_class",
+  "metric": "Media",
+  "value_current": 3,
+  "value_prior": 7,
+  "value_budget": null,
+  "sort_order": 5
+ },
+ {
+  "id": 92,
+  "event_code": "MFE26",
+  "section": "members",
+  "metric": "cancellations_withdrawals",
+  "value_current": 0,
+  "value_prior": 6,
+  "value_budget": null,
+  "sort_order": 5
+ },
+ {
+  "id": 93,
+  "event_code": "MFE26",
+  "section": "registration",
+  "metric": "accepted",
+  "value_current": 465,
+  "value_prior": 356,
+  "value_budget": null,
+  "sort_order": 7
+ },
+ {
+  "id": 94,
+  "event_code": "MFE26",
+  "section": "attendee_class",
+  "metric": "Sponsors, Bankers, Other",
+  "value_current": 39,
+  "value_prior": 22,
+  "value_budget": null,
+  "sort_order": 6
+ },
+ {
+  "id": 95,
+  "event_code": "MFE26",
+  "section": "market_equities",
+  "metric": "median_mcap_all_m",
+  "value_current": 1099,
+  "value_prior": 1391,
+  "value_budget": null,
+  "sort_order": 6
+ },
+ {
+  "id": 96,
+  "event_code": "MFE26",
+  "section": "members",
+  "metric": "new_membership_from_event",
+  "value_current": 0,
+  "value_prior": 4,
+  "value_budget": null,
+  "sort_order": 6
+ },
+ {
+  "id": 97,
+  "event_code": "MFE26",
+  "section": "attendee_country",
+  "metric": "All other",
+  "value_current": 69,
+  "value_prior": 42,
+  "value_budget": null,
+  "sort_order": 6
+ },
+ {
+  "id": 98,
+  "event_code": "MFE26",
+  "section": "market_metals",
+  "metric": "silver_90d_change",
+  "value_current": 0,
+  "value_prior": 4.41,
+  "value_budget": null,
+  "sort_order": 6
+ },
+ {
+  "id": 99,
+  "event_code": "MFE26",
+  "section": "market_metals",
+  "metric": "au_ag_ratio",
+  "value_current": 0,
+  "value_prior": 91.5,
+  "value_budget": null,
+  "sort_order": 7
+ },
+ {
+  "id": 100,
+  "event_code": "MFE26",
+  "section": "market_equities",
+  "metric": "hui_index",
+  "value_current": 0,
+  "value_prior": 360.5,
+  "value_budget": null,
+  "sort_order": 7
+ },
+ {
+  "id": 101,
+  "event_code": "MFE26",
+  "section": "registration",
+  "metric": "total_preregistered",
+  "value_current": 465,
+  "value_prior": 395,
+  "value_budget": null,
+  "sort_order": 8
+ },
+ {
+  "id": 102,
+  "event_code": "MFE26",
+  "section": "market_equities",
+  "metric": "dji_index",
+  "value_current": 0,
+  "value_prior": 42001.8,
+  "value_budget": null,
+  "sort_order": 8
+ },
+ {
+  "id": 103,
+  "event_code": "MFE26",
+  "section": "registration",
+  "metric": "checked_in",
+  "value_current": 424,
+  "value_prior": 303,
+  "value_budget": null,
+  "sort_order": 9
+ },
+ {
+  "id": 104,
+  "event_code": "MFE26",
+  "section": "registration",
+  "metric": "walk_up",
+  "value_current": 16,
+  "value_prior": 15,
+  "value_budget": null,
+  "sort_order": 10
+ },
+ {
+  "id": 105,
+  "event_code": "MFE26",
+  "section": "registration",
+  "metric": "no_show",
+  "value_current": -2,
+  "value_prior": -38,
+  "value_budget": null,
+  "sort_order": 11
+ },
+ {
+  "id": 106,
+  "event_code": "MFE26",
+  "section": "registration",
+  "metric": "attended_in_person",
+  "value_current": 0,
+  "value_prior": 318,
+  "value_budget": null,
+  "sort_order": 12
+ },
+ {
+  "id": 107,
+  "event_code": "MFE26",
+  "section": "registration",
+  "metric": "substituted",
+  "value_current": -5,
+  "value_prior": 0,
+  "value_budget": null,
+  "sort_order": 5
+ },
+ {
+  "id": 108,
+  "event_code": "MFA25",
+  "section": "registration",
+  "metric": "invited",
+  "value_current": 3571,
+  "value_prior": 3295,
+  "value_budget": null,
+  "sort_order": 1
+ },
+ {
+  "id": 109,
+  "event_code": "MFA25",
+  "section": "registration",
+  "metric": "no_response",
+  "value_current": -2388,
+  "value_prior": -2204,
+  "value_budget": null,
+  "sort_order": 2
+ },
+ {
+  "id": 110,
+  "event_code": "MFA25",
+  "section": "registration",
+  "metric": "declined",
+  "value_current": -28,
+  "value_prior": -47,
+  "value_budget": null,
+  "sort_order": 3
+ },
+ {
+  "id": 111,
+  "event_code": "MFA25",
+  "section": "registration",
+  "metric": "opted_out",
+  "value_current": 0,
+  "value_prior": 0,
+  "value_budget": null,
+  "sort_order": 4
+ },
+ {
+  "id": 112,
+  "event_code": "MFA25",
+  "section": "registration",
+  "metric": "substituted",
+  "value_current": 0,
+  "value_prior": 0,
+  "value_budget": null,
+  "sort_order": 5
+ },
+ {
+  "id": 113,
+  "event_code": "MFA25",
+  "section": "registration",
+  "metric": "accepted_cancelled",
+  "value_current": -62,
+  "value_prior": -96,
+  "value_budget": null,
+  "sort_order": 6
+ },
+ {
+  "id": 114,
+  "event_code": "MFA25",
+  "section": "registration",
+  "metric": "accepted",
+  "value_current": 1002,
+  "value_prior": 886,
+  "value_budget": null,
+  "sort_order": 7
+ },
+ {
+  "id": 115,
+  "event_code": "MFA25",
+  "section": "registration",
+  "metric": "total_preregistered",
+  "value_current": 1064,
+  "value_prior": 982,
+  "value_budget": null,
+  "sort_order": 8
+ },
+ {
+  "id": 116,
+  "event_code": "MFA25",
+  "section": "registration",
+  "metric": "checked_in",
+  "value_current": 995,
+  "value_prior": 886,
+  "value_budget": null,
+  "sort_order": 9
+ },
+ {
+  "id": 117,
+  "event_code": "MFA25",
+  "section": "registration",
+  "metric": "walk_up",
+  "value_current": 0,
+  "value_prior": 0,
+  "value_budget": null,
+  "sort_order": 10
+ },
+ {
+  "id": 118,
+  "event_code": "MFA25",
+  "section": "registration",
+  "metric": "no_show",
+  "value_current": -69,
+  "value_prior": -36,
+  "value_budget": null,
+  "sort_order": 11
+ },
+ {
+  "id": 119,
+  "event_code": "MFA25",
+  "section": "registration",
+  "metric": "attended_in_person",
+  "value_current": 995,
+  "value_prior": 886,
+  "value_budget": null,
+  "sort_order": 12
+ },
+ {
+  "id": 120,
+  "event_code": "MFA25",
+  "section": "attendee_class",
+  "metric": "Buy-Side",
+  "value_current": 282,
+  "value_prior": 228,
+  "value_budget": null,
+  "sort_order": 1
+ },
+ {
+  "id": 121,
+  "event_code": "MFA25",
+  "section": "attendee_class",
+  "metric": "Sell-Side",
+  "value_current": 65,
+  "value_prior": 63,
+  "value_budget": null,
+  "sort_order": 2
+ },
+ {
+  "id": 122,
+  "event_code": "MFA25",
+  "section": "attendee_class",
+  "metric": "Member Delegates",
+  "value_current": 479,
+  "value_prior": 453,
+  "value_budget": null,
+  "sort_order": 4
+ },
+ {
+  "id": 123,
+  "event_code": "MFA25",
+  "section": "attendee_class",
+  "metric": "Media",
+  "value_current": 17,
+  "value_prior": 12,
+  "value_budget": null,
+  "sort_order": 5
+ },
+ {
+  "id": 124,
+  "event_code": "MFA25",
+  "section": "attendee_class",
+  "metric": "Sponsors, Bankers, Other",
+  "value_current": 152,
+  "value_prior": 130,
+  "value_budget": null,
+  "sort_order": 6
+ },
+ {
+  "id": 125,
+  "event_code": "MFA25",
+  "section": "attendee_country",
+  "metric": "Canada",
+  "value_current": 446,
+  "value_prior": 402,
+  "value_budget": null,
+  "sort_order": 1
+ },
+ {
+  "id": 126,
+  "event_code": "MFA25",
+  "section": "attendee_country",
+  "metric": "United States",
+  "value_current": 256,
+  "value_prior": 231,
+  "value_budget": null,
+  "sort_order": 2
+ },
+ {
+  "id": 127,
+  "event_code": "MFA25",
+  "section": "attendee_country",
+  "metric": "Australia",
+  "value_current": 133,
+  "value_prior": 115,
+  "value_budget": null,
+  "sort_order": 3
+ },
+ {
+  "id": 128,
+  "event_code": "MFA25",
+  "section": "attendee_country",
+  "metric": "United Kingdom",
+  "value_current": 56,
+  "value_prior": 53,
+  "value_budget": null,
+  "sort_order": 4
+ },
+ {
+  "id": 129,
+  "event_code": "MFA25",
+  "section": "attendee_country",
+  "metric": "All other",
+  "value_current": 104,
+  "value_prior": 85,
+  "value_budget": null,
+  "sort_order": 5
+ },
+ {
+  "id": 130,
+  "event_code": "MFA25",
+  "section": "members",
+  "metric": "total_event_members",
+  "value_current": 159,
+  "value_prior": 149,
+  "value_budget": null,
+  "sort_order": 1
+ },
+ {
+  "id": 131,
+  "event_code": "MFA25",
+  "section": "members",
+  "metric": "presenting_members",
+  "value_current": 151,
+  "value_prior": 145,
+  "value_budget": null,
+  "sort_order": 2
+ },
+ {
+  "id": 132,
+  "event_code": "MFA25",
+  "section": "members",
+  "metric": "presentation_slots",
+  "value_current": 138,
+  "value_prior": 129,
+  "value_budget": null,
+  "sort_order": 3
+ },
+ {
+  "id": 133,
+  "event_code": "MFA25",
+  "section": "members",
+  "metric": "event_sponsors",
+  "value_current": 18,
+  "value_prior": 16,
+  "value_budget": null,
+  "sort_order": 4
+ },
+ {
+  "id": 134,
+  "event_code": "MFA25",
+  "section": "members",
+  "metric": "cancellations_withdrawals",
+  "value_current": 6,
+  "value_prior": 17,
+  "value_budget": null,
+  "sort_order": 5
+ },
+ {
+  "id": 135,
+  "event_code": "MFA25",
+  "section": "members",
+  "metric": "new_membership_from_event",
+  "value_current": 12,
+  "value_prior": 17,
+  "value_budget": null,
+  "sort_order": 6
+ },
+ {
+  "id": 136,
+  "event_code": "MFA25",
+  "section": "members_mineral",
+  "metric": "Gold",
+  "value_current": 123,
+  "value_prior": 111,
+  "value_budget": null,
+  "sort_order": 1
+ },
+ {
+  "id": 137,
+  "event_code": "MFA25",
+  "section": "members_mineral",
+  "metric": "Silver",
+  "value_current": 14,
+  "value_prior": 17,
+  "value_budget": null,
+  "sort_order": 2
+ },
+ {
+  "id": 138,
+  "event_code": "MFA25",
+  "section": "members_mineral",
+  "metric": "Copper",
+  "value_current": 12,
+  "value_prior": 11,
+  "value_budget": null,
+  "sort_order": 3
+ },
+ {
+  "id": 139,
+  "event_code": "MFA25",
+  "section": "members_mineral",
+  "metric": "PGMs",
+  "value_current": 1,
+  "value_prior": 1,
+  "value_budget": null,
+  "sort_order": 4
+ },
+ {
+  "id": 140,
+  "event_code": "MFA25",
+  "section": "members_mineral",
+  "metric": "Other",
+  "value_current": 1,
+  "value_prior": 5,
+  "value_budget": null,
+  "sort_order": 5
+ },
+ {
+  "id": 141,
+  "event_code": "MFA25",
+  "section": "members_status",
+  "metric": "Producer",
+  "value_current": 85,
+  "value_prior": 76,
+  "value_budget": null,
+  "sort_order": 1
+ },
+ {
+  "id": 142,
+  "event_code": "MFA25",
+  "section": "members_status",
+  "metric": "Developer",
+  "value_current": 33,
+  "value_prior": 33,
+  "value_budget": null,
+  "sort_order": 2
+ },
+ {
+  "id": 143,
+  "event_code": "MFA25",
+  "section": "members_status",
+  "metric": "Explorer",
+  "value_current": 21,
+  "value_prior": 27,
+  "value_budget": null,
+  "sort_order": 3
+ },
+ {
+  "id": 144,
+  "event_code": "MFA25",
+  "section": "members_status",
+  "metric": "Royalty / Streaming",
+  "value_current": 11,
+  "value_prior": 12,
+  "value_budget": null,
+  "sort_order": 4
+ },
+ {
+  "id": 145,
+  "event_code": "MFA25",
+  "section": "members_status",
+  "metric": "Other",
+  "value_current": 1,
+  "value_prior": 1,
+  "value_budget": null,
+  "sort_order": 5
+ },
+ {
+  "id": 146,
+  "event_code": "MFA25",
+  "section": "market_metals",
+  "metric": "gold_price_usd",
+  "value_current": 3657.65,
+  "value_prior": 2584,
+  "value_budget": null,
+  "sort_order": 1
+ },
+ {
+  "id": 147,
+  "event_code": "MFA25",
+  "section": "market_metals",
+  "metric": "gold_90d_change",
+  "value_current": 269.2,
+  "value_prior": 259.65,
+  "value_budget": null,
+  "sort_order": 3
+ },
+ {
+  "id": 148,
+  "event_code": "MFA25",
+  "section": "market_metals",
+  "metric": "silver_price_usd",
+  "value_current": 42.2,
+  "value_prior": 30.91,
+  "value_budget": null,
+  "sort_order": 4
+ },
+ {
+  "id": 149,
+  "event_code": "MFA25",
+  "section": "market_metals",
+  "metric": "silver_90d_change",
+  "value_current": 5.13,
+  "value_prior": 1.78,
+  "value_budget": null,
+  "sort_order": 6
+ },
+ {
+  "id": 150,
+  "event_code": "MFA25",
+  "section": "market_metals",
+  "metric": "au_ag_ratio",
+  "value_current": 86.7,
+  "value_prior": 83.6,
+  "value_budget": null,
+  "sort_order": 7
+ },
+ {
+  "id": 151,
+  "event_code": "MFA25",
+  "section": "market_equities",
+  "metric": "total_mcap_gold_bn",
+  "value_current": 807,
+  "value_prior": 431,
+  "value_budget": null,
+  "sort_order": 1
+ },
+ {
+  "id": 152,
+  "event_code": "MFA25",
+  "section": "market_equities",
+  "metric": "total_mcap_silver_bn",
+  "value_current": 43,
+  "value_prior": 19,
+  "value_budget": null,
+  "sort_order": 2
+ },
+ {
+  "id": 153,
+  "event_code": "MFA25",
+  "section": "market_equities",
+  "metric": "grand_total_mcap_bn",
+  "value_current": 869,
+  "value_prior": 457,
+  "value_budget": null,
+  "sort_order": 3
+ },
+ {
+  "id": 154,
+  "event_code": "MFA25",
+  "section": "market_equities",
+  "metric": "median_mcap_gold_m",
+  "value_current": 1313,
+  "value_prior": 838,
+  "value_budget": null,
+  "sort_order": 4
+ },
+ {
+  "id": 155,
+  "event_code": "MFA25",
+  "section": "market_equities",
+  "metric": "median_mcap_silver_m",
+  "value_current": 946,
+  "value_prior": 482,
+  "value_budget": null,
+  "sort_order": 5
+ },
+ {
+  "id": 156,
+  "event_code": "MFA25",
+  "section": "market_equities",
+  "metric": "median_mcap_all_m",
+  "value_current": 984,
+  "value_prior": 643,
+  "value_budget": null,
+  "sort_order": 6
+ }
+]

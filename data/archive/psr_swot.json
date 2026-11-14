@@ -1,0 +1,1178 @@
+[
+ {
+  "id": 48,
+  "event_code": "MFE26",
+  "category": "threat",
+  "item_text": "Competing industry events and roadshows continue to dilute buy-side availability and constrain scheduling flexibility.",
+  "sort_order": 1
+ },
+ {
+  "id": 55,
+  "event_code": "MFE26",
+  "category": "weakness",
+  "item_text": "Three last-minute onsite cancellations.",
+  "sort_order": 3
+ },
+ {
+  "id": 59,
+  "event_code": "MFE26",
+  "category": "opportunity",
+  "item_text": "Expand large-cap and Australian company participation to further strengthen positioning.",
+  "sort_order": 4
+ },
+ {
+  "id": 61,
+  "event_code": "MFE26",
+  "category": "threat",
+  "item_text": "Rising execution costs, including F&B and services inflation, continue to outpace member billings.",
+  "sort_order": 5
+ },
+ {
+  "id": 64,
+  "event_code": "MFE26",
+  "category": "opportunity",
+  "item_text": "Leverage strong attendance and engagement growth to enhance programming and networking opportunities.",
+  "sort_order": 5
+ },
+ {
+  "id": 67,
+  "event_code": "MFE26",
+  "category": "opportunity",
+  "item_text": "Develop a visual AV SOP to ensure consistency.",
+  "sort_order": 6
+ },
+ {
+  "id": 76,
+  "event_code": "MFE26",
+  "category": "threat",
+  "item_text": "MFE continues to suffer very late corporate cancellations that trigger cascading negative adjustments.",
+  "sort_order": 8
+ },
+ {
+  "id": 81,
+  "event_code": "MFE26",
+  "category": "opportunity",
+  "item_text": "Establish a daily review process for the AV team to promptly check and fix recordings each evening, reducing post-event workload and improving production efficiency.",
+  "sort_order": 10
+ },
+ {
+  "id": 82,
+  "event_code": "MFE26",
+  "category": "strength",
+  "item_text": "Abundant positive feedback on event energy and execution quality.",
+  "sort_order": 10
+ },
+ {
+  "id": 83,
+  "event_code": "MFE26",
+  "category": "strength",
+  "item_text": "All on-site vendors met expectations with minimal issues.",
+  "sort_order": 11
+ },
+ {
+  "id": 86,
+  "event_code": "MFE26",
+  "category": "strength",
+  "item_text": "Key hotel department staff continuity enhanced event familiarity.",
+  "sort_order": 12
+ },
+ {
+  "id": 88,
+  "event_code": "MFE26",
+  "category": "strength",
+  "item_text": "No intelligence or reports of potential protests, and none occurred.",
+  "sort_order": 13
+ },
+ {
+  "id": 90,
+  "event_code": "MFE26",
+  "category": "strength",
+  "item_text": "Repeat contractors and familiar temporary staff streamlined execution, creating a reliable team that consistently delivers a high-quality event experience.",
+  "sort_order": 15
+ },
+ {
+  "id": 95,
+  "event_code": "MFE26",
+  "category": "strength",
+  "item_text": "Record pre-registration and scale (465 accepted; +28% YoY), positioning the event as the largest in over a decade.",
+  "sort_order": 16
+ },
+ {
+  "id": 96,
+  "event_code": "MFE26",
+  "category": "strength",
+  "item_text": "Significant expansion in member company participation, supported by a balanced buy-side mix.",
+  "sort_order": 17
+ },
+ {
+  "id": 97,
+  "event_code": "MFE26",
+  "category": "strength",
+  "item_text": "Strong and well-balanced buy-side growth across institutional, private, and family office segments.",
+  "sort_order": 18
+ },
+ {
+  "id": 98,
+  "event_code": "MFE26",
+  "category": "strength",
+  "item_text": "Growing geographic diversification, led by U.S. growth and an emerging Australian presence (companies and buy-side).",
+  "sort_order": 18
+ },
+ {
+  "id": 99,
+  "event_code": "MFE26",
+  "category": "strength",
+  "item_text": "High underlying meeting demand and increased overall meeting activity.",
+  "sort_order": 20
+ },
+ {
+  "id": 100,
+  "event_code": "MFE26",
+  "category": "strength",
+  "item_text": "Total revenue tracking ahead of budget expectations, and reached the highest levels since 2013.",
+  "sort_order": 21
+ },
+ {
+  "id": 101,
+  "event_code": "MFE26",
+  "category": "weakness",
+  "item_text": "Noticeable slowdown in buy-side registrations in the final weeks.",
+  "sort_order": 14
+ },
+ {
+  "id": 102,
+  "event_code": "MFE26",
+  "category": "weakness",
+  "item_text": "Elevated investor cancellations and risk of higher-than-normal no-shows.",
+  "sort_order": 15
+ },
+ {
+  "id": 103,
+  "event_code": "MFE26",
+  "category": "weakness",
+  "item_text": "Decline in the number of meetings per company.",
+  "sort_order": 15
+ },
+ {
+  "id": 104,
+  "event_code": "MFE26",
+  "category": "weakness",
+  "item_text": "Large volume of meeting requests still unconfirmed leading up to the event, indicating conversion gaps.",
+  "sort_order": 17
+ },
+ {
+  "id": 105,
+  "event_code": "MFE26",
+  "category": "weakness",
+  "item_text": "Reduced meeting capacity due to fewer available time slots and longer meeting durations.",
+  "sort_order": 18
+ },
+ {
+  "id": 106,
+  "event_code": "MFE26",
+  "category": "weakness",
+  "item_text": "First-year transition to MeetMax coincided with weaker-than-expected meeting performance relative to the expanded attendee base.",
+  "sort_order": 19
+ },
+ {
+  "id": 108,
+  "event_code": "MFE26",
+  "category": "strength",
+  "item_text": "Full Saturday setup access improved AV timeline and overall readiness; should be prioritized for future events.",
+  "sort_order": 22
+ },
+ {
+  "id": 109,
+  "event_code": "MFE26",
+  "category": "opportunity",
+  "item_text": "Reconfigure meeting structure to better align capacity with demand.",
+  "sort_order": 13
+ },
+ {
+  "id": 110,
+  "event_code": "MFE26",
+  "category": "opportunity",
+  "item_text": "Improve the pre-event meeting conversion and engagement process.",
+  "sort_order": 14
+ },
+ {
+  "id": 112,
+  "event_code": "MFE26",
+  "category": "opportunity",
+  "item_text": "Continue building U.S. and Australian participation pipelines and deepen engagement with new and returning investors.",
+  "sort_order": 16
+ },
+ {
+  "id": 115,
+  "event_code": "MFE26",
+  "category": "threat",
+  "item_text": "Geopolitical uncertainty impacting investor travel decisions.",
+  "sort_order": 10
+ },
+ {
+  "id": 117,
+  "event_code": "MFE26",
+  "category": "threat",
+  "item_text": "Risk of additional late cancellations and elevated no-show rates.",
+  "sort_order": 12
+ },
+ {
+  "id": 119,
+  "event_code": "MFE26",
+  "category": "threat",
+  "item_text": "Competing events drawing from the same member and buy-side audience.",
+  "sort_order": 14
+ },
+ {
+  "id": 120,
+  "event_code": "MFE26",
+  "category": "threat",
+  "item_text": "Reduced meetings per company risk impacting perceived event value.",
+  "sort_order": 15
+ },
+ {
+  "id": 121,
+  "event_code": "MFE26",
+  "category": "weakness",
+  "item_text": "Late lunch timing created some attendee dissatisfaction.",
+  "sort_order": 20
+ },
+ {
+  "id": 122,
+  "event_code": "MFE26",
+  "category": "opportunity",
+  "item_text": "Adjust lunch timing (~12:30 PM) to better align with attendee preferences.",
+  "sort_order": 18
+ },
+ {
+  "id": 123,
+  "event_code": "MFE26",
+  "category": "strength",
+  "item_text": "Monday light lunch helped drive earlier arrivals and strong day-one flow, supported by record day 1 check-ins (270).",
+  "sort_order": 22
+ },
+ {
+  "id": 125,
+  "event_code": "MFE26",
+  "category": "strength",
+  "item_text": "Strong turnout for opening corporate presentations and keynotes.",
+  "sort_order": 24
+ },
+ {
+  "id": 126,
+  "event_code": "MFE26",
+  "category": "strength",
+  "item_text": "High webinar engagement and viewership. BigMarker streaming performed reliably with minimal support.",
+  "sort_order": 24
+ },
+ {
+  "id": 128,
+  "event_code": "MFE26",
+  "category": "strength",
+  "item_text": "Highest attendance since 2019 (440 total).",
+  "sort_order": 27
+ },
+ {
+  "id": 129,
+  "event_code": "MFE26",
+  "category": "strength",
+  "item_text": "Buy-side attendance grew significantly (187 → 248, +32%).",
+  "sort_order": 28
+ },
+ {
+  "id": 130,
+  "event_code": "MFE26",
+  "category": "strength",
+  "item_text": "Nearly half of attendees were first-timers (48%), supporting pipeline development.",
+  "sort_order": 29
+ },
+ {
+  "id": 131,
+  "event_code": "MFE26",
+  "category": "strength",
+  "item_text": "Increased completed meetings and overall meeting activity.",
+  "sort_order": 30
+ },
+ {
+  "id": 133,
+  "event_code": "MFE26",
+  "category": "strength",
+  "item_text": "Highest revenue since 2013, reflecting strong demand and overall event performance.",
+  "sort_order": 31
+ },
+ {
+  "id": 134,
+  "event_code": "MFE26",
+  "category": "weakness",
+  "item_text": "F&B guarantees came in higher than actual consumption, leaving some surplus.",
+  "sort_order": 22
+ },
+ {
+  "id": 136,
+  "event_code": "MFE26",
+  "category": "opportunity",
+  "item_text": "Further refine F&B guarantees to better align with actual behavior.",
+  "sort_order": 19
+ },
+ {
+  "id": 137,
+  "event_code": "MFE26",
+  "category": "opportunity",
+  "item_text": "Explore a more integrated streaming platform to enable direct webcasts from our system and simplify overall setup and execution.",
+  "sort_order": 20
+ },
+ {
+  "id": 138,
+  "event_code": "MFE26",
+  "category": "strength",
+  "item_text": "Strong attendance and engagement at keynote sessions.",
+  "sort_order": 32
+ },
+ {
+  "id": 140,
+  "event_code": "MFE26",
+  "category": "weakness",
+  "item_text": "Limited flexibility within MeetMax to support dual company tracks (IR and Corporate Development), a capability that worked seamlessly in MMS, is likely to pose greater challenges at MFA due to increased demand, requiring a more effective solution.",
+  "sort_order": 23
+ },
+ {
+  "id": 141,
+  "event_code": "MFE26",
+  "category": "strength",
+  "item_text": "High-quality catering with strong meal coverage; wine allocations were fully consumed each reception, with established limits effectively controlling costs.",
+  "sort_order": 28
+ },
+ {
+  "id": 142,
+  "event_code": "MFE26",
+  "category": "strength",
+  "item_text": "Kristie Batten delivered a strong lineup of quality stories that successfully guided the media narrative and drove meaningful engagement.",
+  "sort_order": 28
+ },
+ {
+  "id": 143,
+  "event_code": "MFE26",
+  "category": "weakness",
+  "item_text": "Recurring third-floor room allocation issue at Park Hyatt: a long-term guest occupied one of our storage rooms. Although it did not affect operations, late notification from the Park Hyatt (the day prior to arrival) continues to cause unnecessary last-minute adjustments.",
+  "sort_order": 19
+ },
+ {
+  "id": 144,
+  "event_code": "MFE26",
+  "category": "weakness",
+  "item_text": "The AV team underestimated setup time, planning for a single-day build but requiring additional work on Sunday. Future planning should allow closer to two full setup days, given the broader scope beyond the presentation rooms.",
+  "sort_order": 18
+ },
+ {
+  "id": 145,
+  "event_code": "MFE26",
+  "category": "strength",
+  "item_text": "AV team demonstrated improved setup and onsite execution, supported by returning staff and a strong performance from a new AV manager trainee.",
+  "sort_order": 26
+ },
+ {
+  "id": 146,
+  "event_code": "MFE26",
+  "category": "weakness",
+  "item_text": "The AV team did not fully review pre-event materials, leading to unnecessary onsite clarification and rework, particularly regarding lower thirds.",
+  "sort_order": 19
+ },
+ {
+  "id": 147,
+  "event_code": "MFE26",
+  "category": "opportunity",
+  "item_text": "Opportunity for the new AV manager trainee to become a consistent part of the Encore team, supporting MFE and building on his strong onsite performance and collaboration.",
+  "sort_order": 20
+ },
+ {
+  "id": 148,
+  "event_code": "MFE26",
+  "category": "weakness",
+  "item_text": "Inconsistent webinar starts by the AV team led to some post-production work, though the issues were resolved more quickly than in the prior year.",
+  "sort_order": 18
+ },
+ {
+  "id": 149,
+  "event_code": "MFE26",
+  "category": "threat",
+  "item_text": "Expanded networking dinners remain difficult to implement due to competing events limiting attendee availability. Negative budget implications without a signature sponsor.",
+  "sort_order": 16
+ },
+ {
+  "id": 150,
+  "event_code": "MFE26",
+  "category": "threat",
+  "item_text": "Property upgrades at Park Hyatt will enhance the experience but are likely to result in increased costs passed through to the event.",
+  "sort_order": 17
+ },
+ {
+  "id": 151,
+  "event_code": "MFE26",
+  "category": "weakness",
+  "item_text": "Park Hyatt required multiple overflow buffet stations for Tuesday and Wednesday to accommodate attendance, but they were largely underutilized; consolidation on Wednesday proved more effective.",
+  "sort_order": 16
+ },
+ {
+  "id": 152,
+  "event_code": "MFE26",
+  "category": "opportunity",
+  "item_text": "Opportunity to explore alternative venues or resort-style locations that better accommodate growth, including options to expand meeting space capacity or to leverage nearby properties for additional rooms and meeting space at a more cost-effective rate (Marriott Neues Schloss).",
+  "sort_order": 16
+ },
+ {
+  "id": 153,
+  "event_code": "MFE26",
+  "category": "strength",
+  "item_text": "Successful deployment and integration of MeetMax with EMS under a compressed timeline, enabling high-volume data exchange and overall functional delivery.",
+  "sort_order": 27
+ },
+ {
+  "id": 154,
+  "event_code": "MFE26",
+  "category": "weakness",
+  "item_text": "MeetMax user experience remains less intuitive, with feedback citing a more cumbersome, click-heavy interface and some impact on meeting performance.",
+  "sort_order": 17
+ },
+ {
+  "id": 155,
+  "event_code": "MFE26",
+  "category": "opportunity",
+  "item_text": "Opportunity to optimize MeetMax configuration and workflows to improve meeting outcomes, while also evaluating the long-term role or potential evolution of MMS.",
+  "sort_order": 15
+ },
+ {
+  "id": 156,
+  "event_code": "MFE26",
+  "category": "threat",
+  "item_text": "Attendees compressing time onsite, reducing engagement, particularly toward the final day.",
+  "sort_order": 16
+ },
+ {
+  "id": 158,
+  "event_code": "MFE26",
+  "category": "opportunity",
+  "item_text": "Revert meeting schedules to the prior-year format of 25-minute meetings with 5/10/25-minute transitions to maximize overall meeting slot inventory and increase scheduling capacity.",
+  "sort_order": 14
+ },
+ {
+  "id": 159,
+  "event_code": "MFE26",
+  "category": "opportunity",
+  "item_text": "Limit Monday meeting slot availability to encourage stronger attendance and engagement during opening presentations.",
+  "sort_order": 15
+ },
+ {
+  "id": 160,
+  "event_code": "MFE26",
+  "category": "strength",
+  "item_text": "Limited meetings on Day 1 boosted session attendance and strongly improved perceptions of high energy and engagement.",
+  "sort_order": 26
+ },
+ {
+  "id": 161,
+  "event_code": "MFA25",
+  "category": "strength",
+  "item_text": "Gained earlier access to Bartolin Hall than last year and sooner than expected this year, enabling rigging and early setup to begin on Tuesday before the forum.",
+  "sort_order": 1
+ },
+ {
+  "id": 162,
+  "event_code": "MFA25",
+  "category": "strength",
+  "item_text": "Structures vendor, LVE, arrived prepared to deliver, with the proper systems in place for load-in, floor marking, build-out, graphic installation, and staffing management, and the right managers on-site. The buildout was completed ahead of schedule by Saturday evening, leaving Sunday for cleaning and tidying to ensure 100% customer readiness.",
+  "sort_order": 2
+ },
+ {
+  "id": 163,
+  "event_code": "MFA25",
+  "category": "strength",
+  "item_text": "Guests provided noteworthy feedback not previously expressed, commending the layout, finishes, and overall presentation of the meeting rooms, presentation rooms, networking lounge, and graphics.",
+  "sort_order": 3
+ },
+ {
+  "id": 164,
+  "event_code": "MFA25",
+  "category": "strength",
+  "item_text": "The espresso bar and networking lounge were a great success, helping to maintain a lively atmosphere throughout the forum.",
+  "sort_order": 4
+ },
+ {
+  "id": 165,
+  "event_code": "MFA25",
+  "category": "strength",
+  "item_text": "The second annual golf tournament sold out in mid-summer and was a great success, marked by its first official partner, Franco-Nevada, from whom we received positive feedback.",
+  "sort_order": 5
+ },
+ {
+  "id": 166,
+  "event_code": "MFA25",
+  "category": "strength",
+  "item_text": "Successfully planned and executed the inaugural Basic Principles of Mining Investment course, with a final attendance of 33. Participants and instructors provided positive feedback and interest in returning next year.",
+  "sort_order": 6
+ },
+ {
+  "id": 167,
+  "event_code": "MFA25",
+  "category": "strength",
+  "item_text": "Added hiking as a pre-conference activity, which was noted for its positive networking value.",
+  "sort_order": 7
+ },
+ {
+  "id": 168,
+  "event_code": "MFA25",
+  "category": "strength",
+  "item_text": "Achieved a record Broadmoor hotel room pickup of 99% in the week leading up to the Forum, with final pickup of 96%.",
+  "sort_order": 8
+ },
+ {
+  "id": 169,
+  "event_code": "MFA25",
+  "category": "strength",
+  "item_text": "Added shuttle service to overflow hotels and received very positive feedback. Royal Gold took on the shuttle partnership, helping offset costs and providing a good branding opportunity.",
+  "sort_order": 9
+ },
+ {
+  "id": 170,
+  "event_code": "MFA25",
+  "category": "strength",
+  "item_text": "Early badge collection on Saturday and Sunday drew 233 people, easing the usual Monday morning pressure.",
+  "sort_order": 10
+ },
+ {
+  "id": 171,
+  "event_code": "MFA25",
+  "category": "strength",
+  "item_text": "Improved the sound bleed issue experienced in 2024 by relocating the espresso bar, making presentation rooms double-walled, adding sound insulation foam inside structural panels, and hanging sound baffles.",
+  "sort_order": 11
+ },
+ {
+  "id": 172,
+  "event_code": "MFA25",
+  "category": "strength",
+  "item_text": "Most other vendors and contractors performed exceptionally well with no issues; many were returning faces familiar with the event.",
+  "sort_order": 12
+ },
+ {
+  "id": 173,
+  "event_code": "MFA25",
+  "category": "strength",
+  "item_text": "Recorded the highest number of sub-groups during the event (50), filling peripheral spaces.",
+  "sort_order": 13
+ },
+ {
+  "id": 174,
+  "event_code": "MFA25",
+  "category": "strength",
+  "item_text": "High-profile keynote speaker Sir Niall Ferguson's presentation was well-received and pitched perfectly for the audience.",
+  "sort_order": 14
+ },
+ {
+  "id": 175,
+  "event_code": "MFA25",
+  "category": "strength",
+  "item_text": "Strong buy-side attendance with 315 buy-side participants (230 in 2024).",
+  "sort_order": 15
+ },
+ {
+  "id": 176,
+  "event_code": "MFA25",
+  "category": "strength",
+  "item_text": "Accepted 1x1 meetings exceeded 4,000, with positive feedback about their quality.",
+  "sort_order": 16
+ },
+ {
+  "id": 177,
+  "event_code": "MFA25",
+  "category": "weakness",
+  "item_text": "Power drops for attendee power in presentation rooms were inaccurate for the second consecutive year, likely because AV did not plot all their components on the floor plan.",
+  "sort_order": 1
+ },
+ {
+  "id": 178,
+  "event_code": "MFA25",
+  "category": "weakness",
+  "item_text": "The photo booth at the selfie stage was rarely used, as most people preferred taking photos on their own phones or devices.",
+  "sort_order": 2
+ },
+ {
+  "id": 179,
+  "event_code": "MFA25",
+  "category": "weakness",
+  "item_text": "LVE arrived somewhat unsure which floor markings indicated carpet versus the structures, despite having detailed floor plans; they resolved it before carpet was rolled out.",
+  "sort_order": 3
+ },
+ {
+  "id": 180,
+  "event_code": "MFA25",
+  "category": "weakness",
+  "item_text": "Last-minute corporate cancellations triggered a series of actions, including removing them from the event, adjusting the agenda, and keeping moderators informed.",
+  "sort_order": 4
+ },
+ {
+  "id": 181,
+  "event_code": "MFA25",
+  "category": "weakness",
+  "item_text": "Several last-minute golfer changes complicated logistics for DGG and the golf club. Golf registration in EMS needs to be rethought to enable easier adjustments.",
+  "sort_order": 5
+ },
+ {
+  "id": 182,
+  "event_code": "MFA25",
+  "category": "weakness",
+  "item_text": "The introduction of cold brew at the espresso bar was unsuccessful and will not be continued.",
+  "sort_order": 6
+ },
+ {
+  "id": 183,
+  "event_code": "MFA25",
+  "category": "weakness",
+  "item_text": "Registration could be considered disappointing compared with metal prices and equity valuations; however, participant registration increased, with a large portion from the buy side.",
+  "sort_order": 7
+ },
+ {
+  "id": 184,
+  "event_code": "MFA25",
+  "category": "weakness",
+  "item_text": "Technical challenges with MMS code were encountered, which may require a change in the senior developer.",
+  "sort_order": 8
+ },
+ {
+  "id": 185,
+  "event_code": "MFA25",
+  "category": "weakness",
+  "item_text": "The second activity offering, e-biking, had zero interest leading up to the deadline and was canceled.",
+  "sort_order": 9
+ },
+ {
+  "id": 186,
+  "event_code": "MFA25",
+  "category": "weakness",
+  "item_text": "The LVE account manager will leave immediately after MFA25. A new Denver hire, lightly involved since late summer, was selected to take over the DGG account.",
+  "sort_order": 10
+ },
+ {
+  "id": 187,
+  "event_code": "MFA25",
+  "category": "weakness",
+  "item_text": "MFA25 preparation was the most intensive and demanding so far, but the team successfully delivered.",
+  "sort_order": 11
+ },
+ {
+  "id": 188,
+  "event_code": "MFA25",
+  "category": "weakness",
+  "item_text": "Stages 2 and 3 were located at the far end of the hall, making them less accessible for general use and quick visits between meetings.",
+  "sort_order": 12
+ },
+ {
+  "id": 189,
+  "event_code": "MFA25",
+  "category": "weakness",
+  "item_text": "There was still some noise impact on meeting rooms, especially those near the main walking corridor and adjacent to the presentation rooms.",
+  "sort_order": 13
+ },
+ {
+  "id": 190,
+  "event_code": "MFA25",
+  "category": "weakness",
+  "item_text": "Attendance was low during Sir Niall Ferguson's presentation, considering the high cost of having him present.",
+  "sort_order": 14
+ },
+ {
+  "id": 191,
+  "event_code": "MFA25",
+  "category": "opportunity",
+  "item_text": "LVE to engage its qualified draftsman for the 2026 floor plan, correcting the prior 5-ft width error, and secure final approvals well in advance from both the Broadmoor and ImageAV, confirming rigging points.",
+  "sort_order": 1
+ },
+ {
+  "id": 192,
+  "event_code": "MFA25",
+  "category": "opportunity",
+  "item_text": "LVE to coordinate with ImageAV to ensure all components are accurately placed; Broadmoor electricians to verify power is sourced from the least visible locations per LVE's power document.",
+  "sort_order": 2
+ },
+ {
+  "id": 193,
+  "event_code": "MFA25",
+  "category": "opportunity",
+  "item_text": "Secure all partnership renewals from this year and acquire new partners to help offset overall costs.",
+  "sort_order": 3
+ },
+ {
+  "id": 194,
+  "event_code": "MFA25",
+  "category": "opportunity",
+  "item_text": "Revise the floor plan to optimize the exhibit floor for more meeting rooms, improve stages 2 and 3, and further mitigate noise impact on meeting rooms.",
+  "sort_order": 4
+ },
+ {
+  "id": 195,
+  "event_code": "MFA25",
+  "category": "opportunity",
+  "item_text": "Continue the positive narrative and news flow for the event and DGG's members via Mining Forum Live and social media.",
+  "sort_order": 5
+ },
+ {
+  "id": 196,
+  "event_code": "MFA25",
+  "category": "opportunity",
+  "item_text": "Continue working with the Broadmoor to expand hotel room options in MMX, including pre- and post-dates, and explore limited oversell capacity on peak nights.",
+  "sort_order": 6
+ },
+ {
+  "id": 197,
+  "event_code": "MFA25",
+  "category": "opportunity",
+  "item_text": "Secure additional Saturday room inventory to better support Sunday morning activities, including the short course, golf, and hiking.",
+  "sort_order": 7
+ },
+ {
+  "id": 198,
+  "event_code": "MFA25",
+  "category": "opportunity",
+  "item_text": "Continue efforts to recruit additional minerals to the lineup, highlighting the event's reversion branding to the Mining Forum.",
+  "sort_order": 8
+ },
+ {
+  "id": 199,
+  "event_code": "MFA25",
+  "category": "opportunity",
+  "item_text": "Move the golf tournament to a 1:00 PM tee time (pending Broadmoor approval) to allow full play and ensure timely attendance at the 6:00 PM welcome reception.",
+  "sort_order": 9
+ },
+ {
+  "id": 200,
+  "event_code": "MFA25",
+  "category": "opportunity",
+  "item_text": "Request an early access schedule from the Broadmoor for Bartolin Hall: Tuesday for rigging, Wednesday for floor marking/carpet/electrical, Thursday for build-out, aiming to complete by Saturday evening.",
+  "sort_order": 10
+ },
+ {
+  "id": 201,
+  "event_code": "MFA25",
+  "category": "opportunity",
+  "item_text": "MFA26 (Sep 27-30, 2026) falls after the Jewish holidays, with PMS scheduled earlier in the month. Some participants, particularly from Australia, may prioritize one event, creating an opportunity for MFA to attract those who choose MFA26 over PMS.",
+  "sort_order": 11
+ },
+ {
+  "id": 202,
+  "event_code": "MFA25",
+  "category": "threat",
+  "item_text": "The departure of the LVE account manager after MFA25 presents a transition risk, as a new Denver hire with limited vendor-side experience will take over the DGG account, potentially impacting continuity and MFA26 preparations.",
+  "sort_order": 1
+ },
+ {
+  "id": 203,
+  "event_code": "MFA25",
+  "category": "threat",
+  "item_text": "The loss of Tuesday early access at the Broadmoor jeopardizes setup efficiency, removing the buffer that allowed a smoother, ahead-of-schedule build. Thursday access is confirmed and Tuesday has been requested, but the risk remains.",
+  "sort_order": 2
+ },
+ {
+  "id": 204,
+  "event_code": "MFA25",
+  "category": "threat",
+  "item_text": "PMS remains a threat by front-running DGG and seeding misinformation about its buy-side attendance.",
+  "sort_order": 3
+ },
+ {
+  "id": 205,
+  "event_code": "MFA25",
+  "category": "threat",
+  "item_text": "Wednesday remains a critical day to monitor, as attendees begin departing on Tuesday. It may be necessary to anchor the day with an educational program, keynote, or activity.",
+  "sort_order": 4
+ },
+ {
+  "id": 206,
+  "event_code": "MFA25",
+  "category": "threat",
+  "item_text": "Rising event execution costs continue to pose a significant management challenge.",
+  "sort_order": 5
+ },
+ {
+  "id": 207,
+  "event_code": "MFA25",
+  "category": "threat",
+  "item_text": "Persistent food and beverage inflation adds budget pressure.",
+  "sort_order": 6
+ },
+ {
+  "id": 208,
+  "event_code": "MFA25",
+  "category": "threat",
+  "item_text": "Increasing service costs put pressure on budgets and margins.",
+  "sort_order": 7
+ },
+ {
+  "id": 209,
+  "event_code": "MFA25",
+  "category": "threat",
+  "item_text": "Consolidating presentation and meeting rooms in Bartolin Hall presented sound challenges and incurred additional soundproofing expenses.",
+  "sort_order": 8
+ },
+ {
+  "id": 210,
+  "event_code": "MFA25",
+  "category": "threat",
+  "item_text": "The ongoing disconnect between high metal prices and event attendance levels poses a threat, as participation has not kept pace with market performance.",
+  "sort_order": 9
+ },
+ {
+  "id": 231,
+  "event_code": "MFA26",
+  "category": "strength",
+  "item_text": "Achieved record attendance of 1,266 (+26% YoY) from 39 countries, including 328 buy-side investors (+12%).",
+  "sort_order": 1
+ },
+ {
+  "id": 232,
+  "event_code": "MFA26",
+  "category": "strength",
+  "item_text": "Hosted a record 203 participating issuers (+34%) and 5,401 1x1 meetings (+34%), averaging 23.7 meetings per issuer participating in meetings, supported by the meetings team's successful management of system and scheduling challenges.",
+  "sort_order": 2
+ },
+ {
+  "id": 233,
+  "event_code": "MFA26",
+  "category": "strength",
+  "item_text": "Demonstrated strong investor representation, with attending investors holding $276 billion in participating issuer shares (24% of aggregate market capitalization, up from 21% in 2025), and 87% of issuers represented by their CEO.",
+  "sort_order": 3
+ },
+ {
+  "id": 234,
+  "event_code": "MFA26",
+  "category": "strength",
+  "item_text": "Expanded the partnership program to 21 partners (+16.7% YoY), with all benefits successfully delivered and positive feedback.",
+  "sort_order": 4
+ },
+ {
+  "id": 235,
+  "event_code": "MFA26",
+  "category": "strength",
+  "item_text": "Successfully redesigned the floor plan by relocating meals and designated partner rooms to Broadmoor Hall, expanding networking space, improving presentation accessibility, and significantly reducing prior-year noise issues.",
+  "sort_order": 5
+ },
+ {
+  "id": 236,
+  "event_code": "MFA26",
+  "category": "strength",
+  "item_text": "Completed the complex production build-out ahead of schedule, with all areas ready by Sunday noon, supported by experienced vendors, improved LVE onsite management, and an extended setup schedule that allowed time for final adjustments and quality control.",
+  "sort_order": 6
+ },
+ {
+  "id": 237,
+  "event_code": "MFA26",
+  "category": "strength",
+  "item_text": "Received highly positive attendee feedback on the overall event layout, meeting rooms, presentation stages, networking lounge, and graphics.",
+  "sort_order": 7
+ },
+ {
+  "id": 239,
+  "event_code": "MFA26",
+  "category": "strength",
+  "item_text": "Achieved strong Broadmoor hotel performance, reaching near sellout six weeks before cutoff, with 98% pickup upon onsite arrival and 96% final pickup; avoided over $11K in potential DoubleTree attrition penalties.",
+  "sort_order": 9
+ },
+ {
+  "id": 240,
+  "event_code": "MFA26",
+  "category": "strength",
+  "item_text": "Improved attendee experience through 269 early badge pickups on Saturday and Sunday, a sold-out golf tournament, successful shuttle operations, and an active networking atmosphere supported by the expanded lounge and popular espresso bar.",
+  "sort_order": 10
+ },
+ {
+  "id": 241,
+  "event_code": "MFA26",
+  "category": "strength",
+  "item_text": "Successfully transitioned webcast recording and streaming to MUX, while MiningForum.live traffic increased 64% YoY and new webcast features improved accessibility.",
+  "sort_order": 11
+ },
+ {
+  "id": 243,
+  "event_code": "MFA26",
+  "category": "weakness",
+  "item_text": "Pre-event Meetingmax configuration challenges and insufficient guidance for DGG’s customized system created uncertainty around setup responsibilities and required additional support for the meetings team.",
+  "sort_order": 2
+ },
+ {
+  "id": 244,
+  "event_code": "MFA26",
+  "category": "weakness",
+  "item_text": "Experienced a brief Monday morning EMS server overload that disrupted essential event systems, requiring additional server capacity to restore operations.",
+  "sort_order": 3
+ },
+ {
+  "id": 245,
+  "event_code": "MFA26",
+  "category": "weakness",
+  "item_text": "Inaccurate rigging specifications required last-minute floor plan adjustments and resulted in Stages 2 and 3 being larger than intended.",
+  "sort_order": 3
+ },
+ {
+  "id": 246,
+  "event_code": "MFA26",
+  "category": "weakness",
+  "item_text": "Lunchtime keynotes and the generalist investor short course experienced low attendance, raising questions about scheduling, demand, and return on investment.",
+  "sort_order": 4
+ },
+ {
+  "id": 247,
+  "event_code": "MFA26",
+  "category": "weakness",
+  "item_text": "Early corporate departures, particularly among large-cap issuers, left designated meeting rooms vacant and underutilized on Wednesday.",
+  "sort_order": 5
+ },
+ {
+  "id": 248,
+  "event_code": "MFA26",
+  "category": "weakness",
+  "item_text": "Hiking and Wild West activities experienced significant day-of no-shows despite strong initial interest, resulting in low participation.",
+  "sort_order": 6
+ },
+ {
+  "id": 249,
+  "event_code": "MFA26",
+  "category": "weakness",
+  "item_text": "High Broadmoor demand limited consecutive-night availability, leaving 40+ waitlist requests unfulfilled; overflow pickup was low (47% DoubleTree; 53% Cheyenne Mountain Resort).",
+  "sort_order": 7
+ },
+ {
+  "id": 251,
+  "event_code": "MFA26",
+  "category": "weakness",
+  "item_text": "Changes to announced hotel reservation opening dates generated complaints from members and attendees.",
+  "sort_order": 8
+ },
+ {
+  "id": 252,
+  "event_code": "MFA26",
+  "category": "weakness",
+  "item_text": "Duplicate overflow hotel reservations complicated inventory management and contributed to lower-than-expected room pickup.",
+  "sort_order": 9
+ },
+ {
+  "id": 253,
+  "event_code": "MFA26",
+  "category": "weakness",
+  "item_text": "High demand for espresso drinks led to long lines during peak periods, while the smaller LED ring feature in the networking lounge had less visual impact than expected.",
+  "sort_order": 10
+ },
+ {
+  "id": 254,
+  "event_code": "MFA26",
+  "category": "weakness",
+  "item_text": "Webcast views per presentation declined 18% and average watch time per view decreased 3% compared with 2025, despite increased overall reach.",
+  "sort_order": 11
+ },
+ {
+  "id": 256,
+  "event_code": "MFA26",
+  "category": "opportunity",
+  "item_text": "Maintain the successful floor plan while further improving sound separation and room sizing for Stages 2 and 3, supported by independent 3D mapping of Bartolin Hall to improve rigging accuracy.",
+  "sort_order": 1
+ },
+ {
+  "id": 257,
+  "event_code": "MFA26",
+  "category": "opportunity",
+  "item_text": "Leverage confirmed Tuesday setup access in 2027 and 2029–2035 to protect setup timelines; the potential $10K charge for two additional setup days in 2029–2035 is justified by operational benefits.",
+  "sort_order": 2
+ },
+ {
+  "id": 258,
+  "event_code": "MFA26",
+  "category": "opportunity",
+  "item_text": "Reassign designated meeting rooms vacated Tuesday for Wednesday use, allowing earlier dismantling of temporary meeting rooms.",
+  "sort_order": 3
+ },
+ {
+  "id": 259,
+  "event_code": "MFA26",
+  "category": "opportunity",
+  "item_text": "Expand digital signage and explore AI-assisted graphic production to improve wayfinding while reducing printing, design costs, and floor clutter.",
+  "sort_order": 4
+ },
+ {
+  "id": 260,
+  "event_code": "MFA26",
+  "category": "opportunity",
+  "item_text": "Complete the Laravel Cloud transition for EMS and verify automatic server scaling and backup capabilities to improve reliability during peak event activity.",
+  "sort_order": 5
+ },
+ {
+  "id": 261,
+  "event_code": "MFA26",
+  "category": "opportunity",
+  "item_text": "Continue using historical consumption data and active onsite controls to maintain F&B efficiencies; evaluate additional espresso service capacity to reduce lines.",
+  "sort_order": 6
+ },
+ {
+  "id": 262,
+  "event_code": "MFA26",
+  "category": "opportunity",
+  "item_text": "Transition to courtesy-only overflow hotel blocks with direct booking links, while pursuing additional Broadmoor inventory, greater stay-date flexibility, and consistent reservation opening dates.",
+  "sort_order": 7
+ },
+ {
+  "id": 263,
+  "event_code": "MFA26",
+  "category": "opportunity",
+  "item_text": "Reevaluate lunchtime keynote scheduling and speaker fees, and consider rescheduling or alternating the generalist investor short course based on demand.",
+  "sort_order": 8
+ },
+ {
+  "id": 264,
+  "event_code": "MFA26",
+  "category": "opportunity",
+  "item_text": "Prioritize renewal of all 21 partners, expand sponsorship opportunities, and leverage existing relationships for Mining Forum Australia.",
+  "sort_order": 9
+ },
+ {
+  "id": 265,
+  "event_code": "MFA26",
+  "category": "opportunity",
+  "item_text": "Broaden issuer representation across additional mineral sectors and capitalize on record investor engagement to attract more institutional investors.",
+  "sort_order": 10
+ },
+ {
+  "id": 266,
+  "event_code": "MFA26",
+  "category": "opportunity",
+  "item_text": "Leverage MiningForum.live's 64% traffic growth and enhanced webcast capabilities to expand year-round visibility and member engagement.",
+  "sort_order": 11
+ },
+ {
+  "id": 267,
+  "event_code": "MFA26",
+  "category": "threat",
+  "item_text": "2028 Broadmoor access presents a significant production risk: Another group occupies Bartolin Hall through Wednesday at 5:00 PM. Although Saturday has been reserved for Inspire rigging, early Wednesday access for LVE setup remains uncertain and requires continued coordination.",
+  "sort_order": 1
+ },
+ {
+  "id": 268,
+  "event_code": "MFA26",
+  "category": "threat",
+  "item_text": "Rising F&B, labor, production, and venue service costs could erode event margins despite improved cost management.",
+  "sort_order": 2
+ },
+ {
+  "id": 269,
+  "event_code": "MFA26",
+  "category": "threat",
+  "item_text": "Inaccurate venue-provided rigging information and dependence on specialized production vendors create risks of last-minute changes, delays, and additional costs.",
+  "sort_order": 3
+ },
+ {
+  "id": 270,
+  "event_code": "MFA26",
+  "category": "threat",
+  "item_text": "Future technology outages during peak registration and meeting activity could disrupt critical event operations.",
+  "sort_order": 4
+ },
+ {
+  "id": 271,
+  "event_code": "MFA26",
+  "category": "threat",
+  "item_text": "Continued high Broadmoor demand and limited consecutive-night availability could negatively affect attendee satisfaction, while duplicate overflow reservations create potential attrition exposure.",
+  "sort_order": 5
+ },
+ {
+  "id": 272,
+  "event_code": "MFA26",
+  "category": "threat",
+  "item_text": "Persistently low lunchtime keynote attendance may not justify substantial speaker fees and associated production costs.",
+  "sort_order": 6
+ },
+ {
+  "id": 273,
+  "event_code": "MFA26",
+  "category": "threat",
+  "item_text": "Competing conferences, including PMS, may challenge DGG's market positioning and investor attendance messaging.",
+  "sort_order": 7
+ },
+ {
+  "id": 274,
+  "event_code": "MFA26",
+  "category": "threat",
+  "item_text": "Market volatility and fluctuations in institutional investor appetite could affect future issuer participation, attendance, and partnership revenue.",
+  "sort_order": 8
+ },
+ {
+  "id": 275,
+  "event_code": "MFA26",
+  "category": "threat",
+  "item_text": "Continued growth in attendance, meeting demand, and webcast volume could strain venue capacity, hotel inventory, and digital engagement.",
+  "sort_order": 9
+ },
+ {
+  "id": 276,
+  "event_code": "MFA26",
+  "category": "strength",
+  "item_text": "The new micro-meeting area provided valuable, well-utilized overflow meeting capacity and flexibility for last-minute meeting requests.",
+  "sort_order": 12
+ },
+ {
+  "id": 277,
+  "event_code": "MFA26",
+  "category": "weakness",
+  "item_text": "Meetingmax scheduling functionality created challenges with multiple meeting tracks, delegate assignments, and team calendars, resulting in scheduling inconsistencies and additional administrative intervention.",
+  "sort_order": 12
+ },
+ {
+  "id": 279,
+  "event_code": "MFA26",
+  "category": "weakness",
+  "item_text": "Peak-period meeting calendar printing capacity was insufficient, resulting in delays",
+  "sort_order": 14
+ },
+ {
+  "id": 280,
+  "event_code": "MFA26",
+  "category": "opportunity",
+  "item_text": "Work with Meetingmax to improve scheduling functionality, delegate management, Team Calendar reliability, and overall system preparedness ahead of 2027 events.",
+  "sort_order": 12
+ },
+ {
+  "id": 281,
+  "event_code": "MFA26",
+  "category": "opportunity",
+  "item_text": "Enhance the meeting experience by incorporating company presentation times into calendars and improving printed calendar readability and distribution.",
+  "sort_order": 13
+ },
+ {
+  "id": 282,
+  "event_code": "MFA26",
+  "category": "opportunity",
+  "item_text": "Optimize the micro-meeting area to approximately 15 stations with four chairs each, maintaining flexibility while reducing unnecessary setup costs.",
+  "sort_order": 14
+ },
+ {
+  "id": 283,
+  "event_code": "MFA26",
+  "category": "strength",
+  "item_text": "Improved event signage and wayfinding addressed prior-year navigation concerns, making it easier for attendees to locate meeting rooms, presentations, and event amenities.",
+  "sort_order": 13
+ },
+ {
+  "id": 284,
+  "event_code": "MFA26",
+  "category": "strength",
+  "item_text": "Experienced returning vendors contributed to efficient execution, proactive problem-solving, and minimal operational disruptions.",
+  "sort_order": 14
+ },
+ {
+  "id": 286,
+  "event_code": "MFA26",
+  "category": "strength",
+  "item_text": "Maintained strong F&B cost controls, with reconciled spending approximately $81K below budget and below the $550K working cap, pending final master bill verification.",
+  "sort_order": 14
+ },
+ {
+  "id": 287,
+  "event_code": "MFA26",
+  "category": "strength",
+  "item_text": "Improved F&B cost efficiency, with spending increasing only 12.4% against 26% attendance growth, reducing spending per attendee by 10.8% despite higher pricing.",
+  "sort_order": 15
+ }
+]
